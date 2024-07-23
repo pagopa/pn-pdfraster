@@ -1,0 +1,16 @@
+{
+    "openapi": [
+        {
+            "intendedUsage": "B2B",
+            "openapiFiles": [
+                "api-internal-pn-template.yaml"
+            ],
+            "servicePath": "pn-template",
+            "generateBundle": true
+        }
+    ],
+    "openapiBundlePresenceCheck": [
+        "api-external-pn-template-bundle.yaml"
+    ]
+}
+    
