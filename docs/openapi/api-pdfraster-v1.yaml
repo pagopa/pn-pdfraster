@@ -61,7 +61,7 @@ components:
   parameters:
     fileKey:
       name: fileKey
-      description: La chiave definita per il file al momento della richiesta di prenotazione di un upload
+      description: File Key utilizzata per recuperare l'attachment
       in: path
       required: true
       schema:
