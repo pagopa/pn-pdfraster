@@ -208,47 +208,55 @@
 				<configuration>
 					<excludes>
 						<exclude>**/generated/**</exclude>
-						<exclude>**it/pagopa/pn/template/rest/v1/**</exclude>
+						<exclude>**it/pagopa/pn/pdfraster/rest/v1/**</exclude>
 					</excludes>
 				</configuration>
 			</plugin>
 			<plugin>
 				<groupId>org.openapitools</groupId>
 				<artifactId>openapi-generator-maven-plugin</artifactId>
-				<version>5.4.0</version>
+				<version>${openapi-generator-version}</version>
 				<executions>					
 					<execution>
-						<id>generate-mandate-server</id>
+						<id>generate-convert</id>
 						<goals>
 							<goal>generate</goal>
 						</goals>
-						<phase>process-resources</phase>
+						<phase>generate-resources</phase>
 						<configuration>
-							<inputSpec>${project.basedir}/docs/openapi/pn-template.yaml</inputSpec>
+							<templateDirectory>src/main/resources/templates/openapi/5.4.0</templateDirectory>
+							<inputSpec>${project.basedir}/docs/openapi/api-pdfraster-v1.yaml</inputSpec>
 							<generatorName>spring</generatorName>
               				<library>spring-boot</library>
 							<generateApiDocumentation>false</generateApiDocumentation>
 							<generateApiTests>false</generateApiTests>
 							<generateModelTests>false</generateModelTests>
 							<configOptions>
-							<dateLibrary>java11</dateLibrary>
-							<delegatePattern>true</delegatePattern>
-							<interfaceOnly>true</interfaceOnly>
-							<annotationLibrary>none</annotationLibrary>
-							<documentationProvider>source</documentationProvider>
-							<openApiNullable>false</openApiNullable>
-							<reactive>true</reactive>
-							<skipDefaultInterface>false</skipDefaultInterface>
-							<useTags>true</useTags>
-							<basePackage>${project.groupId}.template.rest.v1</basePackage>
-							<modelPackage>${project.groupId}.template.rest.v1.dto</modelPackage>
-							<apiPackage>${project.groupId}.template.rest.v1.api</apiPackage>
-							<configPackage>${project.groupId}.template.rest.v1.config</configPackage>
-							</configOptions>				
+								<delegatePattern>true</delegatePattern>
+								<interfaceOnly>true</interfaceOnly>
+								<annotationLibrary>none</annotationLibrary>
+								<documentationProvider>source</documentationProvider>
+								<openApiNullable>false</openApiNullable>
+								<reactive>true</reactive>
+								<skipDefaultInterface>false</skipDefaultInterface>
+								<useTags>true</useTags>
+								<basePackage>${project.groupId}.pdfraster.rest.v1</basePackage>
+								<modelPackage>${project.groupId}.pdfraster.rest.v1.dto</modelPackage>
+								<apiPackage>${project.groupId}.pdfraster.rest.v1.api</apiPackage>
+								<configPackage>${project.groupId}.pdfraster.rest.v1.config</configPackage>
+							</configOptions>
 						</configuration>
 					</execution>
 				</executions>
-			</plugin>			 		 
+			</plugin>
+			<plugin>
+				<groupId>org.apache.maven.plugins</groupId>
+				<artifactId>maven-compiler-plugin</artifactId>
+				<configuration>
+					<source>17</source>
+					<target>17</target>
+				</configuration>
+			</plugin>
 		</plugins>
 	</build>
 </project>
