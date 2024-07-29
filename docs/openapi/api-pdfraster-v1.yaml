@@ -16,18 +16,6 @@ servers:
   - url: https://api.pn.pagopa.it
     description: Server url
 paths:
-  /status:
-    get:
-      summary: healthCheck path
-      description: health check path per verificare lo stato del micro servizio
-      tags:
-        - HealthCheck
-      operationId: status
-      responses:
-        '200':
-          description: Ok
-        '500':
-          description: Internal Server Error
 ################################################################################################
 ###                                      PDF RASTER API                                      ###
 ################################################################################################
