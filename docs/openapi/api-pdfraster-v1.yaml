@@ -1,0 +1,66 @@
+openapi: 3.0.1
+info:
+  title: API PdfRaster
+  description: API PdfRaster v1.0
+  termsOfService: https://termofservice.it
+  x-api-id: api-pdf-raster
+  x-summary: API PdfRaster
+  version: '1.0.0'
+  contact:
+    name: "PN PagoPA"
+    email: pn@pagopa.it
+  license:
+    name: PN software license
+    url: 'https://www.pn.pagopa.it/LICENSE'
+servers:
+  - url: https://api.pn.pagopa.it
+    description: Server url
+paths:
+################################################################################################
+###                                      PDF RASTER API                                      ###
+################################################################################################
+
+  '/pdf-raster/convert/{fileKey}':
+    parameters:
+      - $ref: '#/components/parameters/fileKey'
+    get:
+      operationId: convertPdf
+      tags:
+        - Pdf Raster
+      summary: Converti i documenti tramite la filekey
+      description: Operazione necessaria alla conversione dei documenti
+      responses:
+        '200':
+          description: OK
+          content:
+            application/json:
+              schema:
+               $ref: '#/components/schemas/PdfRasterResponse'
+        '404':
+          description: Nessun documento trovato per la FileKey indicata
+        '403':
+          description: Non autorizzato all'operazione di conversione
+        '400':
+          description: Richiesta non validata correttamente
+        '500':
+          description: Internal Server Error
+
+components:
+  parameters:
+    fileKey:
+      name: fileKey
+      description: File Key utilizzata per recuperare l'attachment
+      in: path
+      required: true
+      schema:
+        type: string
+      example: '8F7E/9A3B/1234/AB87'
+
+  schemas:
+    PdfRasterResponse:
+      description: Dto di response contenente la nuova FileKey allocata su SafeStorage
+      type: object
+      properties:
+        newFileKey:
+          type: string
+          description: Nuova FileKey restituita da SafeStorage
