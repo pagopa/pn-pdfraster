@@ -39,7 +39,7 @@
 		<dependency>
 			<groupId>it.pagopa.pn</groupId>
 			<artifactId>pn-commons</artifactId>
-			<version>2.2.4</version>
+			<version>2.3.1</version>
 			<exclusions>
 				<exclusion>
 					<groupId>it.pagopa.tech.lollipop-consumer-java-sdk</groupId>
@@ -108,9 +108,16 @@
 			<artifactId>spring-cloud-starter-aws-messaging</artifactId>
 		</dependency>
 
+		<!--TEST START-->
 		<dependency>
 			<groupId>io.projectreactor</groupId>
 			<artifactId>reactor-test</artifactId>
+			<scope>test</scope>
+		</dependency>
+
+		<dependency>
+			<groupId>org.testcontainers</groupId>
+			<artifactId>junit-jupiter</artifactId>
 			<scope>test</scope>
 		</dependency>
 
@@ -124,6 +131,19 @@
 			<artifactId>spring-boot-starter-test</artifactId>
 			<scope>test</scope>
 		</dependency>
+
+		<dependency>
+			<groupId>org.awaitility</groupId>
+			<artifactId>awaitility</artifactId>
+			<scope>test</scope>
+		</dependency>
+
+		<dependency>
+			<groupId>org.testcontainers</groupId>
+			<artifactId>localstack</artifactId>
+			<scope>test</scope>
+		</dependency>
+		<!--TEST END-->
 
 		<dependency>
 			<groupId>io.awspring.cloud</groupId>
@@ -181,12 +201,6 @@
 			<groupId>redis.clients</groupId>
 			<artifactId>jedis</artifactId>
 			<version>5.1.2</version>
-		</dependency>
-
-		<dependency>
-			<groupId>org.testcontainers</groupId>
-			<artifactId>junit-jupiter</artifactId>
-			<scope>test</scope>
 		</dependency>
 
 		<dependency>
