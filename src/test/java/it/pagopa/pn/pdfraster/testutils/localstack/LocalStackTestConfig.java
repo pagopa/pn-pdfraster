@@ -18,7 +18,7 @@ public class LocalStackTestConfig {
     private static DockerImageName dockerImageName = DockerImageName.parse("localstack/localstack:1.0.4");
     private static LocalStackContainer localStackContainer = new LocalStackContainer(dockerImageName).withServices(SQS,SSM)
                                                                                                      .withStartupTimeout(Duration.ofMinutes(2))
-                                                                                                     .withEnv("AWS_DEFAULT_REGION","eu-central-1");
+                                                                                                     .withEnv("AWS_DEFAULT_REGION","eu-south-1");
 
     static {
         localStackContainer.start();
