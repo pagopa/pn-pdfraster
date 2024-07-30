@@ -1,5 +1,6 @@
 package it.pagopa.pn.pdfraster.service.impl;
 
+import it.pagopa.pn.pdfraster.pdfraster.rest.v1.dto.PdfRasterResponse;
 import it.pagopa.pn.pdfraster.service.PdfRasterService;
 import lombok.CustomLog;
 import org.springframework.stereotype.Service;
@@ -11,7 +12,7 @@ public class PdfRasterServiceImpl implements PdfRasterService {
 
 
     @Override
-    public Mono<String> convertPdf(String fileKey) {
+    public Mono<PdfRasterResponse> convertPdf(String fileKey) {
         return null;
     }
 
