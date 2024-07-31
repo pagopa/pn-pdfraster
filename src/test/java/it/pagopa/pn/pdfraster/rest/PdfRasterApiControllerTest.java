@@ -10,6 +10,8 @@ import it.pagopa.pn.pdfraster.pdfraster.rest.v1.dto.PdfRasterResponse;
 import it.pagopa.pn.pdfraster.rest.call.SafeStorageCall;
 import it.pagopa.pn.pdfraster.service.PdfRasterService;
 import it.pagopa.pn.pdfraster.service.SqsService;
+import it.pagopa.pn.pdfraster.ss.rest.v1.dto.FileCreationRequest;
+import it.pagopa.pn.pdfraster.ss.rest.v1.dto.FileCreationResponse;
 import it.pagopa.pn.pdfraster.testutils.annotation.SpringBootTestWebEnv;
 import lombok.CustomLog;
 import org.junit.jupiter.api.Assertions;
@@ -49,11 +51,11 @@ public class PdfRasterApiControllerTest {
     @Autowired
     private WebTestClient webTestClient;
 
-    @Value(value = "${ss.client-header-name}")
+    @Value(value = "${ss.endpoint.client-header-name}")
     private String clientId;
     private static final String CLIENT_ID = "";
 
-    @Value(value = "${ss.api-key-header-name}")
+    @Value(value = "${ss.endpoint.api-key-header-name}")
     private String apiKey;
     private static final String X_API_KEY = "";
 

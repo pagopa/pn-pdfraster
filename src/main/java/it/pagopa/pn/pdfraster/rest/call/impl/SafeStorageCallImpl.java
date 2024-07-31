@@ -4,12 +4,15 @@ import it.pagopa.pn.pdfraster.pdfraster.rest.v1.dto.FileCreationRequest;
 import it.pagopa.pn.pdfraster.pdfraster.rest.v1.dto.FileCreationResponse;
 import it.pagopa.pn.pdfraster.pdfraster.rest.v1.dto.FileDownloadResponse;
 import it.pagopa.pn.pdfraster.rest.call.SafeStorageCall;
+import it.pagopa.pn.pdfraster.ss.rest.v1.dto.FileCreationRequest;
+import it.pagopa.pn.pdfraster.ss.rest.v1.dto.FileCreationResponse;
+import it.pagopa.pn.pdfraster.ss.rest.v1.dto.FileDownloadResponse;
 import lombok.CustomLog;
 import org.springframework.stereotype.Service;
 import reactor.core.publisher.Mono;
 
 @CustomLog
-@Service
+@Component
 public class SafeStorageCallImpl implements SafeStorageCall {
 
 

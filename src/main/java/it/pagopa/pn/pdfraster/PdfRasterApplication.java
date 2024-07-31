@@ -13,7 +13,7 @@ import org.springframework.web.bind.annotation.RestController;
 @ConfigurationPropertiesScan(basePackages = {"it.pagopa.pn.pdfraster"})
 // AWS CONFIGURATION
 @PropertySource("classpath:commons/aws-configuration.properties")
-
+// SAFE STORAGE
 @PropertySource("classpath:ss/ss-configuration.properties")
 public class PdfRasterApplication {
 

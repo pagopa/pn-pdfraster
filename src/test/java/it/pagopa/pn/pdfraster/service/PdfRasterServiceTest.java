@@ -1,8 +1,6 @@
 package it.pagopa.pn.pdfraster.service;
 
 import it.pagopa.pn.pdfraster.model.pojo.SqsMessageWrapper;
-import it.pagopa.pn.pdfraster.pdfraster.rest.v1.dto.FileCreationResponse;
-import it.pagopa.pn.pdfraster.pdfraster.rest.v1.dto.FileDownloadResponse;
 import it.pagopa.pn.pdfraster.pdfraster.rest.v1.dto.PdfRasterResponse;
 import it.pagopa.pn.pdfraster.rest.call.SafeStorageCall;
 import it.pagopa.pn.pdfraster.testutils.annotation.SpringBootTestWebEnv;
