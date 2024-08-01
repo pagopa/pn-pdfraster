@@ -8,8 +8,8 @@ import reactor.core.publisher.Mono;
 
 public interface SafeStorageCall {
 
-    Mono<FileCreationResponse> createFile(String xPagopaExtchServiceId, String xApiKey, String checksumValue, String xTraceId, FileCreationRequest fileCreationRequest);
+    Mono<FileCreationResponse> createFile(String xPagopaSafestorageCxId, String xApiKey, String checksumValue, String xTraceId, FileCreationRequest fileCreationRequest);
 
-    Mono<FileDownloadResponse> getFile(String fileKey, String xPagopaExtchServiceId, String xApiKey, String xTraceId);
+    Mono<FileDownloadResponse> getFile(String fileKey, String xPagopaSafestorageCxId, String xApiKey, String xTraceId);
 
 }
