@@ -18,6 +18,7 @@ public class SafeStorageCallImpl implements SafeStorageCall {
 
     @Override
     public Mono<FileCreationResponse> createFile(String xPagopaSafestorageCxId, String xApiKey, String checksumValue, String xTraceId, FileCreationRequest fileCreationRequest) {
+        return null;
     }
 
     @Override
