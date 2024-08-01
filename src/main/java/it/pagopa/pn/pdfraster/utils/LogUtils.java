@@ -12,6 +12,10 @@ public abstract class LogUtils {
 
     //#####SQS#####
     public static final String SQS_SEND = "send";
+    public static final String INSERTING_DATA_IN_SQS = "Inserting data {} in SQS '{}'";
+    public static final String INSERTED_DATA_IN_SQS = "Inserted data in SQS '{}'";
+    public static final String SHORT_RETRY_ATTEMPT = "Short retry attempt number '{}' caused by : {} - {}";
+
 
     //#####SAFE STORAGE#####
     public static final String SAFE_STORAGE_SERVICE = "pn-safestorage";

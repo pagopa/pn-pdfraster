@@ -10,5 +10,9 @@ public interface SqsService {
 
     <T> Mono<SendMessageResponse> send(final String queueName, final T queuePayload) throws SqsClientException;
 
+    <T> Mono<SendMessageResponse> send(String queueName, Integer delaySeconds, T queuePayload) throws SqsClientException;
+
+    <T> Mono<SendMessageResponse> send(String queueName, String messageGroupId, Integer delaySeconds, T queuePayload) throws SqsClientException;
+
     public <T> Flux<SqsMessageWrapper<T>> getMessages(String queueName, Class<T> messageContentClass);
 }

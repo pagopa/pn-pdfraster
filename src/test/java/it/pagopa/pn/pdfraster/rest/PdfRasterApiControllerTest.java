@@ -117,7 +117,7 @@ public class PdfRasterApiControllerTest {
     @Test
     void convertPdf_Ok(){
         doReturn(Mono.just(FILE_CREATION_RESPONSE)).when(safeStorageCall).createFile(anyString(),anyString(),anyString(),anyString(),eq(FILE_CREATION_REQUEST));
-        doReturn(Mono.just(SendMessageResponse.builder().build())).when(sqsService).send(anyString(),anyString());
+        doReturn(Mono.just(SendMessageResponse.builder().build())).when(sqsService).send(anyString(),any());
 
         EntityExchangeResult<PdfRasterResponse> responseEntity = getPdfRasterResponseEntityExchangeResult()
                 .expectStatus().isOk()
@@ -182,7 +182,7 @@ public class PdfRasterApiControllerTest {
     @Test
     void convertPdf_Ko_Sqs(){
         doReturn(Mono.just(FILE_CREATION_RESPONSE)).when(safeStorageCall).createFile(anyString(),anyString(),anyString(),anyString(),eq(FILE_CREATION_REQUEST));
-        doReturn(Mono.error(new SqsClientException(""))).when(sqsService).send(anyString(),anyString());
+        doReturn(Mono.error(new SqsClientException(""))).when(sqsService).send(anyString(),any());
 
         EntityExchangeResult<PdfRasterResponse> responseEntity = getPdfRasterResponseEntityExchangeResult()
                 .expectStatus().is5xxServerError()
