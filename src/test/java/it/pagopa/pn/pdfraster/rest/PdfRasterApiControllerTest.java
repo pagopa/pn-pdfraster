@@ -31,7 +31,7 @@ import static org.springframework.http.MediaType.APPLICATION_JSON;
 @SpringBootTestWebEnv
 @AutoConfigureWebTestClient(timeout = "100000")
 @CustomLog
-public class PdfRasterApiControllerTest {
+class PdfRasterApiControllerTest {
 
     @SpyBean
     private PdfRasterService pdfRasterService;

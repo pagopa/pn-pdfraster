@@ -3,17 +3,17 @@ package it.pagopa.pn.pdfraster.service.impl;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import it.pagopa.pn.commons.utils.MDCUtils;
 import it.pagopa.pn.pdfraster.exceptions.SqsClientException;
-import it.pagopa.pn.pdfraster.model.pojo.SqsMessageWrapper;
 import it.pagopa.pn.pdfraster.service.SqsService;
 import lombok.CustomLog;
-import org.apache.commons.lang3.RandomStringUtils;
 import org.springframework.stereotype.Service;
-import reactor.core.publisher.Flux;
 import reactor.core.publisher.Mono;
 import reactor.util.retry.RetryBackoffSpec;
 import software.amazon.awssdk.services.sqs.SqsAsyncClient;
 import software.amazon.awssdk.services.sqs.model.GetQueueUrlResponse;
 import software.amazon.awssdk.services.sqs.model.SendMessageResponse;
+
+import java.security.SecureRandom;
+import java.util.Base64;
 
 import static it.pagopa.pn.pdfraster.utils.LogUtils.*;
 
@@ -40,7 +40,7 @@ public class SqsServiceImpl implements SqsService {
 
     @Override
     public <T> Mono<SendMessageResponse> send(String queueName, Integer delaySeconds, T queuePayload) throws SqsClientException {
-        return send(queueName, RandomStringUtils.randomAlphanumeric(MESSAGE_GROUP_ID_LENGTH), delaySeconds, queuePayload);
+        return send(queueName, generateGroupId(), delaySeconds, queuePayload);
     }
 
     @Override
@@ -61,21 +61,11 @@ public class SqsServiceImpl implements SqsService {
                 .doOnSuccess(result -> log.info(INSERTED_DATA_IN_SQS, queueName));
     }
 
-    @Override
-    public <T> Flux<SqsMessageWrapper<T>> getMessages(String queueName, Class<T> messageContentClass) {
-        return null;
-    }
-
     public Mono<String> getQueueUrlFromName(final String queueName) {
         return Mono.fromCompletionStage(sqsAsyncClient.getQueueUrl(builder -> builder.queueName(queueName)))
                 .retryWhen(getSqsRetryStrategy())
                 .map(GetQueueUrlResponse::queueUrl);
     }
-
-//    @SneakyThrows
-//    private <T> String writeValueAsString(T object) {
-//        return objectMapper.writeValueAsString(object);
-//    }
 
     private RetryBackoffSpec getSqsRetryStrategy() {
         var mdcContextMap = MDCUtils.retrieveMDCContextMap();
@@ -83,5 +73,13 @@ public class SqsServiceImpl implements SqsService {
             MDCUtils.enrichWithMDC(null, mdcContextMap);
             log.debug(SHORT_RETRY_ATTEMPT, retrySignal.totalRetries(), retrySignal.failure(), retrySignal.failure().getMessage());
         });
+    }
+
+    private String generateGroupId() {
+        SecureRandom random = new SecureRandom();
+        byte[] bytes = new byte[MESSAGE_GROUP_ID_LENGTH];
+        random.nextBytes(bytes);
+        Base64.Encoder encoder = Base64.getUrlEncoder().withoutPadding();
+        return encoder.encodeToString(bytes);
     }
 }

@@ -22,8 +22,8 @@ public class PdfRasterServiceImpl implements PdfRasterService {
 
     private static final String QUEUE_NAME = "pn-pdf-raster-lavorazione-queue";
 
-    private SafeStorageCall safeStorageCall;
-    private SqsService sqsService;
+    private final SafeStorageCall safeStorageCall;
+    private final SqsService sqsService;
 
     public PdfRasterServiceImpl(SafeStorageCall safeStorageCall,SqsService sqsService){
         this.safeStorageCall = safeStorageCall;
@@ -42,7 +42,6 @@ public class PdfRasterServiceImpl implements PdfRasterService {
     @Override
     public Mono<PdfRasterResponse> convertPdf(String fileKey, String xPagopaSafestorageCxId, String xApiKey, String xTraceId) {
         log.debug(CONVERT_PDF);
-        //TODO Gestione degli errori?
         return safeStorageCall.createFile(xPagopaSafestorageCxId,xApiKey,"NONE",checkXTraceId(xTraceId),getFileCreationRequest())
                 .flatMap(fileCreationResponse -> sendToSqs(fileCreationResponse).thenReturn(fileCreationResponse))
                 .map(fileCreationResponse -> {
@@ -89,7 +88,7 @@ public class PdfRasterServiceImpl implements PdfRasterService {
      * Metodo per la sottoscrizione alle code SQS
      */
     private <T> Mono<SendMessageResponse> sendToSqs(T payload) {
-        return sqsService.send(QUEUE_NAME,payload) //TODO Qual'è il payload da sottoscrivere (Tutta la richiesta?)
+        return sqsService.send(QUEUE_NAME,payload)
                 .doOnSuccess(sendMessageResponse -> log.logEndingProcess(SQS_SEND))
                 .doOnError(throwable -> log.logEndingProcess(SQS_SEND,false,throwable.getMessage()));
     }
