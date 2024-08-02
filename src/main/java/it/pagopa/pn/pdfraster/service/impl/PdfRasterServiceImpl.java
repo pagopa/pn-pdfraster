@@ -7,23 +7,31 @@ import it.pagopa.pn.pdfraster.service.SqsService;
 import it.pagopa.pn.pdfraster.ss.rest.v1.dto.FileCreationRequest;
 import lombok.CustomLog;
 import org.apache.commons.lang3.StringUtils;
+import org.springframework.beans.factory.annotation.Value;
 import org.springframework.stereotype.Service;
 import reactor.core.publisher.Mono;
 import software.amazon.awssdk.services.sqs.model.SendMessageResponse;
 
 import java.util.UUID;
 
-import static it.pagopa.pn.pdfraster.utils.LogUtils.CONVERT_PDF;
-import static it.pagopa.pn.pdfraster.utils.LogUtils.SQS_SEND;
+import static it.pagopa.pn.pdfraster.utils.LogUtils.*;
 
 @CustomLog
 @Service
 public class PdfRasterServiceImpl implements PdfRasterService {
 
-    private static final String QUEUE_NAME = "pn-pdf-raster-lavorazione-queue";
-
     private final SafeStorageCall safeStorageCall;
     private final SqsService sqsService;
+
+    @Value(value = "${pn.pdfraster.sqs.queue.name}")
+    private String queueName;
+
+    @Value(value = "${pn.pdfraster.documentType}")
+    private String documentType;
+
+    private static final String STATUS = "PRELOADED";
+    private static final String CONTENT_TYPE = "application/pdf";
+    private static final String CHECKSUM_NONE = "NONE";
 
     public PdfRasterServiceImpl(SafeStorageCall safeStorageCall,SqsService sqsService){
         this.safeStorageCall = safeStorageCall;
@@ -41,8 +49,8 @@ public class PdfRasterServiceImpl implements PdfRasterService {
      */
     @Override
     public Mono<PdfRasterResponse> convertPdf(String fileKey, String xPagopaSafestorageCxId, String xApiKey, String xTraceId) {
-        log.debug(CONVERT_PDF);
-        return safeStorageCall.createFile(xPagopaSafestorageCxId,xApiKey,"NONE",checkXTraceId(xTraceId),getFileCreationRequest())
+        log.debug(INVOKING_OPERATION_LABEL_WITH_ARGS,CONVERT_PDF,fileKey);
+        return safeStorageCall.createFile(xPagopaSafestorageCxId,xApiKey,CHECKSUM_NONE,checkXTraceId(xTraceId),getFileCreationRequest())
                 .flatMap(fileCreationResponse -> sendToSqs(fileCreationResponse).thenReturn(fileCreationResponse))
                 .map(fileCreationResponse -> {
                     String newFileKey = fileCreationResponse.getKey();
@@ -50,13 +58,13 @@ public class PdfRasterServiceImpl implements PdfRasterService {
                     response.setNewFileKey(newFileKey);
                     return response;
                 })
-                .doOnSuccess(pdfRasterResponse -> log.logEndingProcess(CONVERT_PDF))
-                .doOnError(Exception.class, e -> log.logEndingProcess(CONVERT_PDF,false,e.getMessage()));
-    }
+                .doOnError(throwable -> log.info(throwable.getMessage()))
+                .doOnSuccess(pdfRasterResponse -> log.info(SUCCESSFUL_OPERATION_ON_LABEL,fileKey,CONVERT_PDF,pdfRasterResponse.getNewFileKey()));
 
+    }
     @Override
     public void convertPdfToImage() {
-
+        // da completare
     }
 
     /**
@@ -78,9 +86,9 @@ public class PdfRasterServiceImpl implements PdfRasterService {
      */
     private FileCreationRequest getFileCreationRequest() {
         FileCreationRequest fileCreationRequest = new FileCreationRequest();
-        fileCreationRequest.setStatus("PRELOADED");
-        fileCreationRequest.setContentType("application/pdf");
-        fileCreationRequest.setDocumentType("PN_NOTIFICATION_ATTACHMENTS");
+        fileCreationRequest.setStatus(STATUS);
+        fileCreationRequest.setContentType(CONTENT_TYPE);
+        fileCreationRequest.setDocumentType(documentType);
         return fileCreationRequest;
     }
 
@@ -88,8 +96,8 @@ public class PdfRasterServiceImpl implements PdfRasterService {
      * Metodo per la sottoscrizione alle code SQS
      */
     private <T> Mono<SendMessageResponse> sendToSqs(T payload) {
-        return sqsService.send(QUEUE_NAME,payload)
-                .doOnSuccess(sendMessageResponse -> log.logEndingProcess(SQS_SEND))
-                .doOnError(throwable -> log.logEndingProcess(SQS_SEND,false,throwable.getMessage()));
+        return sqsService.send(queueName,payload)
+                .doOnSuccess(sendMessageResponse -> log.info(SUCCESSFUL_OPERATION_ON_LABEL,queueName,SQS_SEND,payload))
+                .doOnError(throwable -> log.info(throwable.getMessage()));
     }
 }

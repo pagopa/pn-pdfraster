@@ -18,7 +18,7 @@ import static it.pagopa.pn.pdfraster.utils.LogUtils.MDC_CORR_ID_KEY;
 @CustomLog
 public class PdfRasterApiController implements PdfRasterApi {
 
-    PdfRasterService pdfRasterService;
+    private final PdfRasterService pdfRasterService;
 
     public PdfRasterApiController(PdfRasterService pdfRasterService){
         this.pdfRasterService = pdfRasterService;
