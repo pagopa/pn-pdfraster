@@ -44,7 +44,7 @@ Resources:
     Properties:
       TemplateURL: !Sub '${TemplateBucketBaseUrl}/fragments/sqs-queue.yaml'
       Parameters:
-        QueueName: 'pn-pdf-raster-lavorazione-queue' 
+        QueueName: 'pn-PDFRaster-lavorazione-queue' 
         SqsManagedSseEnabled: true
         FifoQueue: 'true'
         MaxReceiveCount: 10
@@ -78,18 +78,18 @@ Resources:
     Properties:
       TemplateURL: !Sub "${TemplateBucketBaseUrl}/fragments/log-group.yaml"
       Parameters:
-        LogGroupName: !Sub '${ProjectName}-pdf-raster'
+        LogGroupName: !Sub '${ProjectName}-PDFRaster'
         LogsKinesisSourceStreamArn: !Ref LogsKinesisSourceStreamArn
         LogGroupRetention: !Ref LogRetention
     
 
 Outputs:
   PnPdfRasterLavorazioneQueueName:
-    Description: 'Nome coda Lavorazione PDF Raster'
+    Description: 'Nome coda Lavorazione PDFRaster'
     Value: !GetAtt PnPdfRasterLavorazioneQueueStack.Outputs.QueueName
 
   PnPdfRasterLavorazioneQueueArn:
-    Description: 'ARN coda Lavorazione PDF Raster'
+    Description: 'ARN coda Lavorazione PDFRaster'
     Value: !GetAtt PnPdfRasterLavorazioneQueueStack.Outputs.QueueARN
 
   EcsLogGroup:
