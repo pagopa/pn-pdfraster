@@ -7,6 +7,8 @@
     "MemoryAmount": "4GB",
     "PnPdfRasterTaskExecutionPoolMaxSize": "250",
     "JavaToolOptions": "",
-    "PnPdfRasterParameters": "pn-pdf-raster-parameter"
+    "PnPdfRasterParameters": "pn-PDFRaster"
+     "PnPdfRasterLavorazioneQueue": "pn-PDFRaster-lavorazione-queue",
+     "PnDocumentType": "PN_NOTIFICATION_ATTACHMENTS"
   }
 }
