@@ -67,6 +67,15 @@ Parameters:
     Type: String
     Description: 'keep track of used projects commitIds'
 
+
+  PnPdfRasterLavorazioneQueue:
+    Type: String
+    Description: 'Nome della coda sqs di lavorazione'
+
+  PnDocumentType:
+    Type: String
+    Description: 'Tipo documento da convertire'
+
 Resources:
 
   # PN-TemplateBeMs microservice
@@ -81,7 +90,9 @@ Resources:
         AlarmSNSTopicArn: !Ref AlarmSNSTopicArn
         ContainerImageURI: !Sub '${ContainerImageUri}'
         ContainerEnvEntry1: !Sub 'AWS_REGIONCODE=${AWS::Region}'
-        MappedPaths: '/template-ms-be/*'
+        ContainerEnvEntry2: !Sub 'PnPdfRasterLavorazioneQueue=${PnPdfRasterLavorazioneQueue}'
+        ContainerEnvEntry3: !Sub 'PnDocumentType=${PnDocumentType}'
+        MappedPaths: '/pdf-raster/*'
         ECSClusterName: !Ref ECSClusterName
         Subnets: !Ref SubnetsIds
         VpcId: !Ref VpcId
@@ -89,3 +100,4 @@ Resources:
         LoadBalancerListenerArn: !Ref ApplicationLoadBalancerListenerArn
         LoadbalancerRulePriority: !Ref MicroserviceNumber
         CloudwatchLogKinesisStreamArn: !Ref LogsKinesisSourceStreamArn
+

@@ -49,7 +49,7 @@ public class LocalStackTestConfig {
     private static void sqsInit(){
         log.info("<-- START initLocalStack.initSqs -->");
 
-        List<String> queueNames = List.of();
+        List<String> queueNames = List.of("pn-pdf-raster-lavorazione-queue");
 
         for(String queue : queueNames){
             try {

@@ -1,3 +1,6 @@
 {
-  "Parameters" : {}
+  "Parameters" : {
+     "PnPdfRasterLavorazioneQueue": "pn-pdf-raster-lavorazione-queue",
+     "PnDocumentType": "PN_NOTIFICATION_ATTACHMENTS"
+  }
 }

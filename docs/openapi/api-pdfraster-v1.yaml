@@ -22,6 +22,9 @@ paths:
 
   '/pdf-raster/convert/{fileKey}':
     parameters:
+      - $ref: '#/components/parameters/xPagopaSafestorageCxId'
+      - $ref: '#/components/parameters/xApiKey'
+      - $ref: '#/components/parameters/xTraceId'
       - $ref: '#/components/parameters/fileKey'
     get:
       operationId: convertPdf
@@ -55,6 +58,27 @@ components:
       schema:
         type: string
       example: '8F7E/9A3B/1234/AB87'
+    xPagopaSafestorageCxId:
+      name: x-pagopa-safestorage-cx-id
+      description: Identificativo del sistema client
+      in: header
+      required: true
+      schema:
+        type: string
+      example: pn-delivery-push
+    xApiKey:
+      name: x-api-key
+      description: Api Key
+      in: header
+      required: true
+      schema:
+        type: string
+    xTraceId:
+      name: x-amzn-trace-id
+      description: Trace Id
+      in: header
+      schema:
+        type: string
 
   schemas:
     PdfRasterResponse:
@@ -64,3 +88,4 @@ components:
         newFileKey:
           type: string
           description: Nuova FileKey restituita da SafeStorage
+
