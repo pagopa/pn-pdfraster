@@ -15,6 +15,10 @@ import org.springframework.web.bind.annotation.RestController;
 @PropertySource("classpath:commons/aws-configuration.properties")
 // SAFE STORAGE
 @PropertySource("classpath:ss/ss-configuration.properties")
+// SQS
+@PropertySource("classpath:sqs/sqs.properties")
+// APPLICATION
+@PropertySource("classpath:commons/pdfraster.properties")
 public class PdfRasterApplication {
 
 
