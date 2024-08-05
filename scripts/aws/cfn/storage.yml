@@ -4,31 +4,94 @@ Description: Some storage with input and output
 Parameters:
   ProjectName:
     Type: String
-    Description: Nome dell'ambiente destinazione
+    Description: "Nome dell'ambiente destinazione"
 
   # Unused but required by CD pipeline
   MicroserviceNumber:
     Type: Number
-    Description: An unique number that identify the microservice inside the ECS cluster.
+    Description: 'An unique number that identify the microservice inside the ECS cluster'
 
   # Unused but required by CD pipeline
   TemplateBucketBaseUrl:
     Type: String
-    Description: URL da cui caricare i frammenti di template di infrastruttura
+    Description: 'URL da cui caricare i frammenti di template di infrastruttura'
   
   Version:
     Type: String
-    Description: 'keep track of used projects commitIds'
+    Description: 'Keep track of used projects commitIds'
   
   CdcKinesisSourceStreamArn:
     Type: String
     Description: 'Where to send CDC'
 
+  AlarmSNSTopicName:
+    Type: String
+    Description: 'Topic alarm'
+    
+  LogsKinesisSourceStreamArn:
+    Type: String
+    Description: 'Where to send Logs'
+
+  LogRetention:
+    Type: Number
+    Default: 14
+
 Resources:
-    NullResource:
-        Type: AWS::CloudFormation::WaitConditionHandle
+  PnPdfRasterLavorazioneQueueStack: ### coda per lavorazione dopo la prea in carico; FIFO senza deduplica
+    Type: AWS::CloudFormation::Stack
+    UpdateReplacePolicy: Retain
+    DeletionPolicy: Retain
+    Properties:
+      TemplateURL: !Sub '${TemplateBucketBaseUrl}/fragments/sqs-queue.yaml'
+      Parameters:
+        QueueName: 'pn-PDFRaster-lavorazione-queue' 
+        SqsManagedSseEnabled: true
+        FifoQueue: 'true'
+        MaxReceiveCount: 10
+        HasDLQ: True
+        VisibilityTimeout: 60
+        QueueHasAlarm: 'true'
+        AlarmSNSTopicName: !Ref AlarmSNSTopicName
+
+  PnPdfRasterQueuePolicyLavorazione:
+    Type: AWS::SQS::QueuePolicy
+    Properties:
+      Queues:
+        - !Ref PnPdfRasterLavorazioneQueueStack.Outputs.QueueURL
+      PolicyDocument:
+        Statement:
+          - Sid: 'AllowAccessSameAccount'
+            Action:
+              - 'sqs:SendMessage'
+              - 'sqs:ReceiveMessage'
+              - 'sqs:GetQueueAttributes'
+              - 'sqs:GetQueueUrl'
+            Effect: "Allow"
+            Resource: !Ref PnPdfRasterLavorazioneQueueStack.Outputs.QueueARN
+            Principal:
+              AWS: !Ref AWS::AccountId
+
+  EcsLogGroup:
+    Type: AWS::CloudFormation::Stack
+    UpdateReplacePolicy: Retain
+    DeletionPolicy: Retain    
+    Properties:
+      TemplateURL: !Sub "${TemplateBucketBaseUrl}/fragments/log-group.yaml"
+      Parameters:
+        LogGroupName: !Sub '${ProjectName}-PDFRaster'
+        LogsKinesisSourceStreamArn: !Ref LogsKinesisSourceStreamArn
+        LogGroupRetention: !Ref LogRetention
+    
 
 Outputs:
-    SampleOutput:
-      Description: A Sample Output
-      Value: 'na'
+  PnPdfRasterLavorazioneQueueName:
+    Description: 'Nome coda Lavorazione PDFRaster'
+    Value: !GetAtt PnPdfRasterLavorazioneQueueStack.Outputs.QueueName
+
+  PnPdfRasterLavorazioneQueueArn:
+    Description: 'ARN coda Lavorazione PDFRaster'
+    Value: !GetAtt PnPdfRasterLavorazioneQueueStack.Outputs.QueueARN
+
+  EcsLogGroup:
+    Value: !GetAtt EcsLogGroup.Outputs.LogGroupName
+
