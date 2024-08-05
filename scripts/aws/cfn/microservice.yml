@@ -148,7 +148,7 @@ Resources:
     Properties:
       TemplateURL: !Sub "${TemplateBucketBaseUrl}/fragments/ecs-service.yaml"
       Parameters:
-        MicroServiceUniqueName: !Sub '${ProjectName}-pdf-raster'
+        MicroServiceUniqueName: !Sub '${ProjectName}-PDFRaster'
         CpuValue: !Ref CpuValue
         MemoryAmount: !Ref MemoryAmount
         AlarmSNSTopicArn: !Ref AlarmSNSTopicArn
@@ -161,7 +161,7 @@ Resources:
         ContainerEnvEntry6: !Sub 'SafeStorageBaseUrl=http://${ApplicationLoadBalancerDomain}:8080'
         ContainerEnvEntry7: !Sub 'PnPdfRasterLavorazioneQueue=${PnPdfRasterLavorazioneQueue}'
         ContainerEnvEntry8: !Sub 'PnDocumentType=${PnDocumentType}'
-        MappedPaths: '/pdf-raster/*'
+        MappedPaths: '/PDFRaster/*'
         ECSClusterName: !Ref ECSClusterName
         Subnets: !Ref VpcEgressSubnetsIds
         VpcId: !Ref VpcId
