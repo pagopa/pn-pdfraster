@@ -2,20 +2,24 @@ package it.pagopa.pn.pdfraster.service;
 
 import io.awspring.cloud.messaging.listener.Acknowledgment;
 import it.pagopa.pn.pdfraster.model.pojo.DocumentQueueDto;
-import it.pagopa.pn.pdfraster.rest.call.DownloadCall;
+import it.pagopa.pn.pdfraster.rest.call.S3Call;
 import it.pagopa.pn.pdfraster.rest.call.SafeStorageCall;
 import it.pagopa.pn.pdfraster.service.impl.PdfRasterMessageReceiver;
 import it.pagopa.pn.pdfraster.ss.rest.v1.dto.FileCreationRequest;
 import it.pagopa.pn.pdfraster.ss.rest.v1.dto.FileCreationResponse;
 import it.pagopa.pn.pdfraster.testutils.annotation.SpringBootTestWebEnv;
 import lombok.CustomLog;
+import org.apache.pdfbox.Loader;
+import org.apache.pdfbox.pdmodel.PDDocument;
+import org.junit.jupiter.api.Assertions;
 import org.junit.jupiter.api.Test;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.mock.mockito.MockBean;
 import org.springframework.boot.test.mock.mockito.SpyBean;
 import reactor.core.publisher.Mono;
 
-import java.io.OutputStream;
+import java.io.ByteArrayOutputStream;
+import java.io.IOException;
 
 import static it.pagopa.pn.pdfraster.testutils.TestUtils.*;
 import static org.mockito.ArgumentMatchers.any;
@@ -38,7 +42,7 @@ class PdfRasterServiceTest {
     @MockBean
     private SafeStorageCall safeStorageCall;
     @MockBean
-    private DownloadCall downloadCall;
+    private S3Call downloadCall;
 
     private static final byte[] FILE;
     private static final DocumentQueueDto DOCUMENT_QUEUE_DTO;
@@ -56,6 +60,7 @@ class PdfRasterServiceTest {
     @Test
     void lavorazionePdfRasterDocuments(){
 
+        DocumentQueueDto documentQueueDto = DocumentQueueDto.builder().build();
         /*
             Chiamata a safe storage per recuperare la Uri di download
          */
@@ -64,17 +69,12 @@ class PdfRasterServiceTest {
         /*
             Chiamata a S3 per recuperare il file
          */
-        doReturn(any()).when(downloadCall).downloadFile(anyString());
-
-        /*
-            Metodo di conversione del pdf
-         */
-        doReturn(any()).when(convertPdfService).convertPdfToImage(FILE);
+        doReturn(FILE).when(downloadCall).downloadFile(anyString());
 
         /*
             Caricamento su S3 del nuovo file convertito
          */
-        doReturn(FILE_CREATION_RESPONSE).when(safeStorageCall).createFile(anyString(), anyString(), anyString(), anyString(), FILE_CREATION_REQUEST);
+
 
         /*
             Start flusso
@@ -106,9 +106,7 @@ class PdfRasterServiceTest {
     void safeStorage_Ko_CreateFile(){
         doReturn(any()).when(safeStorageCall).getFile(anyString(),anyString(),anyString(),anyString());
 
-        doReturn(any()).when(downloadCall).downloadFile(anyString());
-
-        doReturn(any()).when(convertPdfService).convertPdfToImage(FILE);
+        doReturn(FILE).when(downloadCall).downloadFile(anyString());
 
         doReturn(Mono.error(new Exception())).when(safeStorageCall).createFile(anyString(), anyString(), anyString(), anyString(), any());
 
@@ -136,14 +134,18 @@ class PdfRasterServiceTest {
     }
 
     @Test
-    void conversionePdf(){
-        OutputStream outputStream = convertPdfService.convertPdfToImage(FILE);
+    void conversionePdf_Ko(){
 
     }
 
     @Test
-    void conversionePdfKo(){
-        
+    void conversionePdf(){
+        ByteArrayOutputStream outputStream = convertPdfService.convertPdfToImage(FILE);
+        try (PDDocument documentConverted = Loader.loadPDF(outputStream.toByteArray()); PDDocument documentOriginal = Loader.loadPDF(FILE)) {
+            // Quali altri test sulla conversione??
+            Assertions.assertEquals(documentConverted.getNumberOfPages(), documentOriginal.getNumberOfPages());
+        } catch (IOException e) {
+            throw new RuntimeException(e);
+        }
     }
-
 }
