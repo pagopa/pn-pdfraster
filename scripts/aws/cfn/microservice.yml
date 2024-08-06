@@ -148,7 +148,7 @@ Resources:
     Properties:
       TemplateURL: !Sub "${TemplateBucketBaseUrl}/fragments/ecs-service.yaml"
       Parameters:
-        MicroServiceUniqueName: !Sub '${ProjectName}-PDFRaster'
+        MicroServiceUniqueName: !Sub '${ProjectName}-pdfraster'
         CpuValue: !Ref CpuValue
         MemoryAmount: !Ref MemoryAmount
         AlarmSNSTopicArn: !Ref AlarmSNSTopicArn
