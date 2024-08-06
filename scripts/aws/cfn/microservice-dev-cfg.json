@@ -1,6 +1,8 @@
 {
   "Parameters" : {
      "PnPdfRasterLavorazioneQueue": "pn-pdf-raster-lavorazione-queue",
-     "PnDocumentType": "PN_NOTIFICATION_ATTACHMENTS"
+     "PnDocumentType": "PN_NOTIFICATION_ATTACHMENTS",
+     "SsRetryStrategyMaxAttempts": 3,
+     "SsRetryStrategyMinBackoff": 3
   }
 }

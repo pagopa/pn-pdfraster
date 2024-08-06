@@ -76,6 +76,14 @@ Parameters:
     Type: String
     Description: 'Tipo documento da convertire'
 
+  SsRetryStrategyMinBackoff:
+    Type: Integer
+    Description: 'BackOff minimo'
+
+  SsRetryStrategyMaxAttempts:
+    Type: Integer
+    Description: 'Numero di tentativi'
+
 Resources:
 
   # PN-TemplateBeMs microservice
@@ -92,6 +100,8 @@ Resources:
         ContainerEnvEntry1: !Sub 'AWS_REGIONCODE=${AWS::Region}'
         ContainerEnvEntry2: !Sub 'PnPdfRasterLavorazioneQueue=${PnPdfRasterLavorazioneQueue}'
         ContainerEnvEntry3: !Sub 'PnDocumentType=${PnDocumentType}'
+        ContainerEnvEntry4: !Sub 'SsRetryStrategyMaxAttempts=${SsRetryStrategyMaxAttempts}'
+        ContainerEnvEntry5: !Sub 'SsRetryStrategyMinBackoff=${SsRetryStrategyMinBackoff}'
         MappedPaths: '/pdf-raster/*'
         ECSClusterName: !Ref ECSClusterName
         Subnets: !Ref SubnetsIds
