@@ -11,6 +11,6 @@
     "SsRetryStrategyMinBackoff": 3,
     "PnPdfRasterTaskExecutionPoolMaxSize": "250",
     "JavaToolOptions": "",
-    "PnPdfRasterParameters": "pn-PDFRaster",
+    "PnPdfRasterParameters": "pn-PDFRaster"
   }
 }
