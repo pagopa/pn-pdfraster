@@ -207,4 +207,4 @@ Resources:
             Action:
               - 'ssm:GetParameter'
             Resource:
-              - !Ref PnPdfRasterParameters
+              - !Join [ '', [ !Sub 'arn:aws:ssm:${AWS::Region}:${AWS::AccountId}:parameter/' , !Ref PnPdfRasterParameters]]
