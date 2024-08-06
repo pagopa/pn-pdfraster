@@ -11,13 +11,13 @@ Parameters:
     Type: String
     Description: 'ARN of alarm topic'
 
-  WebApiDnsName:
-    Type: String
-    Description: 'The DNS name used for WEB rest API.'
+#  WebApiDnsName:
+#    Type: String
+#    Description: 'The DNS name used for WEB rest API.'
   
-  CorsAllowedDomains:
-    Type: String
-    Description: 'Comma separated list of domains allowed to make cross origin request'
+#  CorsAllowedDomains:
+#    Type: String
+#    Description: 'Comma separated list of domains allowed to make cross origin request'
 
   ContainerImageUri:
     Type: String
@@ -59,9 +59,9 @@ Parameters:
     Type: String
     Description: 'Base URL of the load balancer where the service is going to be reachable'
 
-  NetworkLoadBalancerLink:
-    Type: String
-    Description: 'Network load balancer link for API-GW'
+#  NetworkLoadBalancerLink:
+#    Type: String
+#    Description: 'Network load balancer link for API-GW'
   
   LogsKinesisSourceStreamArn:
     Type: String
@@ -207,4 +207,4 @@ Resources:
             Action:
               - 'ssm:GetParameter'
             Resource:
-              - !Ref PnPdfRasterParameters
+              - !Join [ '', [ !Sub 'arn:aws:ssm:${AWS::Region}:${AWS::AccountId}:parameter/' , !Ref PnPdfRasterParameters]]
