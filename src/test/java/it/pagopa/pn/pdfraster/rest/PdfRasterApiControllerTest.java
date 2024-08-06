@@ -23,6 +23,8 @@ import org.springframework.test.web.reactive.server.WebTestClient;
 import reactor.core.publisher.Mono;
 import software.amazon.awssdk.services.sqs.model.SendMessageResponse;
 
+import static it.pagopa.pn.pdfraster.testutils.TestUtils.fileCreationRequestInit;
+import static it.pagopa.pn.pdfraster.testutils.TestUtils.fileCreationResponseInit;
 import static org.mockito.ArgumentMatchers.any;
 import static org.mockito.Mockito.*;
 import static org.springframework.http.MediaType.APPLICATION_JSON;
@@ -60,31 +62,6 @@ class PdfRasterApiControllerTest {
 
     private static final FileCreationResponse FILE_CREATION_RESPONSE = fileCreationResponseInit();
     private static final FileCreationRequest FILE_CREATION_REQUEST = fileCreationRequestInit();
-
-    /**
-     * Metodo per la creazione di un file Mock di risposta da SS
-     * @return
-     */
-    private static FileCreationResponse fileCreationResponseInit(){
-        FileCreationResponse response = new FileCreationResponse();
-        response.setKey("key");
-        response.setSecret("secret");
-        response.setUploadUrl("url");
-        response.setUploadMethod(FileCreationResponse.UploadMethodEnum.PUT);
-        return response;
-    }
-
-    /**
-     *
-     * @return
-     */
-    private static FileCreationRequest fileCreationRequestInit(){
-        FileCreationRequest fileCreationRequest = new FileCreationRequest();
-        fileCreationRequest.setStatus("PRELOADED");
-        fileCreationRequest.setContentType("application/pdf");
-        fileCreationRequest.setDocumentType("PN_NOTIFICATION_ATTACHMENTS");
-        return fileCreationRequest;
-    }
 
     private @NotNull WebTestClient.ResponseSpec getPdfRasterResponseEntityExchangeResult() {
         return webTestClient.get()

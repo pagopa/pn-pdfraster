@@ -1,10 +1,15 @@
 package it.pagopa.pn.pdfraster.service.impl;
 
+import io.awspring.cloud.messaging.listener.Acknowledgment;
+import io.awspring.cloud.messaging.listener.SqsMessageDeletionPolicy;
+import io.awspring.cloud.messaging.listener.annotation.SqsListener;
+import it.pagopa.pn.pdfraster.model.pojo.DocumentQueueDto;
 import it.pagopa.pn.pdfraster.pdfraster.rest.v1.dto.PdfRasterResponse;
 import it.pagopa.pn.pdfraster.rest.call.SafeStorageCall;
 import it.pagopa.pn.pdfraster.service.PdfRasterService;
 import it.pagopa.pn.pdfraster.service.SqsService;
 import it.pagopa.pn.pdfraster.ss.rest.v1.dto.FileCreationRequest;
+import it.pagopa.pn.pdfraster.ss.rest.v1.dto.FileCreationResponse;
 import lombok.CustomLog;
 import org.apache.commons.lang3.StringUtils;
 import org.springframework.beans.factory.annotation.Value;
@@ -51,7 +56,7 @@ public class PdfRasterServiceImpl implements PdfRasterService {
     public Mono<PdfRasterResponse> convertPdf(String fileKey, String xPagopaSafestorageCxId, String xApiKey, String xTraceId) {
         log.debug(INVOKING_OPERATION_LABEL_WITH_ARGS,CONVERT_PDF,fileKey);
         return safeStorageCall.createFile(xPagopaSafestorageCxId,xApiKey,CHECKSUM_NONE,checkXTraceId(xTraceId),getFileCreationRequest())
-                .flatMap(fileCreationResponse -> sendToSqs(fileCreationResponse).thenReturn(fileCreationResponse))
+                .flatMap(fileCreationResponse -> sendToSqs(getDocumentQueueDto(fileCreationResponse)).thenReturn(fileCreationResponse))
                 .map(fileCreationResponse -> {
                     String newFileKey = fileCreationResponse.getKey();
                     PdfRasterResponse response = new PdfRasterResponse();
@@ -61,10 +66,6 @@ public class PdfRasterServiceImpl implements PdfRasterService {
                 .doOnError(throwable -> log.info(throwable.getMessage()))
                 .doOnSuccess(pdfRasterResponse -> log.info(SUCCESSFUL_OPERATION_ON_LABEL,fileKey,CONVERT_PDF,pdfRasterResponse.getNewFileKey()));
 
-    }
-    @Override
-    public void convertPdfToImage() {
-        // da completare
     }
 
     /**
@@ -79,6 +80,19 @@ public class PdfRasterServiceImpl implements PdfRasterService {
         }
         log.debug("xTraceId non valorizzato, generazione randomica");
         return UUID.randomUUID().toString();
+    }
+
+    /**
+     * Metodo per la creazione del Dto da caricare sulla coda
+     * @param fileCreationResponse
+     * @return
+     */
+    private DocumentQueueDto getDocumentQueueDto(FileCreationResponse fileCreationResponse){
+        return DocumentQueueDto.builder()
+                        .uploadUrl(fileCreationResponse.getUploadUrl())
+                        .fileKey(fileCreationResponse.getKey())
+                        .secret(fileCreationResponse.getSecret())
+                        .build();
     }
 
     /**

@@ -15,9 +15,4 @@ public interface PdfRasterService {
      * @return
      */
     Mono<PdfRasterResponse> convertPdf(String fileKey, String xPagopaSafestorageCxId, String xApiKey, String xTraceId);
-
-    /**
-     * Metodo che effettua la conversione di un pdf in un pdf che contiene solo images
-     */
-    void convertPdfToImage();
 }
