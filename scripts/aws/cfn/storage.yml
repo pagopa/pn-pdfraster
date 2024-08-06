@@ -57,7 +57,7 @@ Resources:
     Type: AWS::SQS::QueuePolicy
     Properties:
       Queues:
-        - !Ref PnPdfRasterLavorazioneQueueStack.Outputs.QueueURL
+        - !GetAtt PnPdfRasterLavorazioneQueueStack.Outputs.QueueURL
       PolicyDocument:
         Statement:
           - Sid: 'AllowAccessSameAccount'
@@ -67,7 +67,7 @@ Resources:
               - 'sqs:GetQueueAttributes'
               - 'sqs:GetQueueUrl'
             Effect: "Allow"
-            Resource: !Ref PnPdfRasterLavorazioneQueueStack.Outputs.QueueARN
+            Resource: !GetAtt PnPdfRasterLavorazioneQueueStack.Outputs.QueueARN
             Principal:
               AWS: !Ref AWS::AccountId
 
