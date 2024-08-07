@@ -141,11 +141,11 @@ Parameters:
     Description: 'Tipo documento da convertire'
 
   SsRetryStrategyMinBackoff:
-    Type: Integer
+    Type: Number
     Description: 'BackOff minimo'
 
   SsRetryStrategyMaxAttempts:
-    Type: Integer
+    Type: Number
     Description: 'Numero di tentativi'
 
 Resources:
