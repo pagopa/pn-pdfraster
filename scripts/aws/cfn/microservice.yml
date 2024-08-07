@@ -1,5 +1,5 @@
 AWSTemplateFormatVersion: 2010-09-09
-Description: 'Example microservice deploy'
+Description: 'PDFRaster microservice deploy'
 
 Parameters:
   ProjectName:
@@ -9,15 +9,15 @@ Parameters:
 
   AlarmSNSTopicArn:
     Type: String
-    Description: ARN of alarm topic
+    Description: 'ARN of alarm topic'
 
-  WebApiDnsName:
-    Type: String
-    Description: 'The DNS name used for WEB rest API.'
+#  WebApiDnsName:
+#    Type: String
+#    Description: 'The DNS name used for WEB rest API.'
   
-  CorsAllowedDomains:
-    Type: String
-    Description: 'Comma separated list of domains allowed to make cross origin request'
+#  CorsAllowedDomains:
+#    Type: String
+#    Description: 'Comma separated list of domains allowed to make cross origin request'
 
   ContainerImageUri:
     Type: String
@@ -35,9 +35,13 @@ Parameters:
     Type: String
     Description: 'The name of the ECS cluster where the microservice is going to be deployed'
 
+  VpcEgressSubnetsIds:
+    Type: String
+    Description: 'Subnets where to install PN-CONFIDENTIAL-INFO'
+
   SubnetsIds:
     Type: String
-    Description: 'subnets ids comma separated list. Where to deploy the microservice'
+    Description: 'Subnets ids comma separated list. Where to deploy the microservice'
 
   VpcId:
     Type: String
@@ -55,9 +59,9 @@ Parameters:
     Type: String
     Description: 'Base URL of the load balancer where the service is going to be reachable'
 
-  NetworkLoadBalancerLink:
-    Type: String
-    Description: 'network load balancer link for API-GW'
+#  NetworkLoadBalancerLink:
+#    Type: String
+#    Description: 'Network load balancer link for API-GW'
   
   LogsKinesisSourceStreamArn:
     Type: String
@@ -65,8 +69,68 @@ Parameters:
   
   Version:
     Type: String
-    Description: 'keep track of used projects commitIds'
+    Description: 'Keep track of used projects commitIds'
 
+  CpuValue:
+    Type: Number
+    Default: 1024
+    Description: 'Fargate virtual CPU quantity 1024 equals one vCPU'
+
+  MemoryAmount:
+    Type: String
+    Default: '2GB'
+    Description: 'Memory amount reserved to the task pod'
+    AllowedValues: [ 2GB, 4GB, 6GB, 8GB ]
+  
+  LogAlarmStrategy:
+    Type: String
+    Default: 'FATAL'
+
+  AutoscalingThreshold:
+    Default: 17500
+    Type: String
+
+  MinTasksNumber:
+    Default: 1
+    Type: Number
+    Description: 'Minimum autoscaling number of tasks'
+
+  MaxTasksNumber:
+    Default: 2
+    Type: Number
+    Description: 'Maximum autoscaling number of tasks'
+
+  PnPdfRasterTaskExecutionPoolMaxSize:
+    Type: String
+    Description: 'SpringBoot configuration Task Execution Max Pool Size'
+    Default: '250'
+
+  PnPdfRasterManagedPolicyName:
+    Type: String
+    Description: 'ECS Managed Policy name'
+    Default: 'PnPdfRasterMcsvcManagedPolicy'
+
+  JavaToolOptions:
+    Type: String
+    Description: 'System properties and parameters for the JVM'
+    Default: ''
+  
+  PnPdfRasterParameters:
+    Type: String
+    Description: 'SSM Parameter'
+
+### Input Parameters from storage.yml stack 
+  EcsLogGroup:
+    Type: String
+    Description: 'Ecs log group name'
+
+  PnPdfRasterLavorazioneQueueName:
+    Type: String
+    Description: 'Queue name for file processing'
+
+  PnPdfRasterLavorazioneQueueArn:
+    Type: String
+    Description: 'ARN coda Lavorazione PDF Raster'
 
   PnPdfRasterLavorazioneQueue:
     Type: String
@@ -76,28 +140,80 @@ Parameters:
     Type: String
     Description: 'Tipo documento da convertire'
 
+  SsRetryStrategyMinBackoff:
+    Type: Number
+    Description: 'BackOff minimo'
+
+  SsRetryStrategyMaxAttempts:
+    Type: Number
+    Description: 'Numero di tentativi'
+
 Resources:
 
-  # PN-TemplateBeMs microservice
-  TemplateBeMsMicroservice:
+  PdfRasterMicroservice:
     Type: AWS::CloudFormation::Stack
     Properties:
       TemplateURL: !Sub "${TemplateBucketBaseUrl}/fragments/ecs-service.yaml"
       Parameters:
-        MicroServiceUniqueName: !Sub '${ProjectName}-template-ms-be'
-        CpuValue: 512
-        MemoryAmount: 2GB
+        MicroServiceUniqueName: !Sub '${ProjectName}-pdfraster'
+        CpuValue: !Ref CpuValue
+        MemoryAmount: !Ref MemoryAmount
         AlarmSNSTopicArn: !Ref AlarmSNSTopicArn
         ContainerImageURI: !Sub '${ContainerImageUri}'
         ContainerEnvEntry1: !Sub 'AWS_REGIONCODE=${AWS::Region}'
-        ContainerEnvEntry2: !Sub 'PnPdfRasterLavorazioneQueue=${PnPdfRasterLavorazioneQueue}'
-        ContainerEnvEntry3: !Sub 'PnDocumentType=${PnDocumentType}'
-        MappedPaths: '/pdf-raster/*'
+        ContainerEnvEntry2: !Sub 'PnPdfRasterTaskExecutionPoolMaxSize=${PnPdfRasterTaskExecutionPoolMaxSize}'
+        ContainerEnvEntry3: !Sub 'PnPdfRasterLavorazioneQueueName=${PnPdfRasterLavorazioneQueueName}'
+        ContainerEnvEntry4: !Sub 'PnPdfRasterParameters=${PnPdfRasterParameters}'
+        ContainerEnvEntry5: !Sub 'InternalBaseUrl=http://${ApplicationLoadBalancerDomain}:8080'
+        ContainerEnvEntry6: !Sub 'SafeStorageBaseUrl=http://${ApplicationLoadBalancerDomain}:8080'
+        ContainerEnvEntry7: !Sub 'PnPdfRasterLavorazioneQueue=${PnPdfRasterLavorazioneQueue}'
+        ContainerEnvEntry8: !Sub 'PnDocumentType=${PnDocumentType}'
+        ContainerEnvEntry9: !Sub 'SsRetryStrategyMaxAttempts=${SsRetryStrategyMaxAttempts}'
+        ContainerEnvEntry10: !Sub 'SsRetryStrategyMinBackoff=${SsRetryStrategyMinBackoff}'
+        MappedPaths: '/PDFRaster/*'
         ECSClusterName: !Ref ECSClusterName
-        Subnets: !Ref SubnetsIds
+        Subnets: !Ref VpcEgressSubnetsIds
         VpcId: !Ref VpcId
         EcsDefaultSecurityGroup: !Ref EcsDefaultSecurityGroup
         LoadBalancerListenerArn: !Ref ApplicationLoadBalancerListenerArn
         LoadbalancerRulePriority: !Ref MicroserviceNumber
         CloudwatchLogKinesisStreamArn: !Ref LogsKinesisSourceStreamArn
+        TaskRoleManagedPolicyArn: !Ref PnPdfRasterManagedPolicy
+        LogAlarmStrategyV1: !Ref LogAlarmStrategy
+        EcsLogGroup: !Ref EcsLogGroup
+        LoadBalancingAlgorithm: round_robin
+        AutoscalingThreshold: !Ref AutoscalingThreshold
+        AutoscalingStrategy: REST-API
+        MinTasksNumber: !Ref MinTasksNumber
+        MaxTasksNumber: !Ref MaxTasksNumber
+        JavaToolOptions: !Ref JavaToolOptions
 
+  PnPdfRasterManagedPolicy:
+    Type: AWS::IAM::ManagedPolicy
+    Properties:
+      Description: 'String'
+      ManagedPolicyName: !Ref PnPdfRasterManagedPolicyName
+      PolicyDocument:
+        Version: 2012-10-17
+        Statement:
+          - Effect: Allow
+            Action:
+              - 'sqs:ReceiveMessage'
+              - 'sqs:DeleteMessage'
+              - 'sqs:PurgeQueue'
+              - 'sqs:SendMessage'
+              - 'sqs:Get*'
+            Resource:
+              - !Ref PnPdfRasterLavorazioneQueueArn
+          - Sid: 'CloudWatchPutMetricData'
+            Effect: Allow
+            Action:
+              - 'cloudwatch:PutMetricData'
+            Resource:
+              - '*'
+          - Sid: 'ReadParameterStore'
+            Effect: Allow
+            Action:
+              - 'ssm:GetParameter'
+            Resource:
+              - !Join [ '', [ !Sub 'arn:aws:ssm:${AWS::Region}:${AWS::AccountId}:parameter/' , !Ref PnPdfRasterParameters]]
