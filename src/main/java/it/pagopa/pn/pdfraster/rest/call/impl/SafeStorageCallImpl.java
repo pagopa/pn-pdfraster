@@ -20,8 +20,7 @@ import reactor.util.retry.Retry;
 
 import java.time.Duration;
 
-import static it.pagopa.pn.pdfraster.utils.LogUtils.POST_FILE;
-import static it.pagopa.pn.pdfraster.utils.LogUtils.SAFE_STORAGE_SERVICE;
+import static it.pagopa.pn.pdfraster.utils.LogUtils.*;
 
 @CustomLog
 @Component
@@ -62,6 +61,17 @@ public class SafeStorageCallImpl implements SafeStorageCall {
 
     @Override
     public Mono<FileDownloadResponse> getFile(String fileKey, String xPagopaSafestorageCxId, String xApiKey, String xTraceId) {
-        return null;
+        log.logInvokingExternalService(SAFE_STORAGE_SERVICE, GET_FILE);
+        return ssWebClient.get()
+                .uri(uriBuilder -> uriBuilder.path(safeStorageEndpointProperties.getFile())
+                        .build(fileKey))
+                .header(safeStorageEndpointProperties.clientHeaderName(), xPagopaSafestorageCxId)
+                .header(safeStorageEndpointProperties.apiKeyHeaderName(), xApiKey)
+                .header(safeStorageEndpointProperties.traceIdHeaderName(), xTraceId)
+                .retrieve()
+//                .onStatus(HttpStatus.FORBIDDEN::equals, clientResponse -> Mono.error(new ClientNotAuthorizedOrFoundException(xPagopaExtchServiceId)))
+//                .onStatus(status-> status.equals(HttpStatus.GONE),
+//                        clientResponse -> Mono.error(new Generic400ErrorException(GET_FILE_ERROR_TITLE, "Resource is no longer available. It may have been removed or deleted.")))
+                .bodyToMono(FileDownloadResponse.class);
     }
 }
