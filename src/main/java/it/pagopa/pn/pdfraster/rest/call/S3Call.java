@@ -8,5 +8,6 @@ public interface S3Call {
 
     Mono<OutputStream> downloadFile(String url);
 
+    Mono<Void> uploadFile(String url, byte[] file);
 }
 

@@ -5,7 +5,6 @@ import it.pagopa.pn.pdfraster.model.pojo.DocumentQueueDto;
 import it.pagopa.pn.pdfraster.rest.call.S3Call;
 import it.pagopa.pn.pdfraster.rest.call.SafeStorageCall;
 import it.pagopa.pn.pdfraster.service.impl.PdfRasterMessageReceiver;
-import it.pagopa.pn.pdfraster.ss.rest.v1.dto.FileCreationRequest;
 import it.pagopa.pn.pdfraster.ss.rest.v1.dto.FileCreationResponse;
 import it.pagopa.pn.pdfraster.testutils.annotation.SpringBootTestWebEnv;
 import lombok.CustomLog;
@@ -21,7 +20,8 @@ import reactor.core.publisher.Mono;
 import java.io.ByteArrayOutputStream;
 import java.io.IOException;
 
-import static it.pagopa.pn.pdfraster.testutils.TestUtils.*;
+import static it.pagopa.pn.pdfraster.testutils.TestUtils.documentQueueMockBean;
+import static it.pagopa.pn.pdfraster.testutils.TestUtils.getFileTestFromResources;
 import static org.mockito.ArgumentMatchers.any;
 import static org.mockito.Mockito.*;
 
@@ -42,17 +42,12 @@ class PdfRasterServiceTest {
     @MockBean
     private SafeStorageCall safeStorageCall;
     @MockBean
-    private S3Call downloadCall;
+    private S3Call s3Call;
 
     private static final byte[] FILE;
     private static final DocumentQueueDto DOCUMENT_QUEUE_DTO;
 
-    private static final FileCreationResponse FILE_CREATION_RESPONSE;
-    private static final FileCreationRequest FILE_CREATION_REQUEST;
-
     static {
-        FILE_CREATION_REQUEST = fileCreationRequestInit();
-        FILE_CREATION_RESPONSE = fileCreationResponseInit();
         DOCUMENT_QUEUE_DTO = documentQueueMockBean();
         FILE = getFileTestFromResources();
     }
@@ -60,21 +55,20 @@ class PdfRasterServiceTest {
     @Test
     void lavorazionePdfRasterDocuments(){
 
-        DocumentQueueDto documentQueueDto = DocumentQueueDto.builder().build();
         /*
             Chiamata a safe storage per recuperare la Uri di download
          */
-        doReturn(any()).when(safeStorageCall).getFile(anyString(),anyString(),anyString(),anyString());
+        doReturn(Mono.just(new FileCreationResponse())).when(safeStorageCall).getFile(anyString(),anyString(),anyString(),anyString());
 
         /*
             Chiamata a S3 per recuperare il file
          */
-        doReturn(FILE).when(downloadCall).downloadFile(anyString());
+        doReturn(Mono.just(FILE)).when(s3Call).downloadFile(anyString());
 
         /*
             Caricamento su S3 del nuovo file convertito
          */
-
+        doReturn(Mono.empty()).when(s3Call).uploadFile(DOCUMENT_QUEUE_DTO.getUploadUrl(),FILE);
 
         /*
             Start flusso
@@ -82,9 +76,9 @@ class PdfRasterServiceTest {
         pdfRasterMessageReceiver.lavorazionePdfRasterDocuments(DOCUMENT_QUEUE_DTO,acknowledgment);
 
         verify(safeStorageCall,times(1)).getFile(anyString(),anyString(),anyString(),anyString());
-        verify(downloadCall,times(1)).downloadFile(anyString());
+        verify(s3Call,times(1)).downloadFile(anyString());
         verify(convertPdfService, times(1)).convertPdfToImage(any());
-        verify(safeStorageCall,times(1)).createFile(anyString(), anyString(), anyString(), anyString(), any());
+        verify(s3Call,times(1)).uploadFile(anyString(),any());
     }
 
     @Test
@@ -95,47 +89,40 @@ class PdfRasterServiceTest {
         pdfRasterMessageReceiver.lavorazionePdfRasterDocuments(DOCUMENT_QUEUE_DTO,acknowledgment);
 
         verify(safeStorageCall,times(1)).getFile(anyString(),anyString(),anyString(),anyString());
-        verify(downloadCall,never()).downloadFile(anyString());
+        verify(s3Call,never()).downloadFile(anyString());
         verify(convertPdfService,never()).convertPdfToImage(any());
-        verify(safeStorageCall,never()).createFile(anyString(), anyString(), anyString(), anyString(), any());
-
-
+        verify(s3Call,never()).uploadFile(anyString(),any());
     }
 
     @Test
     void safeStorage_Ko_CreateFile(){
-        doReturn(any()).when(safeStorageCall).getFile(anyString(),anyString(),anyString(),anyString());
+        doReturn(Mono.just(new FileCreationResponse())).when(safeStorageCall).getFile(anyString(),anyString(),anyString(),anyString());
 
-        doReturn(FILE).when(downloadCall).downloadFile(anyString());
+        doReturn(Mono.just(FILE)).when(s3Call).downloadFile(anyString());
 
-        doReturn(Mono.error(new Exception())).when(safeStorageCall).createFile(anyString(), anyString(), anyString(), anyString(), any());
+        doReturn(Mono.error(new Exception())).when(s3Call).uploadFile(DOCUMENT_QUEUE_DTO.getUploadUrl(),FILE);
 
         pdfRasterMessageReceiver.lavorazionePdfRasterDocuments(DOCUMENT_QUEUE_DTO,acknowledgment);
 
         verify(safeStorageCall,times(1)).getFile(anyString(),anyString(),anyString(),anyString());
-        verify(downloadCall,times(1)).downloadFile(anyString());
+        verify(s3Call,times(1)).downloadFile(anyString());
         verify(convertPdfService, times(1)).convertPdfToImage(any());
-        verify(safeStorageCall,times(1)).createFile(anyString(), anyString(), anyString(), anyString(), any());
+        verify(s3Call,times(1)).uploadFile(anyString(),any());
 
     }
 
     @Test
     void s3_Ko_getFile(){
-        doReturn(any()).when(safeStorageCall).getFile(anyString(),anyString(),anyString(),anyString());
+        doReturn(Mono.just(new FileCreationResponse())).when(safeStorageCall).getFile(anyString(),anyString(),anyString(),anyString());
 
-        doReturn(Mono.error(new Exception())).when(downloadCall).downloadFile(anyString());
+        doReturn(Mono.error(new Exception())).when(s3Call).downloadFile(anyString());
 
         pdfRasterMessageReceiver.lavorazionePdfRasterDocuments(DOCUMENT_QUEUE_DTO,acknowledgment);
 
         verify(safeStorageCall,times(1)).getFile(anyString(),anyString(),anyString(),anyString());
-        verify(downloadCall,times(1)).downloadFile(anyString());
+        verify(s3Call,times(1)).downloadFile(anyString());
         verify(convertPdfService, never()).convertPdfToImage(any());
-        verify(safeStorageCall,never()).createFile(anyString(), anyString(), anyString(), anyString(), any());
-    }
-
-    @Test
-    void conversionePdf_Ko(){
-
+        verify(s3Call,never()).uploadFile(anyString(),any());
     }
 
     @Test

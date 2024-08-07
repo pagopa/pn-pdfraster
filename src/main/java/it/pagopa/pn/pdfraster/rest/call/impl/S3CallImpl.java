@@ -16,4 +16,9 @@ public class S3CallImpl implements S3Call {
     public Mono<OutputStream> downloadFile(String url) {
         return null;
     }
+
+    @Override
+    public Mono<Void> uploadFile(String url,byte[] file) {
+        return null;
+    }
 }

@@ -5,7 +5,7 @@ import it.pagopa.pn.pdfraster.ss.rest.v1.dto.FileCreationRequest;
 import it.pagopa.pn.pdfraster.ss.rest.v1.dto.FileCreationResponse;
 import org.apache.commons.io.IOUtils;
 
-import java.io.ByteArrayOutputStream;
+import java.io.FileInputStream;
 import java.io.IOException;
 
 public abstract class TestUtils {
@@ -55,10 +55,8 @@ public abstract class TestUtils {
      * @return
      */
     public static byte[] getFileTestFromResources(){
-        try (var in = TestUtils.class.getClassLoader().getResourceAsStream("test/resources/test.pdf")){
-            if(in != null)
-                IOUtils.toByteArray(in);
-            return new byte[0];
+        try (var in = new FileInputStream("src/test/resources/TEST.pdf")){
+            return IOUtils.toByteArray(in);
         } catch (IOException e) {
             throw new RuntimeException(e);
         }
