@@ -2,17 +2,21 @@ package it.pagopa.pn.pdfraster.service.impl;
 
 import com.fasterxml.jackson.databind.ObjectMapper;
 import it.pagopa.pn.commons.utils.MDCUtils;
+import it.pagopa.pn.pdfraster.configuration.properties.SqsRetryStrategyProperties;
 import it.pagopa.pn.pdfraster.exceptions.SqsClientException;
 import it.pagopa.pn.pdfraster.service.SqsService;
 import lombok.CustomLog;
 import org.springframework.stereotype.Service;
 import reactor.core.publisher.Mono;
+import reactor.util.retry.Retry;
 import reactor.util.retry.RetryBackoffSpec;
 import software.amazon.awssdk.services.sqs.SqsAsyncClient;
 import software.amazon.awssdk.services.sqs.model.GetQueueUrlResponse;
 import software.amazon.awssdk.services.sqs.model.SendMessageResponse;
+import software.amazon.awssdk.services.sqs.model.SqsException;
 
 import java.security.SecureRandom;
+import java.time.Duration;
 import java.util.Base64;
 
 import static it.pagopa.pn.pdfraster.utils.LogUtils.*;
@@ -27,10 +31,12 @@ public class SqsServiceImpl implements SqsService {
 
     private static final int MESSAGE_GROUP_ID_LENGTH = 64;
 
-    public SqsServiceImpl(ObjectMapper objectMapper, SqsAsyncClient sqsAsyncClient, RetryBackoffSpec sqsRetryStrategy){
+    public SqsServiceImpl(ObjectMapper objectMapper, SqsAsyncClient sqsAsyncClient, SqsRetryStrategyProperties sqsRetryStrategyProperties){
         this.objectMapper = objectMapper;
         this.sqsAsyncClient = sqsAsyncClient;
-        this.sqsRetryStrategy = sqsRetryStrategy;
+        this.sqsRetryStrategy = Retry.backoff(sqsRetryStrategyProperties.maxAttempts(), Duration.ofSeconds(sqsRetryStrategyProperties.minBackoff()))
+                .filter(SqsException.class::isInstance)
+                .onRetryExhaustedThrow((retryBackoffSpec, retrySignal) -> retrySignal.failure());
     }
 
     @Override
