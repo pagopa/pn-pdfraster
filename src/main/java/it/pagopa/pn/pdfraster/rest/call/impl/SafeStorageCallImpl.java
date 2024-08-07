@@ -33,8 +33,8 @@ public class SafeStorageCallImpl implements SafeStorageCall {
 
     public SafeStorageCallImpl(WebClient webClient,
                                SafeStorageEndpointProperties safeStorageEndpointProperties,
-                               @Value(value = "ss.retry.strategy.min-backoff") int backOff,
-                               @Value(value = "ss.retry.strategy.max-attempts") int maxAttemps){
+                               @Value(value = "${ss.retry.strategy.min-backoff}") Integer backOff,
+                               @Value(value = "${ss.retry.strategy.max-attempts}") Integer maxAttemps){
         this.ssWebClient = webClient;
         this.safeStorageEndpointProperties = safeStorageEndpointProperties;
         this.retry = Retry.backoff(maxAttemps,Duration.ofSeconds(backOff))
