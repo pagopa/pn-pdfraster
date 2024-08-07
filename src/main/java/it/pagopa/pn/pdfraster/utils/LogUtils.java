@@ -13,6 +13,15 @@ public abstract class LogUtils {
     public static final String SUCCESSFUL_OPERATION_ON_LABEL = "Successful operation on '{}' : '{}' = {}";
     public static final String INVOKING_OPERATION_LABEL_WITH_ARGS = "Invoking operation '{}' with args: {}";
 
+    //#####S3#####
+    public static final String DOWNLOAD_FILE = "DownloadCall.downloadFile()";
+
+    //#####SERVIZI ESTERNI#####
+    public static final String CLIENT_METHOD_INVOCATION_WITH_ARGS = "Client method {} - args: {}";
+    public static final String CLIENT_METHOD_INVOCATION = "Client method {}";
+    public static final String CLIENT_METHOD_RETURN = "Return client method: {} = {}";
+    public static final String CLIENT_METHOD_RETURN_WITH_ERROR = "Return client method '{}' with error: {} - {}";
+
     //#####SQS#####
     public static final String SQS_SEND = "PdfRasterServiceImpl.send";
     public static final String INSERTING_DATA_IN_SQS = "Inserting data {} in SQS '{}'";

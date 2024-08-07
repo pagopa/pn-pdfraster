@@ -68,7 +68,7 @@ class PdfRasterServiceTest {
         /*
             Caricamento su S3 del nuovo file convertito
          */
-        doReturn(Mono.empty()).when(s3Call).uploadFile(DOCUMENT_QUEUE_DTO.getUploadUrl(),FILE);
+        doReturn(Mono.empty()).when(s3Call).uploadFile(DOCUMENT_QUEUE_DTO.getUploadUrl(),DOCUMENT_QUEUE_DTO.getSecret(),FILE);
 
         /*
             Start flusso
@@ -78,7 +78,7 @@ class PdfRasterServiceTest {
         verify(safeStorageCall,times(1)).getFile(anyString(),anyString(),anyString(),anyString());
         verify(s3Call,times(1)).downloadFile(anyString());
         verify(convertPdfService, times(1)).convertPdfToImage(any());
-        verify(s3Call,times(1)).uploadFile(anyString(),any());
+        verify(s3Call,times(1)).uploadFile(anyString(),anyString(),any());
     }
 
     @Test
@@ -91,7 +91,7 @@ class PdfRasterServiceTest {
         verify(safeStorageCall,times(1)).getFile(anyString(),anyString(),anyString(),anyString());
         verify(s3Call,never()).downloadFile(anyString());
         verify(convertPdfService,never()).convertPdfToImage(any());
-        verify(s3Call,never()).uploadFile(anyString(),any());
+        verify(s3Call,never()).uploadFile(anyString(),anyString(),any());
     }
 
     @Test
@@ -100,14 +100,14 @@ class PdfRasterServiceTest {
 
         doReturn(Mono.just(FILE)).when(s3Call).downloadFile(anyString());
 
-        doReturn(Mono.error(new Exception())).when(s3Call).uploadFile(DOCUMENT_QUEUE_DTO.getUploadUrl(),FILE);
+        doReturn(Mono.error(new Exception())).when(s3Call).uploadFile(DOCUMENT_QUEUE_DTO.getUploadUrl(), DOCUMENT_QUEUE_DTO.getSecret(),FILE);
 
         pdfRasterMessageReceiver.lavorazionePdfRasterDocuments(DOCUMENT_QUEUE_DTO,acknowledgment);
 
         verify(safeStorageCall,times(1)).getFile(anyString(),anyString(),anyString(),anyString());
         verify(s3Call,times(1)).downloadFile(anyString());
         verify(convertPdfService, times(1)).convertPdfToImage(any());
-        verify(s3Call,times(1)).uploadFile(anyString(),any());
+        verify(s3Call,times(1)).uploadFile(anyString(),anyString(),any());
 
     }
 
@@ -122,7 +122,7 @@ class PdfRasterServiceTest {
         verify(safeStorageCall,times(1)).getFile(anyString(),anyString(),anyString(),anyString());
         verify(s3Call,times(1)).downloadFile(anyString());
         verify(convertPdfService, never()).convertPdfToImage(any());
-        verify(s3Call,never()).uploadFile(anyString(),any());
+        verify(s3Call,never()).uploadFile(anyString(),anyString(),any());
     }
 
     @Test

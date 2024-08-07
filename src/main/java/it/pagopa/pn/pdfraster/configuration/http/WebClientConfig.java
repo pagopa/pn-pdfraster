@@ -33,4 +33,10 @@ public class WebClientConfig {
             httpHeaders.set(safeStorageEndpointProperties.apiKeyHeaderName(), safeStorageEndpointProperties.apiKeyHeaderValue());
         }).build();
     }
+
+    @Bean
+    public WebClient s3WebClient() {
+        return defaultWebClientBuilder().build();
+    }
+
 }
