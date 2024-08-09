@@ -148,6 +148,15 @@ Parameters:
     Type: Number
     Description: 'Numero di tentativi'
 
+
+  PnPdfRasterLavorazioneQueue:
+    Type: String
+    Description: 'Nome della coda sqs di lavorazione'
+
+  PnDocumentType:
+    Type: String
+    Description: 'Tipo documento da convertire'
+
 Resources:
 
   PdfRasterMicroservice:

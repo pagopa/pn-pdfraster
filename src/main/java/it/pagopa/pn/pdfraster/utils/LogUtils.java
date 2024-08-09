@@ -25,4 +25,7 @@ public abstract class LogUtils {
     public static final String GET_FILE = "getFile";
     public static final String POST_FILE = "postFile";
 
+    //#####SERVIZI ESTERNI#####
+    public static final String CLIENT_METHOD_INVOCATION_WITH_ARGS = "Client method {} - args: {}";
+
 }
