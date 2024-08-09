@@ -59,7 +59,12 @@
 				</exclusion>
 			</exclusions>
 		</dependency>
-
+		
+		<dependency>
+		    <groupId>org.codehaus.janino</groupId>
+		    <artifactId>janino</artifactId>
+		</dependency>
+				
 		<!-- Start OpenApi dependencies -->
 		<dependency>
 			<groupId>org.openapitools</groupId>
@@ -90,6 +95,11 @@
 			<artifactId>logging-interceptor</artifactId>
 		</dependency>
 		<!-- End OpenApi dependencies -->
+
+		<dependency>
+			<groupId>org.eclipse.jetty</groupId>
+			<artifactId>jetty-reactive-httpclient</artifactId>
+		</dependency>
 
 		<dependency>
 			<groupId>org.projectlombok</groupId>

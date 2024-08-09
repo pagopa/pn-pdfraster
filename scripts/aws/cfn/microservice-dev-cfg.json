@@ -1,6 +1,16 @@
 {
   "Parameters" : {
-     "PnPdfRasterLavorazioneQueue": "pn-pdf-raster-lavorazione-queue",
-     "PnDocumentType": "PN_NOTIFICATION_ATTACHMENTS"
+    "MinTasksNumber": "1",
+    "MaxTasksNumber": "2",
+    "AutoscalingThreshold": "17500",
+    "CpuValue": "1024",
+    "MemoryAmount": "4GB",
+    "PnPdfRasterLavorazioneQueue": "pn-PDFRaster-lavorazione-queue",
+    "PnDocumentType": "PN_NOTIFICATION_ATTACHMENTS",
+    "SsRetryStrategyMaxAttempts": "3",
+    "SsRetryStrategyMinBackoff": "3",
+    "PnPdfRasterTaskExecutionPoolMaxSize": "250",
+    "JavaToolOptions": "",
+    "PnPdfRasterParameters": "pn-PDFRaster"
   }
 }
