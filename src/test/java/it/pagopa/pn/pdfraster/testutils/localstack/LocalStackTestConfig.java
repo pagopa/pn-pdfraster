@@ -40,7 +40,7 @@ public class LocalStackTestConfig {
                     "--type",
                     "String",
                     "--value",
-                    "{}");
+                    "{\"cropbox\":\"0,0;1000,1000\",\"dpi\":150,\"mediaSize\":\"A4\",\"margins\":\"0,0;1500,2000\",\"scaleOrCrop\":\"crop\"}");
         } catch (IOException | InterruptedException e) {
             throw new RuntimeException(e);
         }

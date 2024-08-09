@@ -24,15 +24,16 @@ public class PdfTransformationConfiguration {
     @Getter
     private final PdfTransformationConfigParams pdfTransformationConfigParams;
 
-    @Value("${pn.pdfraster.parameter.name}")
-    private String pdfRasterParameterName;
+    private final String pdfRasterParameterName;
 
 
 
-    public PdfTransformationConfiguration(SsmClient ssmClient, JsonUtils jsonUtils) {
+    public PdfTransformationConfiguration(SsmClient ssmClient, JsonUtils jsonUtils,@Value("${pn.pdfraster.parameter.name}")String pdfRasterParameterName) {
         this.ssmClient = ssmClient;
         this.jsonUtils = jsonUtils;
+        this.pdfRasterParameterName=pdfRasterParameterName;
         this.pdfTransformationConfigParams = this.pdfTransformationConfigurationFromParameterStore();
+
 
     }
 
@@ -42,7 +43,6 @@ public class PdfTransformationConfiguration {
 
         GetParameterResponse response = ssmClient.getParameter(GetParameterRequest.builder()
                 .name(pdfRasterParameterName)
-                .withDecryption(true)
                 .build());
 
         String parameterValue = response.parameter().value();
