@@ -20,72 +20,34 @@ paths:
 ###                                      PDF RASTER API                                      ###
 ################################################################################################
 
-  '/pdf-raster/convert/{fileKey}':
-    parameters:
-      - $ref: '#/components/parameters/xPagopaSafestorageCxId'
-      - $ref: '#/components/parameters/xApiKey'
-      - $ref: '#/components/parameters/xTraceId'
-      - $ref: '#/components/parameters/fileKey'
-    get:
+  '/pdf-raster/convert':
+    post:
       operationId: convertPdf
       tags:
         - Pdf Raster
-      summary: Converti i documenti tramite la filekey
+      summary: Converte il documento in input
       description: Operazione necessaria alla conversione dei documenti
+      requestBody:
+        required: true
+        content:
+          multipart/form-data:
+            schema:
+              properties:
+                file:
+                  type: string
+                  format: binary
+                  description: The PDF file to upload
       responses:
         '200':
           description: OK
           content:
-            application/json:
+            application/pdf:
               schema:
-               $ref: '#/components/schemas/PdfRasterResponse'
-        '404':
-          description: Nessun documento trovato per la FileKey indicata
-        '403':
-          description: Non autorizzato all'operazione di conversione
+                type: string
+                format: binary
+                description: The generated PDF file
         '400':
           description: Richiesta non validata correttamente
         '500':
           description: Internal Server Error
-
-components:
-  parameters:
-    fileKey:
-      name: fileKey
-      description: File Key utilizzata per recuperare l'attachment
-      in: path
-      required: true
-      schema:
-        type: string
-      example: '8F7E/9A3B/1234/AB87'
-    xPagopaSafestorageCxId:
-      name: x-pagopa-safestorage-cx-id
-      description: Identificativo del sistema client
-      in: header
-      required: true
-      schema:
-        type: string
-      example: pn-delivery-push
-    xApiKey:
-      name: x-api-key
-      description: Api Key
-      in: header
-      required: true
-      schema:
-        type: string
-    xTraceId:
-      name: x-amzn-trace-id
-      description: Trace Id
-      in: header
-      schema:
-        type: string
-
-  schemas:
-    PdfRasterResponse:
-      description: Dto di response contenente la nuova FileKey allocata su SafeStorage
-      type: object
-      properties:
-        newFileKey:
-          type: string
-          description: Nuova FileKey restituita da SafeStorage
 
