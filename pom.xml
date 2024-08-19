@@ -26,9 +26,14 @@
 		<java.version>17</java.version>
 		<awssdkv1.version>1.12.386</awssdkv1.version>
 		<logbackjackson.version>0.1.5</logbackjackson.version>
-		<openapi-generator-version>5.4.0</openapi-generator-version>
+		<openapi-generator-version>7.7.0</openapi-generator-version>
 	</properties>
 	<dependencies>
+
+		<dependency>
+			<groupId>org.springframework.boot</groupId>
+			<artifactId>spring-boot-starter-web</artifactId>
+		</dependency>
 
 		<dependency>
 			<groupId>org.apache.commons</groupId>
@@ -80,9 +85,14 @@
 
 		<dependency>
 			<groupId>org.springdoc</groupId>
-			<artifactId>springdoc-openapi-webflux-ui</artifactId>
-			<version>1.6.14</version>
+			<artifactId>springdoc-openapi-ui</artifactId>
+			<version>1.8.0</version>
 		</dependency>
+<!--		<dependency>-->
+<!--			<groupId>org.springdoc</groupId>-->
+<!--			<artifactId>springdoc-openapi-webflux-ui</artifactId>-->
+<!--			<version>1.6.14</version>-->
+<!--		</dependency>-->
 
 		<dependency>
 			<groupId>io.gsonfire</groupId>
@@ -262,43 +272,13 @@
 								<annotationLibrary>none</annotationLibrary>
 								<documentationProvider>source</documentationProvider>
 								<openApiNullable>false</openApiNullable>
-								<reactive>true</reactive>
+								<reactive>false</reactive>
 								<skipDefaultInterface>false</skipDefaultInterface>
 								<useTags>true</useTags>
 								<basePackage>${project.groupId}.pdfraster.rest.v1</basePackage>
 								<modelPackage>${project.groupId}.pdfraster.rest.v1.dto</modelPackage>
 								<apiPackage>${project.groupId}.pdfraster.rest.v1.api</apiPackage>
 								<configPackage>${project.groupId}.pdfraster.rest.v1.config</configPackage>
-							</configOptions>
-						</configuration>
-					</execution>
-					<execution>
-						<id>generate-convert-ss</id>
-						<goals>
-							<goal>generate</goal>
-						</goals>
-						<phase>generate-resources</phase>
-						<configuration>
-							<templateDirectory>src/main/resources/templates/openapi</templateDirectory>
-							<inputSpec>https://raw.githubusercontent.com/pagopa/pn-ss/73143f16f8624cd439938989ab1bc98983049bfb/docs/openapi/pn-safestorage-v1.1-api.yaml</inputSpec>
-							<generatorName>spring</generatorName>
-							<library>spring-boot</library>
-							<generateApiDocumentation>false</generateApiDocumentation>
-							<generateApiTests>false</generateApiTests>
-							<generateModelTests>false</generateModelTests>
-							<configOptions>
-								<delegatePattern>true</delegatePattern>
-								<interfaceOnly>true</interfaceOnly>
-								<annotationLibrary>none</annotationLibrary>
-								<documentationProvider>source</documentationProvider>
-								<openApiNullable>false</openApiNullable>
-								<reactive>true</reactive>
-								<skipDefaultInterface>false</skipDefaultInterface>
-								<useTags>true</useTags>
-								<basePackage>${project.groupId}.ss.rest.v1</basePackage>
-								<modelPackage>${project.groupId}.ss.rest.v1.dto</modelPackage>
-								<apiPackage>${project.groupId}.ss.rest.v1.api</apiPackage>
-								<configPackage>${project.groupId}.ss.rest.v1.config</configPackage>
 							</configOptions>
 						</configuration>
 					</execution>

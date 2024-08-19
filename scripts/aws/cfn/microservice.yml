@@ -124,35 +124,6 @@ Parameters:
     Type: String
     Description: 'Ecs log group name'
 
-  PnPdfRasterLavorazioneQueueName:
-    Type: String
-    Description: 'Queue name for file processing'
-
-  PnPdfRasterLavorazioneQueueArn:
-    Type: String
-    Description: 'ARN coda Lavorazione PDF Raster'
-
-  PnPdfRasterLavorazioneQueue:
-    Type: String
-    Description: 'Nome della coda sqs di lavorazione'
-
-  PnDocumentType:
-    Type: String
-    Description: 'Tipo documento da convertire'
-
-  SsRetryStrategyMinBackoff:
-    Type: Number
-    Description: 'BackOff minimo'
-
-  SsRetryStrategyMaxAttempts:
-    Type: Number
-    Description: 'Numero di tentativi'
-
-
-  PnPdfRasterLavorazioneQueue:
-    Type: String
-    Description: 'Nome della coda sqs di lavorazione'
-
   PnDocumentType:
     Type: String
     Description: 'Tipo documento da convertire'
@@ -171,14 +142,10 @@ Resources:
         ContainerImageURI: !Sub '${ContainerImageUri}'
         ContainerEnvEntry1: !Sub 'AWS_REGIONCODE=${AWS::Region}'
         ContainerEnvEntry2: !Sub 'PnPdfRasterTaskExecutionPoolMaxSize=${PnPdfRasterTaskExecutionPoolMaxSize}'
-        ContainerEnvEntry3: !Sub 'PnPdfRasterLavorazioneQueueName=${PnPdfRasterLavorazioneQueueName}'
-        ContainerEnvEntry4: !Sub 'PnPdfRasterParameters=${PnPdfRasterParameters}'
-        ContainerEnvEntry5: !Sub 'InternalBaseUrl=http://${ApplicationLoadBalancerDomain}:8080'
-        ContainerEnvEntry6: !Sub 'SafeStorageBaseUrl=http://${ApplicationLoadBalancerDomain}:8080'
-        ContainerEnvEntry7: !Sub 'PnPdfRasterLavorazioneQueue=${PnPdfRasterLavorazioneQueue}'
-        ContainerEnvEntry8: !Sub 'PnDocumentType=${PnDocumentType}'
-        ContainerEnvEntry9: !Sub 'SsRetryStrategyMaxAttempts=${SsRetryStrategyMaxAttempts}'
-        ContainerEnvEntry10: !Sub 'SsRetryStrategyMinBackoff=${SsRetryStrategyMinBackoff}'
+        ContainerEnvEntry3: !Sub 'PnPdfRasterParameters=${PnPdfRasterParameters}'
+        ContainerEnvEntry4: !Sub 'InternalBaseUrl=http://${ApplicationLoadBalancerDomain}:8080'
+        ContainerEnvEntry5: !Sub 'SafeStorageBaseUrl=http://${ApplicationLoadBalancerDomain}:8080'
+        ContainerEnvEntry6: !Sub 'PnDocumentType=${PnDocumentType}'
         MappedPaths: '/PDFRaster/*'
         ECSClusterName: !Ref ECSClusterName
         Subnets: !Ref VpcEgressSubnetsIds
