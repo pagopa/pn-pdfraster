@@ -124,10 +124,6 @@ Parameters:
     Type: String
     Description: 'Ecs log group name'
 
-  PnDocumentType:
-    Type: String
-    Description: 'Tipo documento da convertire'
-
 Resources:
 
   PdfRasterMicroservice:
@@ -172,15 +168,6 @@ Resources:
       PolicyDocument:
         Version: 2012-10-17
         Statement:
-          - Effect: Allow
-            Action:
-              - 'sqs:ReceiveMessage'
-              - 'sqs:DeleteMessage'
-              - 'sqs:PurgeQueue'
-              - 'sqs:SendMessage'
-              - 'sqs:Get*'
-            Resource:
-              - !Ref PnPdfRasterLavorazioneQueueArn
           - Sid: 'CloudWatchPutMetricData'
             Effect: Allow
             Action:
