@@ -3,17 +3,6 @@ package it.pagopa.pn.pdfraster.service.impl;
 import it.pagopa.pn.pdfraster.exceptions.Generic400ErrorException;
 import it.pagopa.pn.pdfraster.service.ConvertPdfService;
 import lombok.CustomLog;
-import org.springframework.stereotype.Service;
-
-import java.awt.*;
-import java.io.ByteArrayOutputStream;
-import java.awt.image.BufferedImage;
-import java.io.IOException;
-import java.util.Arrays;
-import java.util.List;
-
-import javax.imageio.ImageIO;
-
 import org.apache.pdfbox.Loader;
 import org.apache.pdfbox.pdmodel.PDDocument;
 import org.apache.pdfbox.pdmodel.PDPage;
@@ -25,32 +14,25 @@ import org.apache.pdfbox.pdmodel.interactive.form.PDAcroForm;
 import org.apache.pdfbox.rendering.ImageType;
 import org.apache.pdfbox.rendering.PDFRenderer;
 import org.apache.pdfbox.tools.imageio.ImageIOUtil;
-
+import org.springframework.stereotype.Service;
 import picocli.CommandLine.Command;
 import picocli.CommandLine.Option;
+
+import javax.imageio.ImageIO;
+import java.awt.*;
+import java.awt.image.BufferedImage;
+import java.io.ByteArrayOutputStream;
+import java.io.IOException;
+import java.util.Arrays;
+import java.util.List;
 
 @CustomLog
 @Service
 @Command(name = "pdftoimage", header = "Converts a PDF document to image(s)", /*versionProvider = Version.class,*/ mixinStandardHelpOptions = true)
 public class ConvertPdfServiceImpl implements ConvertPdfService {
 
-    @Option(names = "-password", description = "the password to decrypt the document", arity = "0..1", interactive = true)
-    private String password;
-
     @Option(names = {"-format"}, description = "the image file format (default: ${DEFAULT-VALUE})")
     private String imageFormat = "jpg";
-
-    @Option(names = {"-prefix", "-outputPrefix"}, description = "the filename prefix for image files")
-    private String outputPrefix;
-
-    @Option(names = "-page", description = "the only page to extract (1-based)")
-    private int page = -1;
-
-    @Option(names = "-startPage", description = "the first page to start extraction (1-based)")
-    private int startPage = 1;
-
-    @Option(names = "-endPage", description = "the last page to extract (inclusive)")
-    private int endPage = Integer.MAX_VALUE;
 
     @Option(names = "-color", description = "the color depth (valid: ${COMPLETION-CANDIDATES}) (default: ${DEFAULT-VALUE})")
     private ImageType imageType = ImageType.ARGB;
@@ -67,12 +49,6 @@ public class ConvertPdfServiceImpl implements ConvertPdfService {
 
     @Option(names = "-cropbox", arity = "4", description = "the page area to export")
     private int[] cropbox;
-
-    @Option(names = "-time", description = "print timing information to stdout")
-    private boolean showTime;
-
-    @Option(names = "-subsampling", description = "activate subsampling (for PDFs with huge images)")
-    private boolean subsampling;
 
 
     @Override
@@ -96,7 +72,7 @@ public class ConvertPdfServiceImpl implements ConvertPdfService {
             }
         }
 
-        try (PDDocument document = Loader.loadPDF(file, password)) {
+        try (PDDocument document = Loader.loadPDF(file)) {
             PDAcroForm acroForm = document.getDocumentCatalog().getAcroForm();
             if (acroForm != null && acroForm.getNeedAppearances()) {
                 acroForm.refreshAppearances();
@@ -106,14 +82,13 @@ public class ConvertPdfServiceImpl implements ConvertPdfService {
                 changeCropBox(document, cropbox[0], cropbox[1], cropbox[2], cropbox[3]);
             }
 
-            endPage = Math.min(endPage, document.getNumberOfPages());
             PDFRenderer renderer = new PDFRenderer(document);
-            renderer.setSubsamplingAllowed(subsampling);
+            renderer.setSubsamplingAllowed(false);
             PDDocument oDoc = new PDDocument();
             PDRectangle actualMediaBox = PDRectangle.A4;
 
             PDPage oInPage;
-            for (int i = startPage - 1; i < endPage; i++) {
+            for (int i = 0; i < document.getNumberOfPages(); i++) {
                 oInPage = document.getPage(i);
                 log.info("Input Page Height:{}", oInPage.getBBox().getHeight());
                 log.info("Input Page Width:{}", oInPage.getBBox().getWidth());
@@ -131,7 +106,7 @@ public class ConvertPdfServiceImpl implements ConvertPdfService {
                 }
                 oDoc.addPage(oPage);
             }
-            oDoc.save("output.pdf");
+
             ByteArrayOutputStream response = new ByteArrayOutputStream();
             oDoc.save(response);
             oDoc.close();
