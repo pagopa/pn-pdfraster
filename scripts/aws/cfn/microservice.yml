@@ -124,18 +124,6 @@ Parameters:
     Type: String
     Description: 'Ecs log group name'
 
-  PnDocumentType:
-    Type: String
-    Description: 'Tipo documento da convertire'
-
-  SsRetryStrategyMinBackoff:
-    Type: Number
-    Description: 'BackOff minimo'
-
-  SsRetryStrategyMaxAttempts:
-    Type: Number
-    Description: 'Numero di tentativi'
-
 Resources:
 
   PdfRasterMicroservice:
@@ -154,8 +142,6 @@ Resources:
         ContainerEnvEntry4: !Sub 'InternalBaseUrl=http://${ApplicationLoadBalancerDomain}:8080'
         ContainerEnvEntry5: !Sub 'SafeStorageBaseUrl=http://${ApplicationLoadBalancerDomain}:8080'
         ContainerEnvEntry6: !Sub 'PnDocumentType=${PnDocumentType}'
-        ContainerEnvEntry7: !Sub 'SsRetryStrategyMaxAttempts=${SsRetryStrategyMaxAttempts}'
-        ContainerEnvEntry8: !Sub 'SsRetryStrategyMinBackoff=${SsRetryStrategyMinBackoff}'
         MappedPaths: '/PDFRaster/*'
         ECSClusterName: !Ref ECSClusterName
         Subnets: !Ref VpcEgressSubnetsIds

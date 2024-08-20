@@ -1,6 +1,6 @@
-package it.pagopa.pn.pdfraster.testutils.annotation;
+package it.pagopa.pn.pdfraster.utils.annotation;
 
-import it.pagopa.pn.pdfraster.testutils.localstack.LocalStackTestConfig;
+import it.pagopa.pn.pdfraster.utils.localstack.LocalStackTestConfig;
 import org.springframework.boot.test.context.SpringBootTest;
 import org.springframework.context.annotation.Import;
 

@@ -6,8 +6,6 @@
     "CpuValue": "1024",
     "MemoryAmount": "4GB",
     "PnDocumentType": "PN_NOTIFICATION_ATTACHMENTS",
-    "SsRetryStrategyMaxAttempts": "3",
-    "SsRetryStrategyMinBackoff": "3",
     "PnPdfRasterTaskExecutionPoolMaxSize": "250",
     "JavaToolOptions": "",
     "PnPdfRasterParameters": "pn-PDFRaster"
