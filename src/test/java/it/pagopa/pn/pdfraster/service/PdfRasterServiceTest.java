@@ -44,11 +44,25 @@ class PdfRasterServiceTest {
     }
 
     @Test
-    void conversionePdf_KO_EmptyFile(){
+    void conversionePdf_KO_WrongFile(){
         ByteArrayOutputStream response = null;
         Exception ex = null;
         try {
             response = convertPdfService.convertPdfToImage(FILE_KO);
+        } catch (Exception e) {
+            ex = e;
+        }
+
+        Assertions.assertNotNull(ex);
+        Assertions.assertNull(response);
+    }
+
+    @Test
+    void conversionePdf_KO_EmptyFile(){
+        ByteArrayOutputStream response = null;
+        Exception ex = null;
+        try {
+            response = convertPdfService.convertPdfToImage(new byte[0]);
         } catch (Exception e) {
             ex = e;
         }

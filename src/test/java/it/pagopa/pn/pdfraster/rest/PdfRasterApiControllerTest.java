@@ -84,6 +84,7 @@ class PdfRasterApiControllerTest {
                 .expectStatus().isOk()
                 .expectBody(Resource.class)
                 .consumeWith(response -> {
+                    assertNotNull(response);
                     Resource resource = response.getResponseBody();
                     assertNotNull(resource);
                 });
@@ -93,9 +94,9 @@ class PdfRasterApiControllerTest {
     void convertPdf_KO(){
         getResponseEntityExchangeResult(FILE_TEST_KO)
                 .expectStatus().isBadRequest()
-                .expectBody(Exception.class)
+                .expectBody(Resource.class)
                 .consumeWith(ex ->{
-                    Assertions.assertInstanceOf(Generic400ErrorException.class,ex.getResponseBody());
+                    Assertions.assertNull(ex.getResponseBody());
                 });
     }
 
