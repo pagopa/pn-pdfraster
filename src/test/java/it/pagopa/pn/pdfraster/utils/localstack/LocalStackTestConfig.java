@@ -33,7 +33,7 @@ public class LocalStackTestConfig {
                     "ssm",
                     "put-parameter",
                     "--name",
-                    "pn-PdfRaster-settings",
+                    "pn-PDFRaster",
                     "--type",
                     "String",
                     "--value",

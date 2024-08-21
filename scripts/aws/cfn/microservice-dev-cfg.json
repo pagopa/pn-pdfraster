@@ -2,10 +2,9 @@
   "Parameters" : {
     "MinTasksNumber": "1",
     "MaxTasksNumber": "2",
-    "AutoscalingThreshold": "17500",
+    "AutoscalingThreshold": "100",
     "CpuValue": "1024",
     "MemoryAmount": "4GB",
-    "PnDocumentType": "PN_NOTIFICATION_ATTACHMENTS",
     "PnPdfRasterTaskExecutionPoolMaxSize": "250",
     "JavaToolOptions": "",
     "PnPdfRasterParameters": "pn-PDFRaster"
