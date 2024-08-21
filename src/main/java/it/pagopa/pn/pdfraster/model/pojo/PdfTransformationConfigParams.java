@@ -17,4 +17,5 @@ public class PdfTransformationConfigParams {
     private Number dpi;
     private String mediaSize;
     private String margins;
+    private String scaleOrCrop;
 }

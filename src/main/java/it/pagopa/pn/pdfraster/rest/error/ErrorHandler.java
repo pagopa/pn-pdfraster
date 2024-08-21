@@ -4,8 +4,10 @@ import it.pagopa.pn.pdfraster.exceptions.Generic400ErrorException;
 import it.pagopa.pn.pdfraster.exceptions.Generic500ErrorException;
 import lombok.CustomLog;
 import org.springframework.http.ResponseEntity;
+import org.springframework.web.HttpMediaTypeNotSupportedException;
 import org.springframework.web.bind.annotation.ExceptionHandler;
 import org.springframework.web.bind.annotation.RestControllerAdvice;
+import org.springframework.web.multipart.support.MissingServletRequestPartException;
 
 import static org.springframework.http.HttpStatus.BAD_REQUEST;
 import static org.springframework.http.HttpStatus.INTERNAL_SERVER_ERROR;
@@ -14,7 +16,9 @@ import static org.springframework.http.HttpStatus.INTERNAL_SERVER_ERROR;
 @RestControllerAdvice
 public class ErrorHandler {
 
-    @ExceptionHandler(Generic400ErrorException.class)
+    @ExceptionHandler({HttpMediaTypeNotSupportedException.class,
+                       MissingServletRequestPartException.class,
+                       Generic400ErrorException.class})
     public final ResponseEntity<Void> handleBadRequest(Exception exception) {
         log.warn("Bad Request", exception);
         return ResponseEntity.status(BAD_REQUEST).build();

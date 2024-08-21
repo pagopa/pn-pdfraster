@@ -1,6 +1,5 @@
 package it.pagopa.pn.pdfraster.rest;
 
-import it.pagopa.pn.pdfraster.exceptions.Generic400ErrorException;
 import it.pagopa.pn.pdfraster.utils.annotation.SpringBootTestWebEnv;
 import lombok.CustomLog;
 import org.jetbrains.annotations.NotNull;
@@ -12,13 +11,12 @@ import org.springframework.core.io.ByteArrayResource;
 import org.springframework.core.io.Resource;
 import org.springframework.http.HttpEntity;
 import org.springframework.http.HttpHeaders;
-import org.springframework.http.MediaType;
 import org.springframework.http.client.MultipartBodyBuilder;
 import org.springframework.test.web.reactive.server.WebTestClient;
 import org.springframework.util.MultiValueMap;
 import org.springframework.web.reactive.function.BodyInserters;
 
-import static it.pagopa.pn.pdfraster.utils.TestUtils.getFileKotestFromResources;
+import static it.pagopa.pn.pdfraster.utils.TestUtils.getFileKoTestFromResources;
 import static it.pagopa.pn.pdfraster.utils.TestUtils.getFileTestFromResources;
 import static org.junit.jupiter.api.Assertions.assertNotNull;
 import static org.springframework.http.MediaType.APPLICATION_PDF;
@@ -37,12 +35,14 @@ class PdfRasterApiControllerTest {
     private static final byte[] FILE_KO;
     private final static MultiValueMap<String, HttpEntity<?>> FILE_TEST_OK;
     private final static MultiValueMap<String, HttpEntity<?>> FILE_TEST_KO;
+    private final static MultiValueMap<String, HttpEntity<?>> FILE_TEST_EMPTY;
 
     static{
         FILE = getFileTestFromResources();
-        FILE_KO = getFileKotestFromResources();
+        FILE_KO = getFileKoTestFromResources();
         FILE_TEST_OK = getMultipartFileTest(FILE);
         FILE_TEST_KO = getMultipartFileTest(FILE_KO);
+        FILE_TEST_EMPTY = getMultipartFileTest(new byte[0]);
 
     }
 
@@ -60,7 +60,7 @@ class PdfRasterApiControllerTest {
                         return "TEST.pdf";
                     }
                 }).header(HttpHeaders.CONTENT_DISPOSITION, "form-data; name=file; filename=TEST.pdf")
-                .contentType(MediaType.APPLICATION_PDF);
+                .contentType(APPLICATION_PDF);
 
         return builder.build();
     }
@@ -93,6 +93,16 @@ class PdfRasterApiControllerTest {
     @Test
     void convertPdf_KO(){
         getResponseEntityExchangeResult(FILE_TEST_KO)
+                .expectStatus().is5xxServerError()
+                .expectBody(Resource.class)
+                .consumeWith(ex ->{
+                    Assertions.assertNull(ex.getResponseBody());
+                });
+    }
+
+    @Test
+    void convertPdf_EmptyFile(){
+        getResponseEntityExchangeResult(FILE_TEST_EMPTY)
                 .expectStatus().isBadRequest()
                 .expectBody(Resource.class)
                 .consumeWith(ex ->{
