@@ -26,7 +26,7 @@ public abstract class TestUtils {
      * Metodo per recuperare il file di test dalle risorse
      * @return
      */
-    public static byte[] getFileKotestFromResources(){
+    public static byte[] getFileKoTestFromResources(){
         try (var in = new FileInputStream("src/test/resources/TEST_KO.pdf")){
             return IOUtils.toByteArray(in);
         } catch (IOException e) {
