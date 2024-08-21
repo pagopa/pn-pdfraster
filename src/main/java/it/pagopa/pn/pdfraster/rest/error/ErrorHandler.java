@@ -3,10 +3,12 @@ package it.pagopa.pn.pdfraster.rest.error;
 import it.pagopa.pn.pdfraster.exceptions.Generic400ErrorException;
 import it.pagopa.pn.pdfraster.exceptions.Generic500ErrorException;
 import lombok.CustomLog;
+import org.apache.tomcat.util.http.fileupload.FileUploadException;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.HttpMediaTypeNotSupportedException;
 import org.springframework.web.bind.annotation.ExceptionHandler;
 import org.springframework.web.bind.annotation.RestControllerAdvice;
+import org.springframework.web.multipart.MultipartException;
 import org.springframework.web.multipart.support.MissingServletRequestPartException;
 
 import static org.springframework.http.HttpStatus.BAD_REQUEST;
@@ -16,7 +18,9 @@ import static org.springframework.http.HttpStatus.INTERNAL_SERVER_ERROR;
 @RestControllerAdvice
 public class ErrorHandler {
 
-    @ExceptionHandler({HttpMediaTypeNotSupportedException.class,
+    @ExceptionHandler({MultipartException.class,
+                       FileUploadException.class,
+                       HttpMediaTypeNotSupportedException.class,
                        MissingServletRequestPartException.class,
                        Generic400ErrorException.class})
     public final ResponseEntity<Void> handleBadRequest(Exception exception) {
