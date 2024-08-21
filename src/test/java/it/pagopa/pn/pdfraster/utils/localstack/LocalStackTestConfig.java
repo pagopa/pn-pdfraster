@@ -7,9 +7,7 @@ import org.testcontainers.utility.DockerImageName;
 
 import java.io.IOException;
 import java.time.Duration;
-import java.util.List;
 
-import static org.testcontainers.containers.localstack.LocalStackContainer.Service.SQS;
 import static org.testcontainers.containers.localstack.LocalStackContainer.Service.SSM;
 
 @TestConfiguration
@@ -39,7 +37,13 @@ public class LocalStackTestConfig {
                     "--type",
                     "String",
                     "--value",
-                    "{}");
+                    "{" +
+                        "\"cropbox\":\"0,0,1000,1000\"," +
+                        "\"dpi\":150," +
+                        "\"margins\":\"0,0,1500,2000\"," +
+                        "\"mediaSize\":\"A4\"," +
+                        "\"scaleOrCrop\":\"crop\"" +
+                    "}");
         } catch (IOException | InterruptedException e) {
             throw new RuntimeException(e);
         }

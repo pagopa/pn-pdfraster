@@ -12,7 +12,7 @@ import org.springframework.boot.test.mock.mockito.SpyBean;
 import java.io.ByteArrayOutputStream;
 import java.io.IOException;
 
-import static it.pagopa.pn.pdfraster.utils.TestUtils.getFileKotestFromResources;
+import static it.pagopa.pn.pdfraster.utils.TestUtils.getFileKoTestFromResources;
 import static it.pagopa.pn.pdfraster.utils.TestUtils.getFileTestFromResources;
 
 @SpringBootTestWebEnv
@@ -29,7 +29,7 @@ class PdfRasterServiceTest {
 
     static {
         FILE = getFileTestFromResources();
-        FILE_KO = getFileKotestFromResources();
+        FILE_KO = getFileKoTestFromResources();
     }
 
     @Test
