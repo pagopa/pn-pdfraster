@@ -38,12 +38,12 @@ public class LocalStackTestConfig {
                     "String",
                     "--value",
                     "{" +
-                        "\"cropbox\":\"0,0,1000,1000\"," +
+                        "\"cropbox\":\"0,0,595,841\"," +
                         "\"dpi\":150," +
-                        "\"margins\":\"0,0,1500,2000\"," +
+                        "\"margins\":\"0,0,595,841\"," +
                         "\"mediaSize\":\"A4\"," +
                         "\"scaleOrCrop\":\"scale\"," +
-                        "\"maxFileSize\":\"124000\"" +
+                        "\"maxFileSize\":10000000" +
                     "}");
         } catch (IOException | InterruptedException e) {
             throw new RuntimeException(e);

@@ -92,7 +92,6 @@ public class ConvertPdfServiceImpl implements ConvertPdfService {
                 oDoc.addPage(oPage);
             }
 
-            oDoc.save("output.pdf");
             ByteArrayOutputStream response = new ByteArrayOutputStream();
             oDoc.save(response);
             oDoc.close();
