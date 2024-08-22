@@ -48,11 +48,6 @@ public class ConvertPdfServiceImpl implements ConvertPdfService {
         this.mediaSize = MediaSizeWrapper.getMediaSize(params.getMediaSize());
         this.scaleOrCrop = ScaleOrCropEnum.getValue(params.getScaleOrCrop());
         log.debug("cropbox= {},margins= {}, dpi= {}, mediasize= {}, scaleOrCrop= {} ", params.getCropbox(),params.getMargins(),params.getDpi(),params.getMediaSize(),params.getScaleOrCrop());
-        this.cropbox = Arrays.stream(params.getCropbox().split(",")).map(Integer::parseInt).toArray(Integer[]::new);
-        this.dpi = (int)params.getDpi();
-        this.margins = Arrays.stream(params.getMargins().split(",")).map(Integer::parseInt).toArray(Integer[]::new);
-        this.mediaSize = MediaSizeWrapper.getMediaSize(params.getMediaSize());
-        this.scaleOrCrop = ScaleOrCropEnum.getValue(params.getScaleOrCrop());
     }
 
     @Override
@@ -91,7 +86,7 @@ public class ConvertPdfServiceImpl implements ConvertPdfService {
                 try (PDPageContentStream contentStream = new PDPageContentStream(oDoc, oPage, AppendMode.APPEND, true, true)) {
                     float scale = getScaleOrCrop(pdImage);
                     log.debug("valore scale:{}", scale);
-                    contentStream.drawImage(pdImage, margins[0], margins[1], (margins[2]-margins[0]) * scale, (margins[3]-margins[1]) * scale);
+                    contentStream.drawImage(pdImage, margins[0], margins[1], (margins[2]-margins[0]), (margins[3]-margins[1]));
                 }
 
                 oDoc.addPage(oPage);
