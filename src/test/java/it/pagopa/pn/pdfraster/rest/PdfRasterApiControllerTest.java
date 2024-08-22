@@ -180,7 +180,4 @@ class PdfRasterApiControllerTest {
                     Assertions.assertNull(ex.getResponseBody());
                 });
     }
-
-
-
 }
