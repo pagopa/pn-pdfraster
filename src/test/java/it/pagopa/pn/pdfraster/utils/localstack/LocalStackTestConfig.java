@@ -42,7 +42,8 @@ public class LocalStackTestConfig {
                         "\"dpi\":150," +
                         "\"margins\":\"0,0,1500,2000\"," +
                         "\"mediaSize\":\"A4\"," +
-                        "\"scaleOrCrop\":\"crop\"" +
+                        "\"scaleOrCrop\":\"scale\"," +
+                        "\"maxFileSize\":\"124000\"" +
                     "}");
         } catch (IOException | InterruptedException e) {
             throw new RuntimeException(e);
