@@ -48,11 +48,6 @@ public class ConvertPdfServiceImpl implements ConvertPdfService {
         this.mediaSize = MediaSizeWrapper.getMediaSize(params.getMediaSize());
         this.scaleOrCrop = ScaleOrCropEnum.getValue(params.getScaleOrCrop());
         log.debug("cropbox= {},margins= {}, dpi= {}, mediasize= {}, scaleOrCrop= {} ", params.getCropbox(),params.getMargins(),params.getDpi(),params.getMediaSize(),params.getScaleOrCrop());
-        this.cropbox = Arrays.stream(params.getCropbox().split(",")).map(Integer::parseInt).toArray(Integer[]::new);
-        this.dpi = (int)params.getDpi();
-        this.margins = Arrays.stream(params.getMargins().split(",")).map(Integer::parseInt).toArray(Integer[]::new);
-        this.mediaSize = MediaSizeWrapper.getMediaSize(params.getMediaSize());
-        this.scaleOrCrop = ScaleOrCropEnum.getValue(params.getScaleOrCrop());
     }
 
     @Override
