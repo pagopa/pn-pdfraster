@@ -42,6 +42,12 @@ public class ConvertPdfServiceImpl implements ConvertPdfService {
 
     public ConvertPdfServiceImpl(PdfTransformationConfiguration pdfTransformationConfiguration){
         PdfTransformationConfigParams params = pdfTransformationConfiguration.getPdfTransformationConfigParams();
+        this.cropbox = Arrays.stream(params.getCropbox().split(",")).map(a -> Integer.parseInt(a.trim())).toArray(Integer[]::new);
+        this.dpi = (int)params.getDpi();
+        this.margins = Arrays.stream(params.getMargins().split(",")).map(a -> Integer.parseInt(a.trim())).toArray(Integer[]::new);
+        this.mediaSize = MediaSizeWrapper.getMediaSize(params.getMediaSize());
+        this.scaleOrCrop = ScaleOrCropEnum.getValue(params.getScaleOrCrop());
+        log.debug("cropbox= {},margins= {}, dpi= {}, mediasize= {}, scaleOrCrop= {} ", params.getCropbox(),params.getMargins(),params.getDpi(),params.getMediaSize(),params.getScaleOrCrop());
         this.cropbox = Arrays.stream(params.getCropbox().split(",")).map(Integer::parseInt).toArray(Integer[]::new);
         this.dpi = (int)params.getDpi();
         this.margins = Arrays.stream(params.getMargins().split(",")).map(Integer::parseInt).toArray(Integer[]::new);
@@ -75,6 +81,7 @@ public class ConvertPdfServiceImpl implements ConvertPdfService {
                 log.info("Input Page Width: {}", oInPage.getBBox().getWidth());
                 BufferedImage image = renderer.renderImageWithDPI(i, dpi, IMAGE_TYPE);
 
+                log.debug("Buffered Image size: width = {}, height = {}",image.getWidth(), image.getHeight());
                 ByteArrayOutputStream baosImage = new ByteArrayOutputStream();
                 ImageIOUtil.writeImage(image, IMAGE_FORMAT, baosImage, dpi, 0f);
 
@@ -83,6 +90,7 @@ public class ConvertPdfServiceImpl implements ConvertPdfService {
 
                 try (PDPageContentStream contentStream = new PDPageContentStream(oDoc, oPage, AppendMode.APPEND, true, true)) {
                     float scale = getScaleOrCrop(pdImage);
+                    log.debug("valore scale:{}", scale);
                     contentStream.drawImage(pdImage, margins[0], margins[1], (margins[2]-margins[0]) * scale, (margins[3]-margins[1]) * scale);
                 }
 
