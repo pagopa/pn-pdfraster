@@ -18,18 +18,17 @@ import org.apache.pdfbox.pdmodel.interactive.form.PDAcroForm;
 import org.apache.pdfbox.rendering.ImageType;
 import org.apache.pdfbox.rendering.PDFRenderer;
 import org.apache.pdfbox.tools.imageio.ImageIOUtil;
+import org.jetbrains.annotations.NotNull;
 import org.reactivestreams.Publisher;
 import org.springframework.stereotype.Service;
 import picocli.CommandLine.Command;
 import reactor.core.publisher.Flux;
 import reactor.core.publisher.Mono;
-import reactor.core.scheduler.Schedulers;
 
 import java.awt.image.BufferedImage;
 import java.io.ByteArrayOutputStream;
 import java.io.IOException;
 import java.util.Arrays;
-import java.util.List;
 
 @CustomLog
 @Service
@@ -67,13 +66,20 @@ public class ConvertPdfServiceImpl implements ConvertPdfService {
                     renderer.setSubsamplingAllowed(false);
                     int numberOfPages = pdDocument.getNumberOfPages();
                     return Flux.range(0, numberOfPages)
-                            .parallel()
-                            .runOn(Schedulers.parallel())
                             .flatMap(pageIndex -> processPage(pdDocument, pageIndex,renderer))
-                            .sequential()
-                            .collectList()
-                            .map(bytes ->  createPdfWithImages(bytes));
+                            .reduce(new PDDocument(), (doc, bytes) -> addImageToPdf(doc,bytes))
+                            .map(this::saveDocument);
                 }).block();
+    }
+
+    private @NotNull ByteArrayOutputStream saveDocument(PDDocument document) {
+        ByteArrayOutputStream response = new ByteArrayOutputStream();
+        try {
+            document.save(response);
+        } catch (IOException e) {
+            throw new Generic500ErrorException("Error while save pdf", e.getMessage());
+        }
+        return response;
     }
 
     /**
@@ -97,27 +103,21 @@ public class ConvertPdfServiceImpl implements ConvertPdfService {
 
     /**
      * Metodo per la creazione del Pdf con le immagini create
-     * @param images
      * @return
      */
-    private ByteArrayOutputStream createPdfWithImages(List<byte[]> images) {
-        try (PDDocument oDoc = new PDDocument()) {
-            for(byte[] image : images) {
-                PDPage oPage = new PDPage(mediaSize);
-                PDImageXObject pdImage = PDImageXObject.createFromByteArray(oDoc, image, null);
+    private PDDocument addImageToPdf(PDDocument oDoc, byte[] image) {
+        try {
+            PDPage oPage = new PDPage(mediaSize);
+            PDImageXObject pdImage = PDImageXObject.createFromByteArray(oDoc, image, null);
 
-                try (PDPageContentStream contentStream = new PDPageContentStream(oDoc, oPage, AppendMode.APPEND, true, true)) {
-                    float scale = getScaleOrCrop(pdImage);
-                    log.debug("valore scale:{}", scale);
-                    contentStream.drawImage(pdImage, margins[0], margins[1], (margins[2] - margins[0]), (margins[3] - margins[1]));
-                }
-                oDoc.addPage(oPage);
+            try (PDPageContentStream contentStream = new PDPageContentStream(oDoc, oPage, AppendMode.APPEND, true, true)) {
+                float scale = getScaleOrCrop(pdImage);
+                log.debug("valore scale:{}", scale);
+                contentStream.drawImage(pdImage, margins[0], margins[1], (margins[2] - margins[0]), (margins[3] - margins[1]));
             }
+            oDoc.addPage(oPage);
 
-            ByteArrayOutputStream response = new ByteArrayOutputStream();
-            oDoc.save(response);
-
-            return response;
+            return oDoc;
         } catch (IOException e) {
             throw new Generic500ErrorException("Error while converting pdf", e.getMessage());
         }
