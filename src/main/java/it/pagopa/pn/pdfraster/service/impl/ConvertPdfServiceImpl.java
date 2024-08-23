@@ -18,13 +18,18 @@ import org.apache.pdfbox.pdmodel.interactive.form.PDAcroForm;
 import org.apache.pdfbox.rendering.ImageType;
 import org.apache.pdfbox.rendering.PDFRenderer;
 import org.apache.pdfbox.tools.imageio.ImageIOUtil;
+import org.reactivestreams.Publisher;
 import org.springframework.stereotype.Service;
 import picocli.CommandLine.Command;
+import reactor.core.publisher.Flux;
+import reactor.core.publisher.Mono;
+import reactor.core.scheduler.Schedulers;
 
 import java.awt.image.BufferedImage;
 import java.io.ByteArrayOutputStream;
 import java.io.IOException;
 import java.util.Arrays;
+import java.util.List;
 
 @CustomLog
 @Service
@@ -55,52 +60,88 @@ public class ConvertPdfServiceImpl implements ConvertPdfService {
         if (dpi == 0) {
             dpi = 96;
         }
+        return Mono.fromCallable(() -> Loader.loadPDF(file))
+                .flatMap(pdDocument -> {
+                    preliminarOperations(pdDocument);
+                    PDFRenderer renderer = new PDFRenderer(pdDocument);
+                    renderer.setSubsamplingAllowed(false);
+                    int numberOfPages = pdDocument.getNumberOfPages();
+                    return Flux.range(0, numberOfPages)
+                            .parallel()
+                            .runOn(Schedulers.parallel())
+                            .flatMap(pageIndex -> processPage(pdDocument, pageIndex,renderer))
+                            .sequential()
+                            .collectList()
+                            .map(bytes ->  createPdfWithImages(bytes));
+                }).block();
+    }
 
-        try (PDDocument document = Loader.loadPDF(file)) {
-            PDAcroForm acroForm = document.getDocumentCatalog().getAcroForm();
+    /**
+     * Metodo per rendere il documento lavorabile
+     * @param pdDocument
+     */
+    private void preliminarOperations(PDDocument pdDocument) {
+        try {
+            PDAcroForm acroForm = pdDocument.getDocumentCatalog().getAcroForm();
             if (acroForm != null && acroForm.getNeedAppearances()) {
                 acroForm.refreshAppearances();
             }
 
             if (cropbox != null) {
-                changeCropBox(document, cropbox[0], cropbox[1], cropbox[2], cropbox[3]);
+                changeCropBox(pdDocument, cropbox[0], cropbox[1], cropbox[2], cropbox[3]);
             }
+        } catch (IOException e) {
+            throw new Generic500ErrorException("Error while converting pdf", e.getMessage());
+        }
+    }
 
-            PDFRenderer renderer = new PDFRenderer(document);
-            renderer.setSubsamplingAllowed(false);
-            PDDocument oDoc = new PDDocument();
-
-            for (int i = 0; i < document.getNumberOfPages(); i++) {
-                PDPage oInPage = document.getPage(i);
-                log.info("Input Page Height: {}", oInPage.getBBox().getHeight());
-                log.info("Input Page Width: {}", oInPage.getBBox().getWidth());
-                BufferedImage image = renderer.renderImageWithDPI(i, dpi, IMAGE_TYPE);
-
-                log.debug("Buffered Image size: width = {}, height = {}",image.getWidth(), image.getHeight());
-                ByteArrayOutputStream baosImage = new ByteArrayOutputStream();
-                ImageIOUtil.writeImage(image, IMAGE_FORMAT, baosImage, dpi, 0f);
-
+    /**
+     * Metodo per la creazione del Pdf con le immagini create
+     * @param images
+     * @return
+     */
+    private ByteArrayOutputStream createPdfWithImages(List<byte[]> images) {
+        try (PDDocument oDoc = new PDDocument()) {
+            for(byte[] image : images) {
                 PDPage oPage = new PDPage(mediaSize);
-                PDImageXObject pdImage = PDImageXObject.createFromByteArray(oDoc, baosImage.toByteArray(), null);
+                PDImageXObject pdImage = PDImageXObject.createFromByteArray(oDoc, image, null);
 
                 try (PDPageContentStream contentStream = new PDPageContentStream(oDoc, oPage, AppendMode.APPEND, true, true)) {
                     float scale = getScaleOrCrop(pdImage);
                     log.debug("valore scale:{}", scale);
-                    contentStream.drawImage(pdImage, margins[0], margins[1], (margins[2]-margins[0]), (margins[3]-margins[1]));
+                    contentStream.drawImage(pdImage, margins[0], margins[1], (margins[2] - margins[0]), (margins[3] - margins[1]));
                 }
-
                 oDoc.addPage(oPage);
             }
 
-            oDoc.save("output.pdf");
             ByteArrayOutputStream response = new ByteArrayOutputStream();
             oDoc.save(response);
-            oDoc.close();
 
             return response;
         } catch (IOException e) {
             throw new Generic500ErrorException("Error while converting pdf", e.getMessage());
         }
+    }
+
+    /**
+     * Metodo per trasformare il contenuto delle pagine in immagini
+     * @param pdDocument
+     * @param pageIndex
+     * @param renderer
+     * @return
+     */
+    private Publisher<byte[]> processPage(PDDocument pdDocument, Integer pageIndex, PDFRenderer renderer) {
+        return Mono.fromCallable(() -> {
+            PDPage oInPage = pdDocument.getPage(pageIndex);
+            log.debug("Input Page Height: {}", oInPage.getBBox().getHeight());
+            log.debug("Input Page Width: {}", oInPage.getBBox().getWidth());
+            BufferedImage image = renderer.renderImageWithDPI(pageIndex, dpi, IMAGE_TYPE);
+
+            log.debug("Buffered Image size: width = {}, height = {}",image.getWidth(), image.getHeight());
+            ByteArrayOutputStream baosImage = new ByteArrayOutputStream();
+            ImageIOUtil.writeImage(image, IMAGE_FORMAT, baosImage, dpi, 0f);
+            return baosImage.toByteArray();
+        });
     }
 
     /**

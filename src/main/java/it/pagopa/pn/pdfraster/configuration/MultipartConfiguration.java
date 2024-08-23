@@ -16,8 +16,8 @@ public class MultipartConfiguration {
     public MultipartConfigElement multipartConfigElement(PdfTransformationConfiguration conf) {
         PdfTransformationConfigParams params = conf.getPdfTransformationConfigParams();
         MultipartConfigFactory factory = new MultipartConfigFactory();
-        factory.setMaxFileSize(DataSize.ofBytes(Integer.toUnsignedLong((int)params.getMaxFileSize())));
-        factory.setMaxRequestSize(DataSize.ofBytes((Integer.toUnsignedLong((int)params.getMaxFileSize() + 1000))));
+        factory.setMaxFileSize(DataSize.ofBytes(params.getMaxFileSize()));
+        factory.setMaxRequestSize(DataSize.ofBytes(params.getMaxFileSize() + 1000));
         return factory.createMultipartConfig();
     }
 }

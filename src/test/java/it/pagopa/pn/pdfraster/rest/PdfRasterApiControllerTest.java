@@ -161,16 +161,6 @@ class PdfRasterApiControllerTest {
                 });
     }
 
-//    @Test
-//    void convertPdf_ContentType_KO(){
-//        getResponseEntityExchangeResultWrongContentType(FILE_TEST_OK)
-//                .expectStatus().isBadRequest()
-//                .expectBody(Resource.class)
-//                .consumeWith(ex ->{
-//                    Assertions.assertNull(ex.getResponseBody());
-//                });
-//    }
-
     @Test
     void convertPdf_ContentTypeMultipart_KO(){
         getResponseEntityExchangeResultWrongContentType(FILE_TEST_WRONG_CONTENT_TYPE)
@@ -190,7 +180,4 @@ class PdfRasterApiControllerTest {
                     Assertions.assertNull(ex.getResponseBody());
                 });
     }
-
-
-
 }
