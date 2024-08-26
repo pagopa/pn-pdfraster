@@ -10,6 +10,14 @@ public abstract class LogUtils {
     public static final String MDC_CORR_ID_KEY = "cx_id";
     public static final String CONVERT_PDF = "PdfRasterServiceImpl.convertPdf";
 
+    // METODI PDF BOX
+    public static final String PROCESS_PAGE = "ConvertPdfServiceImpl.processPage";
+    public static final String CONVERT_PDF_TO_IMAGE = "ConvertPdfServiceImpl.convertPdfToImage";
+    public static final String PAGE_INDEX = "Page Index: ";
+
+
+    // ERROR
+    public static final String ENDING_PROCESS_WITH_ERROR = "Ending '{}' Process with error = '{}' - '{}'";
     public static final String INVALID_REQUEST = "Invalid Request";
 
     public static final String SUCCESSFUL_OPERATION_ON_LABEL = "Successful operation on '{}' : '{}' = {}";

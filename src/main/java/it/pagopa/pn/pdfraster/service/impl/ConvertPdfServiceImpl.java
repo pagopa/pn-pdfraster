@@ -6,7 +6,9 @@ import it.pagopa.pn.pdfraster.model.pojo.MediaSizeWrapper;
 import it.pagopa.pn.pdfraster.model.pojo.PdfTransformationConfigParams;
 import it.pagopa.pn.pdfraster.model.pojo.ScaleOrCropEnum;
 import it.pagopa.pn.pdfraster.service.ConvertPdfService;
+import it.pagopa.pn.pdfraster.utils.LogUtils;
 import lombok.CustomLog;
+import lombok.extern.java.Log;
 import org.apache.pdfbox.Loader;
 import org.apache.pdfbox.pdmodel.PDDocument;
 import org.apache.pdfbox.pdmodel.PDPage;
@@ -29,6 +31,8 @@ import java.awt.image.BufferedImage;
 import java.io.ByteArrayOutputStream;
 import java.io.IOException;
 import java.util.Arrays;
+
+import static it.pagopa.pn.pdfraster.utils.LogUtils.*;
 
 @CustomLog
 @Service
@@ -55,7 +59,7 @@ public class ConvertPdfServiceImpl implements ConvertPdfService {
     }
 
     @Override
-    public ByteArrayOutputStream convertPdfToImage(byte[] file) {
+    public Mono<ByteArrayOutputStream> convertPdfToImage(byte[] file) {
         if (dpi == 0) {
             dpi = 96;
         }
@@ -69,7 +73,9 @@ public class ConvertPdfServiceImpl implements ConvertPdfService {
                             .flatMap(pageIndex -> processPage(pdDocument, pageIndex,renderer))
                             .reduce(new PDDocument(), (doc, bytes) -> addImageToPdf(doc,bytes))
                             .map(this::saveDocument);
-                }).block();
+                })
+                .doOnSuccess(byteArrayOutputStream -> log.info(SUCCESSFUL_OPERATION_NO_RESULT_LABEL,CONVERT_PDF_TO_IMAGE))
+                .doOnError(throwable -> log.error(ENDING_PROCESS_WITH_ERROR,CONVERT_PDF_TO_IMAGE,throwable,throwable.getMessage()));
     }
 
     private @NotNull ByteArrayOutputStream saveDocument(PDDocument document) {
@@ -141,7 +147,9 @@ public class ConvertPdfServiceImpl implements ConvertPdfService {
             ByteArrayOutputStream baosImage = new ByteArrayOutputStream();
             ImageIOUtil.writeImage(image, IMAGE_FORMAT, baosImage, dpi, 0f);
             return baosImage.toByteArray();
-        });
+        })
+        .doOnSuccess(bytes -> log.info(SUCCESSFUL_OPERATION_ON_LABEL,PROCESS_PAGE,PAGE_INDEX,pageIndex))
+        .doOnError(throwable -> log.error(ENDING_PROCESS_WITH_ERROR,PROCESS_PAGE,throwable,throwable.getMessage()));
     }
 
     /**

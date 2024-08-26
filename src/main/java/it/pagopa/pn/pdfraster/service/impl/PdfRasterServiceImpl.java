@@ -1,16 +1,14 @@
 package it.pagopa.pn.pdfraster.service.impl;
 
 import it.pagopa.pn.pdfraster.exceptions.Generic400ErrorException;
-import it.pagopa.pn.pdfraster.exceptions.Generic500ErrorException;
 import it.pagopa.pn.pdfraster.service.ConvertPdfService;
 import it.pagopa.pn.pdfraster.service.PdfRasterService;
-import it.pagopa.pn.pdfraster.utils.LogUtils;
 import lombok.CustomLog;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.core.io.ByteArrayResource;
 import org.springframework.stereotype.Service;
+import reactor.core.publisher.Mono;
 
-import java.io.ByteArrayOutputStream;
 import java.util.concurrent.Semaphore;
 
 import static it.pagopa.pn.pdfraster.utils.LogUtils.*;
@@ -30,19 +28,23 @@ public class PdfRasterServiceImpl implements PdfRasterService {
     }
 
     @Override
-    public ByteArrayResource convertPdf(byte[] file) {
+    public Mono<ByteArrayResource> convertPdf(byte[] file) {
+        log.info(INVOKING_OPERATION_LABEL,CONVERT_PDF);
+
+        if(file.length == 0)
+            throw new Generic400ErrorException(INVALID_REQUEST,"File null or empty");
+        /**
+         * Aquisizione del semaforo
+         */
         try {
             semaphore.acquire();
         } catch (InterruptedException e) {
             Thread.currentThread().interrupt();
         }
-        try {
-            log.debug(INVOKING_OPERATION_LABEL,CONVERT_PDF);
-            ByteArrayOutputStream convertedFile = convertPdfService.convertPdfToImage(file);
-            log.info(SUCCESSFUL_OPERATION_NO_RESULT_LABEL,CONVERT_PDF);
-            return new ByteArrayResource(convertedFile.toByteArray());
-        } finally {
-            semaphore.release();
-        }
+        return convertPdfService.convertPdfToImage(file)
+                .map(byteArrayOutputStream -> new ByteArrayResource(byteArrayOutputStream.toByteArray()))
+                .doOnSuccess(byteArrayResource -> log.info(SUCCESSFUL_OPERATION_NO_RESULT_LABEL, CONVERT_PDF))
+                .doOnError(throwable -> log.error(ENDING_PROCESS_WITH_ERROR,CONVERT_PDF,throwable,throwable.getMessage()))
+                .doFinally(signalType -> semaphore.release());
     }
 }

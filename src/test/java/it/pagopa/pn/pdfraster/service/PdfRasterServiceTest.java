@@ -9,7 +9,6 @@ import org.junit.jupiter.api.Test;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.mock.mockito.SpyBean;
 
-import java.io.ByteArrayOutputStream;
 import java.io.IOException;
 
 import static it.pagopa.pn.pdfraster.utils.TestUtils.getFileKoTestFromResources;
@@ -34,40 +33,22 @@ class PdfRasterServiceTest {
 
     @Test
     void conversionePdf(){
-        ByteArrayOutputStream outputStream = convertPdfService.convertPdfToImage(FILE);
-        try (PDDocument documentConverted = Loader.loadPDF(outputStream.toByteArray()); PDDocument documentOriginal = Loader.loadPDF(FILE)) {
-            // Quali altri test sulla conversione??
-            Assertions.assertEquals(documentConverted.getNumberOfPages(), documentOriginal.getNumberOfPages());
-        } catch (IOException e) {
-            throw new RuntimeException(e);
-        }
+        convertPdfService.convertPdfToImage(FILE).doOnSuccess(byteArrayOutputStream -> {
+            try (PDDocument documentConverted = Loader.loadPDF(byteArrayOutputStream.toByteArray()); PDDocument documentOriginal = Loader.loadPDF(FILE)) {
+                Assertions.assertEquals(documentConverted.getNumberOfPages(), documentOriginal.getNumberOfPages());
+            } catch (IOException e) {
+                throw new RuntimeException(e);
+            }
+        });
     }
 
     @Test
     void conversionePdf_KO_WrongFile(){
-        ByteArrayOutputStream response = null;
-        Exception ex = null;
-        try {
-            response = convertPdfService.convertPdfToImage(FILE_KO);
-        } catch (Exception e) {
-            ex = e;
-        }
-
-        Assertions.assertNotNull(ex);
-        Assertions.assertNull(response);
+        convertPdfService.convertPdfToImage(FILE_KO).doOnError(Assertions::assertNotNull);
     }
 
     @Test
     void conversionePdf_KO_EmptyFile(){
-        ByteArrayOutputStream response = null;
-        Exception ex = null;
-        try {
-            response = convertPdfService.convertPdfToImage(new byte[0]);
-        } catch (Exception e) {
-            ex = e;
-        }
-
-        Assertions.assertNotNull(ex);
-        Assertions.assertNull(response);
+        convertPdfService.convertPdfToImage(new byte[0]).doOnError(Assertions::assertNotNull);
     }
 }
