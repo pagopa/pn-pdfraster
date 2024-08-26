@@ -7,8 +7,12 @@ import lombok.CustomLog;
 import org.jetbrains.annotations.NotNull;
 import org.springframework.core.io.Resource;
 import org.springframework.http.ResponseEntity;
+import org.springframework.http.codec.multipart.Part;
 import org.springframework.web.bind.annotation.RestController;
 import org.springframework.web.multipart.MultipartFile;
+import org.springframework.web.server.ServerWebExchange;
+import reactor.core.publisher.Flux;
+import reactor.core.publisher.Mono;
 
 import java.io.IOException;
 
@@ -26,12 +30,12 @@ public class PdfRasterApiController implements PdfRasterApi {
     }
 
     @Override
-    public ResponseEntity<Resource> convertPdf(MultipartFile file) {
+    public Mono<ResponseEntity<Resource>> convertPdf(Flux<Part> file,final ServerWebExchange exchange) {
         log.logStartingProcess(CONVERT_PDF);
         byte[] fileContent = getBytes(file);
         Resource resource = pdfRasterService.convertPdf(fileContent);
         log.logEndingProcess(CONVERT_PDF);
-        return ResponseEntity.ok(resource);
+        return null;
     }
 
     /**
