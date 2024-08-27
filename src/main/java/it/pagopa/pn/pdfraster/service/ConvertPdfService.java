@@ -1,8 +1,10 @@
 package it.pagopa.pn.pdfraster.service;
 
+import reactor.core.publisher.Mono;
+
 import java.io.ByteArrayOutputStream;
 
 public interface ConvertPdfService {
 
-    ByteArrayOutputStream convertPdfToImage(byte[] file);
+    Mono<ByteArrayOutputStream> convertPdfToImage(byte[] file);
 }

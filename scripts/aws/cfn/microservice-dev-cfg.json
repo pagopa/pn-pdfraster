@@ -7,6 +7,7 @@
     "MemoryAmount": "4GB",
     "PnPdfRasterTaskExecutionPoolMaxSize": "250",
     "JavaToolOptions": "",
-    "PnPdfRasterParameters": "pn-PDFRaster"
+    "PnPdfRasterParameters": "pn-PDFRaster",
+    "PnPdfRasterMaxThreadPoolSize": "100"
   }
 }

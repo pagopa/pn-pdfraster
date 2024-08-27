@@ -29,12 +29,6 @@
 		<openapi-generator-version>7.7.0</openapi-generator-version>
 	</properties>
 	<dependencies>
-
-		<dependency>
-			<groupId>org.springframework.boot</groupId>
-			<artifactId>spring-boot-starter-web</artifactId>
-		</dependency>
-
 		<dependency>
 			<groupId>org.apache.commons</groupId>
 			<artifactId>commons-pool2</artifactId>
@@ -85,14 +79,9 @@
 
 		<dependency>
 			<groupId>org.springdoc</groupId>
-			<artifactId>springdoc-openapi-ui</artifactId>
-			<version>1.8.0</version>
+			<artifactId>springdoc-openapi-webflux-ui</artifactId>
+			<version>1.6.14</version>
 		</dependency>
-<!--		<dependency>-->
-<!--			<groupId>org.springdoc</groupId>-->
-<!--			<artifactId>springdoc-openapi-webflux-ui</artifactId>-->
-<!--			<version>1.6.14</version>-->
-<!--		</dependency>-->
 
 		<dependency>
 			<groupId>io.gsonfire</groupId>
@@ -247,9 +236,6 @@
 			<artifactId>picocli</artifactId>
 			<version>4.7.6</version>
 		</dependency>
-
-
-
 	</dependencies>
 
 	<build>
@@ -294,7 +280,7 @@
 								<annotationLibrary>none</annotationLibrary>
 								<documentationProvider>source</documentationProvider>
 								<openApiNullable>false</openApiNullable>
-								<reactive>false</reactive>
+								<reactive>true</reactive>
 								<skipDefaultInterface>false</skipDefaultInterface>
 								<useTags>true</useTags>
 								<basePackage>${project.groupId}.pdfraster.rest.v1</basePackage>
