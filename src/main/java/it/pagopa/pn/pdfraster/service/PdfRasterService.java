@@ -1,8 +1,9 @@
 package it.pagopa.pn.pdfraster.service;
 
 import org.springframework.core.io.ByteArrayResource;
+import reactor.core.publisher.Mono;
 
 public interface PdfRasterService {
 
-    ByteArrayResource convertPdf(byte[] file);
+    Mono<ByteArrayResource> convertPdf(byte[] file);
 }

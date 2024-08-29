@@ -18,5 +18,5 @@ public class PdfTransformationConfigParams {
     private String mediaSize;
     private String margins;
     private String scaleOrCrop;
-    private Long maxFileSize;
+    private int maxFileSize;
 }
