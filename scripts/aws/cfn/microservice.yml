@@ -31,33 +31,25 @@ Parameters:
     Type: String
     Description: 'The S3 bucket from which to fetch the templates used by this stack.'
 
-  ECSClusterName:
+  PdfRasterECSClusterName:
     Type: String
     Description: 'The name of the ECS cluster where the microservice is going to be deployed'
 
-  VpcEgressSubnetsIds:
-    Type: String
-    Description: 'Subnets where to install PN-CONFIDENTIAL-INFO'
-
-  SubnetsIds:
+  PdfRasterVpcSubnets:
     Type: String
     Description: 'Subnets ids comma separated list. Where to deploy the microservice'
 
-  VpcId:
+  PdfRasterVpcId:
     Type: String
     Description: 'VpcId where the microservice is going to be deployed'
   
-  EcsDefaultSecurityGroup:
+  PdfRasterDefaultSecurityGroup:
     Type: String
     Description: 'Default security group required by infrastructure'
 
-  ApplicationLoadBalancerListenerArn:
+  PdfRasterApplicationLoadBalancerListenerArn:
     Type: String
     Description: 'Load balancer listener where HTTP endpoints is going to be registered'
-
-  ApplicationLoadBalancerDomain:
-    Type: String
-    Description: 'Base URL of the load balancer where the service is going to be reachable'
 
 #  NetworkLoadBalancerLink:
 #    Type: String
@@ -146,11 +138,11 @@ Resources:
         ContainerEnvEntry3: !Sub 'PnPdfRasterParameters=${PnPdfRasterParameters}'
         ContainerEnvEntry4: !Sub 'PnPdfRasterMaxThreadPoolSize=${PnPdfRasterMaxThreadPoolSize}'
         MappedPaths: '/PDFRaster/*'
-        ECSClusterName: !Ref ECSClusterName
-        Subnets: !Ref VpcEgressSubnetsIds
-        VpcId: !Ref VpcId
-        EcsDefaultSecurityGroup: !Ref EcsDefaultSecurityGroup
-        LoadBalancerListenerArn: !Ref ApplicationLoadBalancerListenerArn
+        ECSClusterName: !Ref PdfRasterECSClusterName
+        Subnets: !Ref PdfRasterVpcSubnets
+        VpcId: !Ref PdfRasterVpcId
+        EcsDefaultSecurityGroup: !Ref PdfRasterDefaultSecurityGroup
+        LoadBalancerListenerArn: !Ref PdfRasterApplicationLoadBalancerListenerArn
         LoadbalancerRulePriority: !Ref MicroserviceNumber
         CloudwatchLogKinesisStreamArn: !Ref LogsKinesisSourceStreamArn
         TaskRoleManagedPolicyArn: !Ref PnPdfRasterManagedPolicy
