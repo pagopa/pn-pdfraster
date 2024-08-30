@@ -20,7 +20,7 @@ paths:
 ###                                      PDF RASTER API                                      ###
 ################################################################################################
 
-  '/pdf-raster/convert':
+  '/PDFRaster/convert':
     post:
       operationId: convertPdf
       tags:

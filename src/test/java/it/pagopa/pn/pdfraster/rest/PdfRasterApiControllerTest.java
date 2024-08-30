@@ -30,7 +30,7 @@ class PdfRasterApiControllerTest {
     @Autowired
     private WebTestClient webTestClient;
 
-    private static final String CONVERT_PDF_PATH = "/pdf-raster/convert";
+    private static final String CONVERT_PDF_PATH = "/PDFRaster/convert";
 
     private static final byte[] FILE;
     private static final byte[] FILE_KO;
