@@ -38,7 +38,7 @@ import static it.pagopa.pn.pdfraster.utils.LogUtils.*;
 public class ConvertPdfServiceImpl implements ConvertPdfService {
 
     private static final String IMAGE_FORMAT = "png";
-    private static final ImageType IMAGE_TYPE = ImageType.ARGB;
+    private final ImageType IMAGE_TYPE;
     private int dpi;
     private final Integer[] margins;
     private final Integer[] cropbox;
@@ -53,6 +53,7 @@ public class ConvertPdfServiceImpl implements ConvertPdfService {
         this.margins = Arrays.stream(params.getMargins().split(",")).map(a -> Integer.parseInt(a.trim())).toArray(Integer[]::new);
         this.mediaSize = MediaSizeWrapper.getMediaSize(params.getMediaSize());
         this.scaleOrCrop = ScaleOrCropEnum.getValue(params.getScaleOrCrop());
+        this.IMAGE_TYPE = params.isConvertToGrayscale() ? ImageType.GRAY : ImageType.ARGB;
         log.debug("cropbox= {},margins= {}, dpi= {}, mediasize= {}, scaleOrCrop= {} ", params.getCropbox(),params.getMargins(),params.getDpi(),params.getMediaSize(),params.getScaleOrCrop());
     }
 
@@ -79,6 +80,7 @@ public class ConvertPdfServiceImpl implements ConvertPdfService {
     private @NotNull ByteArrayOutputStream saveDocument(PDDocument document) {
         ByteArrayOutputStream response = new ByteArrayOutputStream();
         try {
+            document.save("output.pdf");
             document.save(response);
         } catch (IOException e) {
             throw new Generic500ErrorException("Error while save pdf", e.getMessage());
