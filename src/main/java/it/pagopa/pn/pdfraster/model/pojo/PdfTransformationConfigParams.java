@@ -19,4 +19,5 @@ public class PdfTransformationConfigParams {
     private String margins;
     private String scaleOrCrop;
     private int maxFileSize;
+    private boolean convertToGrayscale;
 }
