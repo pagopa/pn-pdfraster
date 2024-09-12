@@ -80,7 +80,6 @@ public class ConvertPdfServiceImpl implements ConvertPdfService {
     private @NotNull ByteArrayOutputStream saveDocument(PDDocument document) {
         ByteArrayOutputStream response = new ByteArrayOutputStream();
         try {
-            document.save("output.pdf");
             document.save(response);
         } catch (IOException e) {
             throw new Generic500ErrorException("Error while save pdf", e.getMessage());
