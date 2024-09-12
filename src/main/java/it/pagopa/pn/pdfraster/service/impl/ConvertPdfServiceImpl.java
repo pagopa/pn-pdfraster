@@ -54,7 +54,7 @@ public class ConvertPdfServiceImpl implements ConvertPdfService {
         this.mediaSize = MediaSizeWrapper.getMediaSize(params.getMediaSize());
         this.scaleOrCrop = ScaleOrCropEnum.getValue(params.getScaleOrCrop());
         this.IMAGE_TYPE = params.isConvertToGrayscale() ? ImageType.GRAY : ImageType.ARGB;
-        log.debug("cropbox= {},margins= {}, dpi= {}, mediasize= {}, scaleOrCrop= {} ", params.getCropbox(),params.getMargins(),params.getDpi(),params.getMediaSize(),params.getScaleOrCrop());
+        log.debug("cropbox= {},margins= {}, dpi= {}, mediasize= {}, scaleOrCrop= {}, isConvertToGrayScale={} ", params.getCropbox(),params.getMargins(),params.getDpi(),params.getMediaSize(),params.getScaleOrCrop(), params.isConvertToGrayscale());
     }
 
     @Override
