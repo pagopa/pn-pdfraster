@@ -2,9 +2,6 @@ package it.pagopa.pn.pdfraster.configuration;
 
 import it.pagopa.pn.pdfraster.configuration.aws.PdfTransformationConfiguration;
 import it.pagopa.pn.pdfraster.model.pojo.PdfTransformationConfigParams;
-import org.springframework.boot.web.embedded.netty.NettyReactiveWebServerFactory;
-import org.springframework.boot.web.server.WebServerFactoryCustomizer;
-import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
 import org.springframework.http.codec.ServerCodecConfigurer;
 import org.springframework.http.codec.multipart.DefaultPartHttpMessageReader;
