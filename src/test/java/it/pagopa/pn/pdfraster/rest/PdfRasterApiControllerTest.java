@@ -34,10 +34,10 @@ class PdfRasterApiControllerTest {
 
     private static final byte[] FILE;
     private static final byte[] FILE_KO;
-    private final static MultiValueMap<String, HttpEntity<?>> FILE_TEST_OK;
-    private final static MultiValueMap<String, HttpEntity<?>> FILE_TEST_KO;
-    private final static MultiValueMap<String, HttpEntity<?>> FILE_TEST_EMPTY;
-    private final static MultiValueMap<String, HttpEntity<?>> FILE_TEST_WRONG_CONTENT_TYPE;
+    private static final MultiValueMap<String, HttpEntity<?>> FILE_TEST_OK;
+    private static final MultiValueMap<String, HttpEntity<?>> FILE_TEST_KO;
+    private static final MultiValueMap<String, HttpEntity<?>> FILE_TEST_EMPTY;
+    private static final MultiValueMap<String, HttpEntity<?>> FILE_TEST_WRONG_CONTENT_TYPE;
 
     static{
         FILE = getFileTestFromResources();

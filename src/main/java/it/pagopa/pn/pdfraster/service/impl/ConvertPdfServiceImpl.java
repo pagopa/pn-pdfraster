@@ -38,7 +38,7 @@ import static it.pagopa.pn.pdfraster.utils.LogUtils.*;
 public class ConvertPdfServiceImpl implements ConvertPdfService {
 
     private static final String IMAGE_FORMAT = "png";
-    private static final ImageType IMAGE_TYPE = ImageType.ARGB;
+    private final ImageType imageType;
     private int dpi;
     private final Integer[] margins;
     private final Integer[] cropbox;
@@ -53,7 +53,8 @@ public class ConvertPdfServiceImpl implements ConvertPdfService {
         this.margins = Arrays.stream(params.getMargins().split(",")).map(a -> Integer.parseInt(a.trim())).toArray(Integer[]::new);
         this.mediaSize = MediaSizeWrapper.getMediaSize(params.getMediaSize());
         this.scaleOrCrop = ScaleOrCropEnum.getValue(params.getScaleOrCrop());
-        log.debug("cropbox= {},margins= {}, dpi= {}, mediasize= {}, scaleOrCrop= {} ", params.getCropbox(),params.getMargins(),params.getDpi(),params.getMediaSize(),params.getScaleOrCrop());
+        this.imageType = params.isConvertToGrayscale() ? ImageType.GRAY : ImageType.ARGB;
+        log.debug("cropbox= {},margins= {}, dpi= {}, mediasize= {}, scaleOrCrop= {}, isConvertToGrayScale={} ", params.getCropbox(),params.getMargins(),params.getDpi(),params.getMediaSize(),params.getScaleOrCrop(), params.isConvertToGrayscale());
     }
 
     @Override
@@ -69,7 +70,8 @@ public class ConvertPdfServiceImpl implements ConvertPdfService {
                     int numberOfPages = pdDocument.getNumberOfPages();
                     return Flux.range(0, numberOfPages)
                             .flatMap(pageIndex -> processPage(pdDocument, pageIndex,renderer))
-                            .reduce(new PDDocument(), (doc, bytes) -> addImageToPdf(doc,bytes))
+                            .map(byte[].class::cast)
+                            .reduce(new PDDocument(), this::addImageToPdf)
                             .map(this::saveDocument);
                 })
                 .doOnSuccess(byteArrayOutputStream -> log.info(SUCCESSFUL_OPERATION_NO_RESULT_LABEL,CONVERT_PDF_TO_IMAGE))
@@ -134,12 +136,12 @@ public class ConvertPdfServiceImpl implements ConvertPdfService {
      * @param renderer
      * @return
      */
-    private Publisher<byte[]> processPage(PDDocument pdDocument, Integer pageIndex, PDFRenderer renderer) {
+    private Mono<byte[]> processPage(PDDocument pdDocument, Integer pageIndex, PDFRenderer renderer) {
         return Mono.fromCallable(() -> {
             PDPage oInPage = pdDocument.getPage(pageIndex);
             log.debug("Input Page Height: {}", oInPage.getBBox().getHeight());
             log.debug("Input Page Width: {}", oInPage.getBBox().getWidth());
-            BufferedImage image = renderer.renderImageWithDPI(pageIndex, dpi, IMAGE_TYPE);
+            BufferedImage image = renderer.renderImageWithDPI(pageIndex, dpi, imageType);
 
             log.debug("Buffered Image size: width = {}, height = {}",image.getWidth(), image.getHeight());
             ByteArrayOutputStream baosImage = new ByteArrayOutputStream();
