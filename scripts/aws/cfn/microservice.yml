@@ -148,12 +148,13 @@ Resources:
         TaskRoleManagedPolicyArn: !Ref PnPdfRasterManagedPolicy
         LogAlarmStrategyV1: !Ref LogAlarmStrategy
         EcsLogGroup: !Ref EcsLogGroup
-        LoadBalancingAlgorithm: round_robin
         AutoscalingThreshold: !Ref AutoscalingThreshold
         AutoscalingStrategy: REST-API
         MinTasksNumber: !Ref MinTasksNumber
         MaxTasksNumber: !Ref MaxTasksNumber
         JavaToolOptions: !Ref JavaToolOptions
+        HealthCheckTimeout: 15
+        HealthCheckInterval: 120
 
   PnPdfRasterManagedPolicy:
     Type: AWS::IAM::ManagedPolicy

@@ -8,6 +8,6 @@
     "PnPdfRasterTaskExecutionPoolMaxSize": "250",
     "JavaToolOptions": "",
     "PnPdfRasterParameters": "pn-PDFRaster",
-    "PnPdfRasterMaxThreadPoolSize": "100"
+    "PnPdfRasterMaxThreadPoolSize": "10"
   }
 }
