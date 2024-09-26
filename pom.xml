@@ -11,7 +11,7 @@
 
 	<groupId>it.pagopa.pn.pdfraster</groupId>
 	<artifactId>pn-pdfraster</artifactId>
-	<version>1.0.0-SNAPSHOT</version>
+	<version>1.0.0-RC.1</version>
 	<name>pn-pdfraster</name>
 	<description>Pdf Raster Microservice</description>
 
