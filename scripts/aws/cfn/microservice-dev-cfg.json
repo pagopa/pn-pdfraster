@@ -6,7 +6,7 @@
     "CpuValue": "1024",
     "MemoryAmount": "4GB",
     "PnPdfRasterTaskExecutionPoolMaxSize": "250",
-    "JavaToolOptions": "",
+    "JavaToolOptions": "-XX:MaxDirectMemorySize=128M",
     "PnPdfRasterParameters": "pn-PDFRaster",
     "PnPdfRasterMaxThreadPoolSize": "10"
   }
