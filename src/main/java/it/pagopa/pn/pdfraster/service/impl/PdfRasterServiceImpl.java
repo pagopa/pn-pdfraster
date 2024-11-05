@@ -30,7 +30,7 @@ public class PdfRasterServiceImpl implements PdfRasterService {
     @Override
     public Mono<ByteArrayResource> convertPdf(byte[] file) {
         log.info(INVOKING_OPERATION_LABEL,CONVERT_PDF);
-
+        log.debug("payload size %d",file.length);
         if(file.length == 0)
             throw new Generic400ErrorException(INVALID_REQUEST,"File null or empty");
         /**
