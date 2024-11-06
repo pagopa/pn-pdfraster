@@ -119,7 +119,7 @@ public class ConvertPdfServiceImpl implements ConvertPdfService {
             try (PDPageContentStream contentStream = new PDPageContentStream(oDoc, oPage, AppendMode.APPEND, true, true)) {
                 float scale = getScaleOrCrop(pdImage);
                 log.debug("valore scale:{}", scale);
-                contentStream.drawImage(pdImage, margins[0]*scale, margins[1]*scale, (margins[2] - margins[0])*scale, (margins[3] - margins[1])*scale);
+                contentStream.drawImage(pdImage, margins[0], margins[1], (margins[2] - margins[0])*scale, (margins[3] - margins[1])*scale);
             }
             oDoc.addPage(oPage);
 
