@@ -99,7 +99,7 @@ public class ConvertPdfServiceImpl implements ConvertPdfService {
                 acroForm.refreshAppearances();
             }
 
-            if (cropbox != null) {
+            if(ScaleOrCropEnum.CROP.equals(scaleOrCrop) && cropbox != null) {
                 changeCropBox(pdDocument, cropbox[0], cropbox[1], cropbox[2], cropbox[3]);
             }
         } catch (IOException e) {
@@ -160,7 +160,7 @@ public class ConvertPdfServiceImpl implements ConvertPdfService {
     private float getScaleOrCrop(PDImageXObject pdImage) {
         float scale;
         if(ScaleOrCropEnum.CROP.equals(scaleOrCrop)){
-            scale = Math.min((margins[3]-margins[1])/mediaSize.getHeight(), (margins[2]-margins[0])/mediaSize.getWidth());
+            scale = 1; //Math.min((margins[3]-margins[1])/mediaSize.getHeight(), (margins[2]-margins[0])/mediaSize.getWidth());
         } else {
             scale = Math.min((float)(margins[3]-margins[1])/ pdImage.getHeight(), (float)(margins[2]-margins[0])/ pdImage.getWidth());
         }
