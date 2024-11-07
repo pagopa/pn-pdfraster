@@ -160,7 +160,7 @@ public class ConvertPdfServiceImpl implements ConvertPdfService {
     private float getScaleOrCrop(PDImageXObject pdImage) {
         float scale;
         if(ScaleOrCropEnum.CROP.equals(scaleOrCrop)){
-            scale = 72/dpi; //Math.min((margins[3]-margins[1])/mediaSize.getHeight(), (margins[2]-margins[0])/mediaSize.getWidth());
+            scale = (float)72/dpi; //Math.min((margins[3]-margins[1])/mediaSize.getHeight(), (margins[2]-margins[0])/mediaSize.getWidth());
         } else {
             scale = Math.min((float)(margins[3]-margins[1])/ pdImage.getHeight(), (float)(margins[2]-margins[0])/ pdImage.getWidth());
         }
