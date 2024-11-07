@@ -99,9 +99,9 @@ public class ConvertPdfServiceImpl implements ConvertPdfService {
                 acroForm.refreshAppearances();
             }
 
-            if(ScaleOrCropEnum.CROP.equals(scaleOrCrop) && cropbox != null) {
-                changeCropBox(pdDocument, cropbox[0], cropbox[1], cropbox[2], cropbox[3]);
-            }
+//            if(ScaleOrCropEnum.CROP.equals(scaleOrCrop) && cropbox != null) {
+//                changeCropBox(pdDocument, cropbox[0], cropbox[1], cropbox[2], cropbox[3]);
+//            }
         } catch (IOException e) {
             throw new Generic500ErrorException("Error while converting pdf", e.getMessage());
         }
