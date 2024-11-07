@@ -99,9 +99,6 @@ public class ConvertPdfServiceImpl implements ConvertPdfService {
                 acroForm.refreshAppearances();
             }
 
-//            if(ScaleOrCropEnum.CROP.equals(scaleOrCrop) && cropbox != null) {
-//                changeCropBox(pdDocument, cropbox[0], cropbox[1], cropbox[2], cropbox[3]);
-//            }
         } catch (IOException e) {
             throw new Generic500ErrorException("Error while converting pdf", e.getMessage());
         }
@@ -160,29 +157,11 @@ public class ConvertPdfServiceImpl implements ConvertPdfService {
     private float getScaleOrCrop(PDImageXObject pdImage) {
         float scale;
         if(ScaleOrCropEnum.CROP.equals(scaleOrCrop)){
-            scale = (float)72/dpi; //Math.min((margins[3]-margins[1])/mediaSize.getHeight(), (margins[2]-margins[0])/mediaSize.getWidth());
+            scale = (float)72/dpi; 
         } else {
             scale = Math.min((float)(margins[3]-margins[1])/ pdImage.getHeight(), (float)(margins[2]-margins[0])/ pdImage.getWidth());
         }
         return scale;
     }
 
-    /**
-     *
-     * @param document
-     * @param a
-     * @param b
-     * @param c
-     * @param d
-     */
-    private static void changeCropBox(PDDocument document, float a, float b, float c, float d) {
-        for (PDPage page : document.getPages()) {
-            PDRectangle rectangle = new PDRectangle();
-            rectangle.setLowerLeftX(a);
-            rectangle.setLowerLeftY(b);
-            rectangle.setUpperRightX(c);
-            rectangle.setUpperRightY(d);
-            page.setCropBox(rectangle);
-        }
-    }
 }
