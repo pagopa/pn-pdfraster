@@ -39,7 +39,7 @@ public class PdfTransformationConfiguration {
         this.jsonUtils = jsonUtils;
         this.pdfRasterParameterName = pdfRasterParameterName;
         this.pdfTransformationConfigParams = this.pdfTransformationConfigurationFromParameterStore();
-        this.transformationsList = parseTransformations(pdfTransformationConfigParams.getScaleOrCrop());
+        this.transformationsList = parseTransformations(pdfTransformationConfigParams.getTransformationsList());
     }
 
     public PdfTransformationConfigParams pdfTransformationConfigurationFromParameterStore() throws SsmException {

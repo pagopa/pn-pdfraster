@@ -55,7 +55,7 @@ public class ConvertPdfServiceImpl implements ConvertPdfService {
         this.mediaSize = MediaSizeWrapper.getMediaSize(params.getMediaSize());
         this.transformations = pdfTransformationConfiguration.getTransformationsList();
         this.imageType = params.isConvertToGrayscale() ? ImageType.GRAY : ImageType.ARGB;
-        log.debug("cropbox= {},margins= {}, dpi= {}, mediasize= {}, scaleOrCrop= {}, isConvertToGrayScale={} ", params.getCropbox(),params.getMargins(),params.getDpi(),params.getMediaSize(),params.getScaleOrCrop(), params.isConvertToGrayscale());
+        log.debug("cropbox= {},margins= {}, dpi= {}, mediasize= {}, transformations= {}, isConvertToGrayScale={} ", params.getCropbox(),params.getMargins(),params.getDpi(),params.getMediaSize(),params.getTransformationsList(), params.isConvertToGrayscale());
     }
 
     @Override
@@ -141,7 +141,7 @@ public class ConvertPdfServiceImpl implements ConvertPdfService {
             PDImageXObject pdImage = PDImageXObject.createFromByteArray(oDoc,baos.toByteArray(), null);
 
             try (PDPageContentStream contentStream = new PDPageContentStream(oDoc, oPage, AppendMode.APPEND, true, true)) {
-                float scale = getScaleOrCrop(pdImage);
+                float scale = getScaleFactor(pdImage);
                 log.debug("valore scale:{}", scale);
                 contentStream.drawImage(pdImage, margins[0], margins[1], pdImage.getWidth()*scale, pdImage.getHeight()*scale);
             }
@@ -178,7 +178,7 @@ public class ConvertPdfServiceImpl implements ConvertPdfService {
      * @param pdImage
      * @return
      */
-    private float getScaleOrCrop(PDImageXObject pdImage) {
+    private float getScaleFactor(PDImageXObject pdImage) {
         float scale = 72f / dpi;
         if (transformations.contains(TransformationEnum.SCALE)) {
             scale = Math.min((float)(margins[3]-margins[1])/ pdImage.getHeight(), (float)(margins[2]-margins[0])/ pdImage.getWidth());

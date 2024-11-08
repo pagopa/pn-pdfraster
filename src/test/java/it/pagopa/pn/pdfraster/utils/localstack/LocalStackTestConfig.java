@@ -42,7 +42,7 @@ public class LocalStackTestConfig {
                         "\"dpi\":150," +
                         "\"margins\":\"0,0,595,841\"," +
                         "\"mediaSize\":\"A4\"," +
-                        "\"scaleOrCrop\":\"scale\"," +
+                        "\"transformationsList\":\"scale\"," +
                         "\"maxFileSize\":10000000," +
                         "\"convertToGrayscale\":false" +
                     "}");

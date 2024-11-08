@@ -17,7 +17,7 @@ public class PdfTransformationConfigParams {
     private Number dpi;
     private String mediaSize;
     private String margins;
-    private String scaleOrCrop;
+    private String transformationsList;
     private int maxFileSize;
     private boolean convertToGrayscale;
 }
