@@ -4,7 +4,7 @@ import it.pagopa.pn.pdfraster.configuration.aws.PdfTransformationConfiguration;
 import it.pagopa.pn.pdfraster.exceptions.Generic500ErrorException;
 import it.pagopa.pn.pdfraster.model.pojo.MediaSizeWrapper;
 import it.pagopa.pn.pdfraster.model.pojo.PdfTransformationConfigParams;
-import it.pagopa.pn.pdfraster.model.pojo.ScaleOrCropEnum;
+import it.pagopa.pn.pdfraster.model.pojo.TransformationEnum;
 import it.pagopa.pn.pdfraster.service.ConvertPdfService;
 import lombok.CustomLog;
 import org.apache.pdfbox.Loader;
@@ -19,7 +19,6 @@ import org.apache.pdfbox.rendering.ImageType;
 import org.apache.pdfbox.rendering.PDFRenderer;
 import org.apache.pdfbox.tools.imageio.ImageIOUtil;
 import org.jetbrains.annotations.NotNull;
-import org.reactivestreams.Publisher;
 import org.springframework.stereotype.Service;
 import picocli.CommandLine.Command;
 import reactor.core.publisher.Flux;
@@ -29,8 +28,10 @@ import java.awt.image.BufferedImage;
 import java.io.ByteArrayOutputStream;
 import java.io.IOException;
 import java.util.Arrays;
+import java.util.List;
 
 import static it.pagopa.pn.pdfraster.utils.LogUtils.*;
+import static it.pagopa.pn.pdfraster.utils.PDFUtils.*;
 
 @CustomLog
 @Service
@@ -43,7 +44,7 @@ public class ConvertPdfServiceImpl implements ConvertPdfService {
     private final Integer[] margins;
     private final Integer[] cropbox;
     private final PDRectangle mediaSize;
-    private final ScaleOrCropEnum scaleOrCrop;
+    private final List<TransformationEnum> transformations;
 
 
     public ConvertPdfServiceImpl(PdfTransformationConfiguration pdfTransformationConfiguration){
@@ -52,7 +53,7 @@ public class ConvertPdfServiceImpl implements ConvertPdfService {
         this.dpi = (int)params.getDpi();
         this.margins = Arrays.stream(params.getMargins().split(",")).map(a -> Integer.parseInt(a.trim())).toArray(Integer[]::new);
         this.mediaSize = MediaSizeWrapper.getMediaSize(params.getMediaSize());
-        this.scaleOrCrop = ScaleOrCropEnum.getValue(params.getScaleOrCrop());
+        this.transformations = pdfTransformationConfiguration.getTransformationsList();
         this.imageType = params.isConvertToGrayscale() ? ImageType.GRAY : ImageType.ARGB;
         log.debug("cropbox= {},margins= {}, dpi= {}, mediasize= {}, scaleOrCrop= {}, isConvertToGrayScale={} ", params.getCropbox(),params.getMargins(),params.getDpi(),params.getMediaSize(),params.getScaleOrCrop(), params.isConvertToGrayscale());
     }
@@ -70,13 +71,35 @@ public class ConvertPdfServiceImpl implements ConvertPdfService {
                     int numberOfPages = pdDocument.getNumberOfPages();
                     return Flux.range(0, numberOfPages)
                             .flatMap(pageIndex -> processPage(pdDocument, pageIndex,renderer))
-                            .map(byte[].class::cast)
+                            .cast(BufferedImage.class)
+                            .map(this::transformations)
                             .reduce(new PDDocument(), this::addImageToPdf)
                             .map(this::saveDocument);
                 })
                 .doOnSuccess(byteArrayOutputStream -> log.info(SUCCESSFUL_OPERATION_NO_RESULT_LABEL,CONVERT_PDF_TO_IMAGE))
                 .doOnError(throwable -> log.error(ENDING_PROCESS_WITH_ERROR,CONVERT_PDF_TO_IMAGE,throwable,throwable.getMessage()));
     }
+
+    private BufferedImage transformations(BufferedImage bImage) {
+        int pageH = margins[3]-margins[1];
+        int pageW = margins[2]-margins[0];
+
+        log.debug("Image Height: {}, Image Width: {}", bImage.getHeight(),bImage.getWidth());
+
+        for (TransformationEnum transformation : transformations) {
+            switch (transformation) {
+                case CROP:
+                    bImage = cropImage(bImage,dpi,cropbox,pageH,pageW);
+                    break;
+                case PORTRAIT:
+                    bImage = rotateImage(bImage, 90);
+                    break;
+            }
+        }
+        return bImage;
+    }
+
+
 
     private @NotNull ByteArrayOutputStream saveDocument(PDDocument document) {
         ByteArrayOutputStream response = new ByteArrayOutputStream();
@@ -99,9 +122,7 @@ public class ConvertPdfServiceImpl implements ConvertPdfService {
                 acroForm.refreshAppearances();
             }
 
-            if (cropbox != null) {
-                changeCropBox(pdDocument, cropbox[0], cropbox[1], cropbox[2], cropbox[3]);
-            }
+
         } catch (IOException e) {
             throw new Generic500ErrorException("Error while converting pdf", e.getMessage());
         }
@@ -111,23 +132,26 @@ public class ConvertPdfServiceImpl implements ConvertPdfService {
      * Metodo per la creazione del Pdf con le immagini create
      * @return
      */
-    private PDDocument addImageToPdf(PDDocument oDoc, byte[] image) {
+    private PDDocument addImageToPdf(PDDocument oDoc, BufferedImage image) {
         try {
             PDPage oPage = new PDPage(mediaSize);
-            PDImageXObject pdImage = PDImageXObject.createFromByteArray(oDoc, image, null);
+            ByteArrayOutputStream baos = new ByteArrayOutputStream();
+            ImageIOUtil.writeImage(image, IMAGE_FORMAT, baos, dpi);
+
+            PDImageXObject pdImage = PDImageXObject.createFromByteArray(oDoc,baos.toByteArray(), null);
 
             try (PDPageContentStream contentStream = new PDPageContentStream(oDoc, oPage, AppendMode.APPEND, true, true)) {
                 float scale = getScaleOrCrop(pdImage);
                 log.debug("valore scale:{}", scale);
-                contentStream.drawImage(pdImage, margins[0], margins[1], (margins[2] - margins[0]), (margins[3] - margins[1]));
+                contentStream.drawImage(pdImage, margins[0], margins[1], pdImage.getWidth()*scale, pdImage.getHeight()*scale);
             }
             oDoc.addPage(oPage);
-
             return oDoc;
         } catch (IOException e) {
             throw new Generic500ErrorException("Error while converting pdf", e.getMessage());
         }
     }
+
 
     /**
      * Metodo per trasformare il contenuto delle pagine in immagini
@@ -136,21 +160,18 @@ public class ConvertPdfServiceImpl implements ConvertPdfService {
      * @param renderer
      * @return
      */
-    private Mono<byte[]> processPage(PDDocument pdDocument, Integer pageIndex, PDFRenderer renderer) {
+    private Mono<BufferedImage> processPage(PDDocument pdDocument, Integer pageIndex, PDFRenderer renderer) {
         return Mono.fromCallable(() -> {
             PDPage oInPage = pdDocument.getPage(pageIndex);
             log.debug("Input Page Height: {}", oInPage.getBBox().getHeight());
             log.debug("Input Page Width: {}", oInPage.getBBox().getWidth());
-            BufferedImage image = renderer.renderImageWithDPI(pageIndex, dpi, imageType);
 
-            log.debug("Buffered Image size: width = {}, height = {}",image.getWidth(), image.getHeight());
-            ByteArrayOutputStream baosImage = new ByteArrayOutputStream();
-            ImageIOUtil.writeImage(image, IMAGE_FORMAT, baosImage, dpi, 0f);
-            return baosImage.toByteArray();
+            return renderer.renderImageWithDPI(pageIndex, dpi, imageType);
         })
         .doOnSuccess(bytes -> log.info(SUCCESSFUL_OPERATION_ON_LABEL,PROCESS_PAGE,PAGE_INDEX,pageIndex))
         .doOnError(throwable -> log.error(ENDING_PROCESS_WITH_ERROR,PROCESS_PAGE,throwable,throwable.getMessage()));
     }
+
 
     /**
      * Metodo per il calcolo dello scale dell'immagine in base alla variabile scaleOrCrop
@@ -158,31 +179,11 @@ public class ConvertPdfServiceImpl implements ConvertPdfService {
      * @return
      */
     private float getScaleOrCrop(PDImageXObject pdImage) {
-        float scale;
-        if(ScaleOrCropEnum.CROP.equals(scaleOrCrop)){
-            scale = Math.min((margins[3]-margins[1])/mediaSize.getHeight(), (margins[2]-margins[0])/mediaSize.getWidth());
-        } else {
+        float scale = 72f / dpi;
+        if (transformations.contains(TransformationEnum.SCALE)) {
             scale = Math.min((float)(margins[3]-margins[1])/ pdImage.getHeight(), (float)(margins[2]-margins[0])/ pdImage.getWidth());
         }
         return scale;
     }
 
-    /**
-     *
-     * @param document
-     * @param a
-     * @param b
-     * @param c
-     * @param d
-     */
-    private static void changeCropBox(PDDocument document, float a, float b, float c, float d) {
-        for (PDPage page : document.getPages()) {
-            PDRectangle rectangle = new PDRectangle();
-            rectangle.setLowerLeftX(a);
-            rectangle.setLowerLeftY(b);
-            rectangle.setUpperRightX(c);
-            rectangle.setUpperRightY(d);
-            page.setCropBox(rectangle);
-        }
-    }
 }
