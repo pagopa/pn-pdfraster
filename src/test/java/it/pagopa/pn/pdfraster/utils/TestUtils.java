@@ -33,4 +33,20 @@ public abstract class TestUtils {
             throw new RuntimeException(e);
         }
     }
+
+    public static byte[] getFileOkLandScapeFromResources(){
+        try (var in = new FileInputStream("src/test/resources/TEST_LANDSCAPE.pdf")){
+            return IOUtils.toByteArray(in);
+        } catch (IOException e) {
+            throw new RuntimeException(e);
+        }
+    }
+
+    public static byte[] getFileOkPortraitFromResources() {
+        try (var in = new FileInputStream("src/test/resources/TEST_PORTRAIT.pdf")){
+            return IOUtils.toByteArray(in);
+        } catch (IOException e) {
+            throw new RuntimeException(e);
+        }
+    }
 }
