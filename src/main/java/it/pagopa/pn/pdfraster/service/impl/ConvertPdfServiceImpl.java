@@ -91,7 +91,7 @@ public class ConvertPdfServiceImpl implements ConvertPdfService {
      * - portrait;crop: l'immagine viene prima, se necessario, ruotata e poi tagliata
      * - portrait;scale: l'immagine viene prima, se necessario, ruotata e poi scalata
      * - crop;portrait: l'immagine viene tagliata e se necessario ruotata
-     * - scale;portrait: l'immagine, se necessario, ruotata prima di essere scalata
+     * - scale;portrait: è equivalente alla trasformazione portrait;scale in quanto la scalatura avviene sempre applicata per ultima
      */
     private BufferedImage transformations(BufferedImage bImage) {
         int pageH = margins[3]-margins[1];
