@@ -80,6 +80,19 @@ public class ConvertPdfServiceImpl implements ConvertPdfService {
                 .doOnError(throwable -> log.error(ENDING_PROCESS_WITH_ERROR,CONVERT_PDF_TO_IMAGE,throwable,throwable.getMessage()));
     }
 
+    /*
+     * Le trasformazioni possibili sono:
+     * crop: taglia l'immagine in base quanto impostato nel parametro "cropbox"
+     * scale: l'immagine viene scalata in modo da farla rientrare nei margini previsti
+     *   Questa trasformazione viene comunque eseguita sempre come ultima trasformazione dell'elenco
+     * portrait: se l'immagine ha la base maggiore dell'altezza questa viene ruotata di 90° in senso orario
+     * 
+     * è possibile specificare una sequenza di trasformazioni, di seguito gli effetti:
+     * - portrait;crop: l'immagine viene prima, se necessario, ruotata e poi tagliata
+     * - portrait;scale: l'immagine viene prima, se necessario, ruotata e poi scalata
+     * - crop;portrait: l'immagine viene tagliata e se necessario ruotata
+     * - scale;portrait: l'immagine, se necessario, ruotata prima di essere scalata
+     */
     private BufferedImage transformations(BufferedImage bImage) {
         int pageH = margins[3]-margins[1];
         int pageW = margins[2]-margins[0];
