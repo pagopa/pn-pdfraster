@@ -41,7 +41,6 @@ class PdfRasterApiControllerTest {
 
     private static final byte[] FILE;
     private static final byte[] FILE_KO;
-    private static final byte[] FILE_LANDSCAPE;
     private static final byte[] FILE_PORTRAIT;
     private static final MultiValueMap<String, HttpEntity<?>> FILE_TEST_OK;
     private static final MultiValueMap<String, HttpEntity<?>> FILE_TEST_PORTRAIT;
@@ -66,7 +65,6 @@ class PdfRasterApiControllerTest {
     static {
         FILE = getFileTestFromResources();
         FILE_KO = getFileKoTestFromResources();
-        FILE_LANDSCAPE = getFileOkLandScapeFromResources();
         FILE_PORTRAIT = getFileOkPortraitFromResources();
         FILE_TEST_OK = getMultipartFileTest(FILE);
         FILE_TEST_KO = getMultipartFileTest(FILE_KO);

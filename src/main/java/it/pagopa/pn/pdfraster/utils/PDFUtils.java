@@ -16,7 +16,7 @@ public class PDFUtils {
 
 
 
-    public static BufferedImage cropImage(BufferedImage originalImage,float dpi, Integer[] cropbox,int pageH,int pageW) {
+    public static BufferedImage cropImage(BufferedImage originalImage,float dpi, Integer[] cropbox) {
         float upscale = dpi / 72f;
 
         // Calcola le nuove dimensioni dell'immagine croppata basate su DPI
@@ -39,8 +39,7 @@ public class PDFUtils {
             cropHeight=originalHeight;
         }
 
-        BufferedImage newImage = originalImage.getSubimage(cropX, cropY, cropWidth, cropHeight);
-        return newImage;
+        return originalImage.getSubimage(cropX, cropY, cropWidth, cropHeight);
     }
 
     public static BufferedImage rotateImage(BufferedImage img, double angle) {

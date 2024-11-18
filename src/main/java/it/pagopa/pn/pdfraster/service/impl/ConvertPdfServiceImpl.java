@@ -30,6 +30,8 @@ import java.io.IOException;
 import java.util.Arrays;
 import java.util.List;
 
+import static it.pagopa.pn.pdfraster.model.pojo.TransformationEnum.CROP;
+import static it.pagopa.pn.pdfraster.model.pojo.TransformationEnum.PORTRAIT;
 import static it.pagopa.pn.pdfraster.utils.LogUtils.*;
 import static it.pagopa.pn.pdfraster.utils.PDFUtils.*;
 
@@ -94,19 +96,15 @@ public class ConvertPdfServiceImpl implements ConvertPdfService {
      * - scale;portrait: è equivalente alla trasformazione portrait;scale in quanto la scalatura avviene sempre applicata per ultima
      */
     private BufferedImage transformations(BufferedImage bImage) {
-        int pageH = margins[3]-margins[1];
-        int pageW = margins[2]-margins[0];
 
         log.debug("Image Height: {}, Image Width: {}", bImage.getHeight(),bImage.getWidth());
 
         for (TransformationEnum transformation : transformations) {
-            switch (transformation) {
-                case CROP:
-                    bImage = cropImage(bImage,dpi,cropbox,pageH,pageW);
-                    break;
-                case PORTRAIT:
-                    bImage = rotateImage(bImage, 90);
-                    break;
+            if (transformation == CROP)  {
+                bImage = cropImage(bImage,dpi,cropbox);
+            }
+            if (transformation == PORTRAIT) {
+                bImage = rotateImage(bImage, 90);
             }
         }
         return bImage;
