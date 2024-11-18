@@ -24,7 +24,6 @@ import org.springframework.web.reactive.function.BodyInserters;
 import java.util.List;
 
 import static it.pagopa.pn.pdfraster.utils.TestUtils.*;
-import static it.pagopa.pn.pdfraster.utils.TestUtils.getFileOkLandScapeFromResources;
 import static org.junit.jupiter.api.Assertions.assertNotNull;
 import static org.springframework.http.MediaType.*;
 
