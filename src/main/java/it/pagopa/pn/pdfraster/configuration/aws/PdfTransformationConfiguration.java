@@ -34,7 +34,7 @@ public class PdfTransformationConfiguration {
     private final List<TransformationEnum> transformationsList;
 
 
-    public PdfTransformationConfiguration(SsmClient ssmClient, JsonUtils jsonUtils, @Value("${pn.pdfraster.parameter.name}") String pdfRasterParameterName, List<String> transformations) {
+    public PdfTransformationConfiguration(SsmClient ssmClient, JsonUtils jsonUtils, @Value("${pn.pdfraster.parameter.name}") String pdfRasterParameterName) {
         this.ssmClient = ssmClient;
         this.jsonUtils = jsonUtils;
         this.pdfRasterParameterName = pdfRasterParameterName;
@@ -57,7 +57,7 @@ public class PdfTransformationConfiguration {
     }
 
     private List<TransformationEnum> parseTransformations(String transformations) {
-        List<TransformationEnum> transformationsList = new ArrayList<>();
+        List<TransformationEnum> transformationsArrayList = new ArrayList<>();
         boolean containsCropOrScale = false;
         for (String transformation : transformations.split(";")) {
             if (!Arrays.asList(TransformationEnum.values()).contains(TransformationEnum.getValue(transformation))) {
@@ -71,10 +71,10 @@ public class PdfTransformationConfiguration {
                         containsCropOrScale = true;
                     }
                 }
-                transformationsList.add(TransformationEnum.getValue(transformation));
+                transformationsArrayList.add(TransformationEnum.getValue(transformation));
             }
         }
-        return transformationsList;
+        return transformationsArrayList;
     }
 
 
