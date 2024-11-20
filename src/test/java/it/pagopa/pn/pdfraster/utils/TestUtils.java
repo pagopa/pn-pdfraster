@@ -11,6 +11,18 @@ public abstract class TestUtils {
     }
 
     /**
+     * Metodo per recuperare l'immagine di test dalle risorse
+     * @return
+     */
+    public static byte[] getTestImageFromResources(){
+        try (var in = new FileInputStream("src/test/resources/TEST.jpg")){
+            return IOUtils.toByteArray(in);
+        } catch (IOException e) {
+            throw new RuntimeException(e);
+        }
+    }
+
+    /**
      * Metodo per recuperare il file di test dalle risorse
      * @return
      */
