@@ -4,10 +4,10 @@ import it.pagopa.pn.pdfraster.utils.annotation.SpringBootTestWebEnv;
 import lombok.CustomLog;
 import org.apache.pdfbox.Loader;
 import org.apache.pdfbox.pdmodel.PDDocument;
-import org.junit.jupiter.api.Assertions;
 import org.junit.jupiter.api.Test;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.mock.mockito.SpyBean;
+import reactor.test.StepVerifier;
 
 import java.io.IOException;
 
@@ -32,23 +32,22 @@ class PdfRasterServiceTest {
     }
 
     @Test
-    void conversionePdf(){
-        convertPdfService.convertPdfToImage(FILE).doOnSuccess(byteArrayOutputStream -> {
+    void conversionePdf() {
+        StepVerifier.create(convertPdfService.convertPdfToImage(FILE)).expectNextMatches(byteArrayOutputStream -> {
             try (PDDocument documentConverted = Loader.loadPDF(byteArrayOutputStream.toByteArray()); PDDocument documentOriginal = Loader.loadPDF(FILE)) {
-                Assertions.assertEquals(documentConverted.getNumberOfPages(), documentOriginal.getNumberOfPages());
+                return documentConverted.getNumberOfPages() == documentOriginal.getNumberOfPages();
             } catch (IOException e) {
                 throw new RuntimeException(e);
             }
-        });
+        }).verifyComplete();
+    }
+    @Test
+    void conversionePdf_KO_WrongFile() {
+        StepVerifier.create(convertPdfService.convertPdfToImage(FILE_KO)).expectError().verify();
     }
 
     @Test
-    void conversionePdf_KO_WrongFile(){
-        convertPdfService.convertPdfToImage(FILE_KO).doOnError(Assertions::assertNotNull);
-    }
-
-    @Test
-    void conversionePdf_KO_EmptyFile(){
-        convertPdfService.convertPdfToImage(new byte[0]).doOnError(Assertions::assertNotNull);
+    void conversionePdf_KO_EmptyFile() {
+        StepVerifier.create(convertPdfService.convertPdfToImage(new byte[0])).expectError().verify();
     }
 }

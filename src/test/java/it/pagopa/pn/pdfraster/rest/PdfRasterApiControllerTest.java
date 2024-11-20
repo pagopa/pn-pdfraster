@@ -4,8 +4,6 @@ import it.pagopa.pn.pdfraster.model.pojo.TransformationEnum;
 import it.pagopa.pn.pdfraster.service.impl.ConvertPdfServiceImpl;
 import it.pagopa.pn.pdfraster.utils.annotation.SpringBootTestWebEnv;
 import lombok.CustomLog;
-import org.apache.pdfbox.Loader;
-import org.apache.pdfbox.pdmodel.PDDocument;
 import org.jetbrains.annotations.NotNull;
 import org.junit.jupiter.api.*;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -23,12 +21,9 @@ import org.springframework.util.LinkedMultiValueMap;
 import org.springframework.util.MultiValueMap;
 import org.springframework.web.reactive.function.BodyInserters;
 
-import java.io.IOException;
-import java.io.InputStream;
 import java.util.List;
 
 import static it.pagopa.pn.pdfraster.utils.TestUtils.*;
-import static it.pagopa.pn.pdfraster.utils.TestUtils.getFileOkLandScapeFromResources;
 import static org.junit.jupiter.api.Assertions.assertNotNull;
 import static org.springframework.http.MediaType.*;
 
@@ -45,10 +40,8 @@ class PdfRasterApiControllerTest {
 
     private static final byte[] FILE;
     private static final byte[] FILE_KO;
-    private static final byte[] FILE_LANDSCAPE;
     private static final byte[] FILE_PORTRAIT;
     private static final MultiValueMap<String, HttpEntity<?>> FILE_TEST_OK;
-    private static final MultiValueMap<String, HttpEntity<?>> FILE_TEST_LANDSCAPE;
     private static final MultiValueMap<String, HttpEntity<?>> FILE_TEST_PORTRAIT;
     private static final MultiValueMap<String, HttpEntity<?>> FILE_TEST_KO;
     private static final MultiValueMap<String, HttpEntity<?>> FILE_TEST_EMPTY;
@@ -71,11 +64,9 @@ class PdfRasterApiControllerTest {
     static {
         FILE = getFileTestFromResources();
         FILE_KO = getFileKoTestFromResources();
-        FILE_LANDSCAPE = getFileOkLandScapeFromResources();
         FILE_PORTRAIT = getFileOkPortraitFromResources();
         FILE_TEST_OK = getMultipartFileTest(FILE);
         FILE_TEST_KO = getMultipartFileTest(FILE_KO);
-        FILE_TEST_LANDSCAPE = getMultipartFileTest(FILE_LANDSCAPE);
         FILE_TEST_PORTRAIT = getMultipartFileTest(FILE_PORTRAIT);
 
         FILE_TEST_EMPTY = getMultipartFileTest(new byte[0]);
