@@ -1,10 +1,14 @@
 #!/bin/bash
 
-# Aggiungi i parametri a AWS SSM
+# Configura la regione e l'endpoint AWS
+AWS_REGION="eu-south-1"
+LOCALSTACK_ENDPOINT="http://localstack:4566"
+
+# Creazione del parametro SSM
 aws ssm put-parameter \
+  --region "$AWS_REGION" \
+  --endpoint-url "$LOCALSTACK_ENDPOINT" \
   --name "pn-PDFRaster" \
   --type "String" \
   --value '{"cropbox":"0,0,595,841","dpi":150,"margins":"0,0,595,841","mediaSize":"A4","transformationsList":"scale","maxFileSize":10000000,"convertToGrayscale":false}' \
-  --endpoint-url http://localstack:4566
-
-echo "Initialization terminated"
+  && echo "Parameter created successfully: pn-PDFRaster" || echo "Failed to create parameter: pn-PDFRaster"
