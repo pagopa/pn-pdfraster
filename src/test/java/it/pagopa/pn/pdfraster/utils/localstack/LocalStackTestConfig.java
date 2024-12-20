@@ -2,53 +2,30 @@ package it.pagopa.pn.pdfraster.utils.localstack;
 
 import lombok.CustomLog;
 import org.springframework.boot.test.context.TestConfiguration;
+import org.testcontainers.containers.BindMode;
+import org.testcontainers.containers.Network;
 import org.testcontainers.containers.localstack.LocalStackContainer;
+import org.testcontainers.containers.wait.strategy.Wait;
 import org.testcontainers.utility.DockerImageName;
-
-import java.io.IOException;
-import java.time.Duration;
-
-import static org.testcontainers.containers.localstack.LocalStackContainer.Service.SSM;
+import static org.testcontainers.containers.localstack.LocalStackContainer.Service.*;
 
 @TestConfiguration
 @CustomLog
 public class LocalStackTestConfig {
 
-    private static DockerImageName dockerImageName = DockerImageName.parse("localstack/localstack:1.0.4");
-    private static LocalStackContainer localStackContainer = new LocalStackContainer(dockerImageName).withServices(SSM)
-                                                                                                     .withStartupTimeout(Duration.ofMinutes(2))
-                                                                                                     .withEnv("AWS_DEFAULT_REGION","eu-south-1");
+    static DockerImageName dockerImageName = DockerImageName.parse("localstack/localstack:1.0.4");
+    static LocalStackContainer localStackContainer =
+            new LocalStackContainer(dockerImageName).withServices(SSM)
+                    .withClasspathResourceMapping("testcontainers/init.sh", "/docker-entrypoint-initaws.d/make-storages.sh", BindMode.READ_ONLY)
+                    .withClasspathResourceMapping("testcontainers/credentials", "/root/.aws/credentials", BindMode.READ_ONLY)
+                    .withNetworkAliases("localstack")
+                    .withNetwork(Network.builder().build())
+                    .waitingFor(Wait.forLogMessage(".*Initialization terminated.*", 1));
 
     static {
         localStackContainer.start();
 
         System.setProperty("test.aws.ssm.endpoint", String.valueOf(localStackContainer.getEndpointOverride(SSM)));
-
-        ssmInit();
-    }
-
-    private static void ssmInit(){
-        try {
-            localStackContainer.execInContainer("awslocal",
-                    "ssm",
-                    "put-parameter",
-                    "--name",
-                    "pn-PDFRaster",
-                    "--type",
-                    "String",
-                    "--value",
-                    "{" +
-                        "\"cropbox\":\"0,0,595,841\"," +
-                        "\"dpi\":150," +
-                        "\"margins\":\"0,0,595,841\"," +
-                        "\"mediaSize\":\"A4\"," +
-                        "\"transformationsList\":\"scale\"," +
-                        "\"maxFileSize\":10000000," +
-                        "\"convertToGrayscale\":false" +
-                    "}");
-        } catch (IOException | InterruptedException e) {
-            throw new RuntimeException(e);
-        }
     }
 
 }
