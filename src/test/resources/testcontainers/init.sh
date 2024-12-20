@@ -2,7 +2,7 @@
 
 # Configura la regione e l'endpoint AWS
 AWS_REGION="eu-south-1"
-LOCALSTACK_ENDPOINT="http://localstack:4566"
+LOCALSTACK_ENDPOINT="http://localhost:4566"
 
 # Creazione del parametro SSM
 aws ssm put-parameter \
