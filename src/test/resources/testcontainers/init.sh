@@ -10,6 +10,6 @@ aws ssm put-parameter \
   --endpoint-url "$LOCALSTACK_ENDPOINT" \
   --name "pn-PDFRaster" \
   --type "String" \
-  --value '{"cropbox":"0,0,595,841","dpi":160,"margins":"0,0,595,841","mediaSize":"A4","transformationsList":"scale","maxFileSize":10000000,"convertToGrayscale":false}' \
+  --value '{"cropbox": "0,0,595,841","dpi": 150,"mediaSize": "A4","margins": "0,0,595,841","transformationsList": "portrait;scale","maxFileSize": 100000000,"convertToGrayscale": true}' \
 
 echo "Initialization terminated"
