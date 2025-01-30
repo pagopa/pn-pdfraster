@@ -20,8 +20,8 @@ public class PDFUtils {
         float upscale = dpi / 72f;
 
         // Calcola le nuove dimensioni dell'immagine croppata basate su DPI
-        int cropWidth = (int) Math.ceil((cropbox[2] - cropbox[0]) * upscale);
-        int cropHeight = (int) Math.ceil((cropbox[3] - cropbox[1]) * upscale);
+        int cropWidth = (int) Math.floor((cropbox[2] - cropbox[0]) * upscale);
+        int cropHeight = (int) Math.floor((cropbox[3] - cropbox[1]) * upscale);
 
         // Controlla se altezza e larghezza sono uguali a prima
         int originalWidth = originalImage.getWidth();
