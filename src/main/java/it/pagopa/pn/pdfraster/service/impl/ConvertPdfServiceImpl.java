@@ -32,7 +32,6 @@ import java.util.List;
 
 import static it.pagopa.pn.pdfraster.utils.LogUtils.*;
 import static it.pagopa.pn.pdfraster.utils.PDFUtils.*;
-import static it.pagopa.pn.pdfraster.utils.FontProvider.*;
 
 @CustomLog
 @Service
@@ -66,7 +65,6 @@ public class ConvertPdfServiceImpl implements ConvertPdfService {
         }
         return Mono.fromCallable(() -> Loader.loadPDF(file))
                 .flatMap(pdDocument -> {
-                    loadFonts(pdDocument);
                     preliminarOperations(pdDocument);
                     PDFRenderer renderer = new PDFRenderer(pdDocument);
                     renderer.setSubsamplingAllowed(false);
@@ -113,7 +111,6 @@ public class ConvertPdfServiceImpl implements ConvertPdfService {
         }
         return bImage;
     }
-
 
 
     private @NotNull ByteArrayOutputStream saveDocument(PDDocument document) {
