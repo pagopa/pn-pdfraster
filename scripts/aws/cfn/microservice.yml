@@ -121,6 +121,10 @@ Parameters:
     Description: 'Pdf raster max thread pool size'
     Default: '100'
 
+  PnPdfRasterTransformationRasterQueueName:
+    Type: String
+    Description: 'Pdf raster transformation raster queue name'
+
 Resources:
 
   PdfRasterMicroservice:
@@ -137,6 +141,7 @@ Resources:
         ContainerEnvEntry2: !Sub 'PnPdfRasterTaskExecutionPoolMaxSize=${PnPdfRasterTaskExecutionPoolMaxSize}'
         ContainerEnvEntry3: !Sub 'PnPdfRasterParameters=${PnPdfRasterParameters}'
         ContainerEnvEntry4: !Sub 'PnPdfRasterMaxThreadPoolSize=${PnPdfRasterMaxThreadPoolSize}'
+        ContainerEnvEntry5: !Sub 'PnPdfRastertransformationRasterQueueName=${PnPdfRastertransformationRasterQueueName}'
         MappedPaths: '/PDFRaster/*'
         ECSClusterName: !Ref PdfRasterECSClusterName
         Subnets: !Ref PdfRasterVpcSubnets
