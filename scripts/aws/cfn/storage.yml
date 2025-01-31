@@ -74,9 +74,6 @@ Outputs:
     Description: 'ARN della coda di trasformazione raster'
     Value: !GetAtt PnSsTransformationRasterStack.Outputs.QueueArn
 
-  PnPdfRasterTransformationQueueUrl:
-    Description: 'URL della coda di trasformazione raster'
-    Value: !GetAtt PnSsTransformationRasterStack.Outputs.QueueUrl
 
   EcsLogGroup:
     Value: !GetAtt EcsLogGroup.Outputs.LogGroupName

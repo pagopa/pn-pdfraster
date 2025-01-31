@@ -131,10 +131,6 @@ Parameters:
     Description: 'Pdf raster transformation raster queue arn'
     Default: !GetAtt PnSsTransformationRasterStack.Outputs.QueueName
 
-  PnPdfRasterTransformationQueueUrl:
-    Type: String
-    Description: 'Pdf raster transformation raster queue url'
-    Default: !GetAtt PnSsTransformationRasterStack.Outputs.QueueName
 
 Resources:
 
