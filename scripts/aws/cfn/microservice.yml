@@ -121,6 +121,17 @@ Parameters:
     Description: 'Pdf raster max thread pool size'
     Default: '100'
 
+  PnPdfRasterTransformationQueueName:
+    Type: String
+    Description: 'Pdf raster transformation raster queue name'
+    Default: !GetAtt PnSsTransformationRasterStack.Outputs.QueueName
+
+  PnPdfRasterTransformationQueueArn:
+    Type: String
+    Description: 'Pdf raster transformation raster queue arn'
+    Default: !GetAtt PnSsTransformationRasterStack.Outputs.QueueName
+
+
 Resources:
 
   PdfRasterMicroservice:
@@ -137,6 +148,7 @@ Resources:
         ContainerEnvEntry2: !Sub 'PnPdfRasterTaskExecutionPoolMaxSize=${PnPdfRasterTaskExecutionPoolMaxSize}'
         ContainerEnvEntry3: !Sub 'PnPdfRasterParameters=${PnPdfRasterParameters}'
         ContainerEnvEntry4: !Sub 'PnPdfRasterMaxThreadPoolSize=${PnPdfRasterMaxThreadPoolSize}'
+        ContainerEnvEntry5: !Sub 'PnPdfRasterTransformationQueueName=${PnPdfRasterTransformationQueueName}'
         MappedPaths: '/PDFRaster/*'
         ECSClusterName: !Ref PdfRasterECSClusterName
         Subnets: !Ref PdfRasterVpcSubnets
@@ -156,10 +168,11 @@ Resources:
         HealthCheckTimeout: 15
         HealthCheckInterval: 120
 
+
   PnPdfRasterManagedPolicy:
     Type: AWS::IAM::ManagedPolicy
     Properties:
-      Description: 'String'
+      Description: 'IAM policy for PDF Raster microservice'
       ManagedPolicyName: !Ref PnPdfRasterManagedPolicyName
       PolicyDocument:
         Version: 2012-10-17
@@ -175,4 +188,15 @@ Resources:
             Action:
               - 'ssm:GetParameter'
             Resource:
-              - !Join [ '', [ !Sub 'arn:aws:ssm:${AWS::Region}:${AWS::AccountId}:parameter/' , !Ref PnPdfRasterParameters]]
+              - !Join [ '', [ !Sub 'arn:aws:ssm:${AWS::Region}:${AWS::AccountId}:parameter/', !Ref PnPdfRasterParameters]]
+          - Sid: 'AllowSQSAccess'
+            Effect: Allow
+            Action:
+              - 'sqs:SendMessage'
+              - 'sqs:ReceiveMessage'
+              - 'sqs:DeleteMessage'
+              - 'sqs:GetQueueAttributes'
+              - 'sqs:GetQueueUrl'
+            Resource:
+              - !Ref PnPdfRasterTransformationQueueArn
+

@@ -49,7 +49,31 @@ Resources:
         LogsKinesisSourceStreamArn: !Ref LogsKinesisSourceStreamArn
         LogGroupRetention: !Ref LogRetention
 
+  PnSsTransformationRasterStack:
+    Type: AWS::CloudFormation::Stack
+    DeletionPolicy: Retain
+    UpdateReplacePolicy: Retain
+    Properties:
+      TemplateURL: !Sub '${TemplateBucketBaseUrl}/fragments/sqs-queue.yaml'
+      Parameters:
+        QueueName: 'pn-ss-transformation-raster-queue'
+        SqsManagedSseEnabled: true
+        ContentBasedDeduplication: 'true'
+        HasDLQ: 'false'
+        MaxReceiveCount: 10
+        QueueHasAlarm: 'false'
+        AlarmSNSTopicName: !Ref AlarmSNSTopicName
+        VisibilityTimeout: 60
+
 Outputs:
+  PnPdfRasterTransformationQueueName:
+    Description: 'Nome della coda di trasformazione raster'
+    Value: !GetAtt PnSsTransformationRasterStack.Outputs.QueueName
+
+  PnPdfRasterTransformationQueueArn:
+    Description: 'ARN della coda di trasformazione raster'
+    Value: !GetAtt PnSsTransformationRasterStack.Outputs.QueueArn
+
 
   EcsLogGroup:
     Value: !GetAtt EcsLogGroup.Outputs.LogGroupName
