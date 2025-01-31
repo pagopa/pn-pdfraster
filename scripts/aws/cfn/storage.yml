@@ -59,13 +59,24 @@ Resources:
         QueueName: 'pn-ss-transformation-raster-queue'
         SqsManagedSseEnabled: true
         ContentBasedDeduplication: 'true'
-        HasDLQ: 'true'
+        HasDLQ: 'false'
         MaxReceiveCount: 10
         QueueHasAlarm: 'false'
         AlarmSNSTopicName: !Ref AlarmSNSTopicName
         VisibilityTimeout: 60
 
 Outputs:
+  PnPdfRasterTransformationQueueName:
+    Description: 'Nome della coda di trasformazione raster'
+    Value: !GetAtt PnSsTransformationRasterStack.Outputs.QueueName
+
+  PnPdfRasterTransformationQueueArn:
+    Description: 'ARN della coda di trasformazione raster'
+    Value: !GetAtt PnSsTransformationRasterStack.Outputs.QueueArn
+
+  PnPdfRasterTransformationQueueUrl:
+    Description: 'URL della coda di trasformazione raster'
+    Value: !GetAtt PnSsTransformationRasterStack.Outputs.QueueUrl
 
   EcsLogGroup:
     Value: !GetAtt EcsLogGroup.Outputs.LogGroupName

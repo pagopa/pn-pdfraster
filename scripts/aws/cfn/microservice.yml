@@ -121,9 +121,20 @@ Parameters:
     Description: 'Pdf raster max thread pool size'
     Default: '100'
 
-  PnPdfRasterTransformationRasterQueueName:
+  PnPdfRasterTransformationQueueName:
     Type: String
     Description: 'Pdf raster transformation raster queue name'
+    Default: !GetAtt PnSsTransformationRasterStack.Outputs.QueueName
+
+  PnPdfRasterTransformationQueueArn:
+    Type: String
+    Description: 'Pdf raster transformation raster queue arn'
+    Default: !GetAtt PnSsTransformationRasterStack.Outputs.QueueName
+
+  PnPdfRasterTransformationQueueUrl:
+    Type: String
+    Description: 'Pdf raster transformation raster queue url'
+    Default: !GetAtt PnSsTransformationRasterStack.Outputs.QueueName
 
 Resources:
 
@@ -141,7 +152,9 @@ Resources:
         ContainerEnvEntry2: !Sub 'PnPdfRasterTaskExecutionPoolMaxSize=${PnPdfRasterTaskExecutionPoolMaxSize}'
         ContainerEnvEntry3: !Sub 'PnPdfRasterParameters=${PnPdfRasterParameters}'
         ContainerEnvEntry4: !Sub 'PnPdfRasterMaxThreadPoolSize=${PnPdfRasterMaxThreadPoolSize}'
-        ContainerEnvEntry5: !Sub 'PnPdfRastertransformationRasterQueueName=${PnPdfRastertransformationRasterQueueName}'
+        ContainerEnvEntry5: !Sub 'PnPdfRasterTransformationQueueName=${PnPdfRasterTransformationQueueName}'
+        ContainerEnvEntry6: !Sub 'PnPdfRasterTransformationQueueArn=${PnPdfRasterTransformationQueueArn}'
+        ContainerEnvEntry7: !Sub 'PnPdfRasterTransformationQueueUrl=${PnPdfRasterTransformationQueueUrl}'
         MappedPaths: '/PDFRaster/*'
         ECSClusterName: !Ref PdfRasterECSClusterName
         Subnets: !Ref PdfRasterVpcSubnets
@@ -161,10 +174,37 @@ Resources:
         HealthCheckTimeout: 15
         HealthCheckInterval: 120
 
+
+  PnPdfRasterQueuePolicyAvailabilityManager:
+    Type: AWS::SQS::QueuePolicy
+    Properties:
+      Queues:
+        - !Ref PnEcQueueUrlAvailabilityManager
+      PolicyDocument:
+        Version: '2012-10-17'
+        Statement:
+          - Action:
+              - 'sqs:*'
+            Effect: 'Allow'
+            Resource: !Ref PnEcQueueArnAvailabilityManager
+            Principal:
+              AWS: !Ref AWS::AccountId
+          - Sid: 'AllowPutEventsFromEventRule'
+            Action:
+              - 'sqs:SendMessage'
+            Effect: 'Allow'
+            Resource: !Ref PnEcQueueArnAvailabilityManager
+            Principal:
+              Service:
+                - 'events.amazonaws.com'
+            Condition:
+              ArnEquals:
+                aws:SourceArn: !GetAtt PnEcEventRuleAvailabilityManager.Arn
+
   PnPdfRasterManagedPolicy:
     Type: AWS::IAM::ManagedPolicy
     Properties:
-      Description: 'String'
+      Description: 'IAM policy for PDF Raster microservice'
       ManagedPolicyName: !Ref PnPdfRasterManagedPolicyName
       PolicyDocument:
         Version: 2012-10-17
@@ -180,4 +220,15 @@ Resources:
             Action:
               - 'ssm:GetParameter'
             Resource:
-              - !Join [ '', [ !Sub 'arn:aws:ssm:${AWS::Region}:${AWS::AccountId}:parameter/' , !Ref PnPdfRasterParameters]]
+              - !Join [ '', [ !Sub 'arn:aws:ssm:${AWS::Region}:${AWS::AccountId}:parameter/', !Ref PnPdfRasterParameters]]
+          - Sid: 'AllowSQSAccess'
+            Effect: Allow
+            Action:
+              - 'sqs:SendMessage'
+              - 'sqs:ReceiveMessage'
+              - 'sqs:DeleteMessage'
+              - 'sqs:GetQueueAttributes'
+              - 'sqs:GetQueueUrl'
+            Resource:
+              - !Ref PnPdfRasterTransformationQueueArn
+
