@@ -173,32 +173,6 @@ Resources:
         HealthCheckInterval: 120
 
 
-  PnPdfRasterQueuePolicyAvailabilityManager:
-    Type: AWS::SQS::QueuePolicy
-    Properties:
-      Queues:
-        - !Ref PnEcQueueUrlAvailabilityManager
-      PolicyDocument:
-        Version: '2012-10-17'
-        Statement:
-          - Action:
-              - 'sqs:*'
-            Effect: 'Allow'
-            Resource: !Ref PnEcQueueArnAvailabilityManager
-            Principal:
-              AWS: !Ref AWS::AccountId
-          - Sid: 'AllowPutEventsFromEventRule'
-            Action:
-              - 'sqs:SendMessage'
-            Effect: 'Allow'
-            Resource: !Ref PnEcQueueArnAvailabilityManager
-            Principal:
-              Service:
-                - 'events.amazonaws.com'
-            Condition:
-              ArnEquals:
-                aws:SourceArn: !GetAtt PnEcEventRuleAvailabilityManager.Arn
-
   PnPdfRasterManagedPolicy:
     Type: AWS::IAM::ManagedPolicy
     Properties:
