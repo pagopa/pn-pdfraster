@@ -153,8 +153,6 @@ Resources:
         ContainerEnvEntry3: !Sub 'PnPdfRasterParameters=${PnPdfRasterParameters}'
         ContainerEnvEntry4: !Sub 'PnPdfRasterMaxThreadPoolSize=${PnPdfRasterMaxThreadPoolSize}'
         ContainerEnvEntry5: !Sub 'PnPdfRasterTransformationQueueName=${PnPdfRasterTransformationQueueName}'
-        ContainerEnvEntry6: !Sub 'PnPdfRasterTransformationQueueArn=${PnPdfRasterTransformationQueueArn}'
-        ContainerEnvEntry7: !Sub 'PnPdfRasterTransformationQueueUrl=${PnPdfRasterTransformationQueueUrl}'
         MappedPaths: '/PDFRaster/*'
         ECSClusterName: !Ref PdfRasterECSClusterName
         Subnets: !Ref PdfRasterVpcSubnets
