@@ -1,5 +1,6 @@
 package it.pagopa.pn.pdfraster.service;
 
+import it.pagopa.pn.pdfraster.model.pojo.SqsMessageWrapper;
 import software.amazon.awssdk.core.ResponseBytes;
 import software.amazon.awssdk.services.s3.model.*;
 import it.pagopa.pn.pdfraster.model.pojo.dto.TransformationMessage;
@@ -11,6 +12,7 @@ import org.springframework.boot.test.mock.mockito.SpyBean;
 import reactor.core.publisher.Mono;
 import reactor.test.StepVerifier;
 import software.amazon.awssdk.services.s3.model.Tag;
+import software.amazon.awssdk.services.sqs.model.Message;
 
 import java.io.ByteArrayOutputStream;
 import java.io.IOException;
@@ -49,6 +51,29 @@ class PdfRasterServiceTest {
     private static final String TRANFORMATION_RASTER_TAG = "Transformation-RASTER";
     private static final String BUCKET_NAME = "stage-bucket-test";
     private static final byte[] PDF_BYTES = {1, 2, 3};
+
+    @Test
+    void testReceiveMessage_withValidMessage() {
+        Message message = Message.builder()
+                .messageId("messageId")
+                .body("body")
+                .build();
+        TransformationMessage transformationMessage = new TransformationMessage(FILE_KEY, TRANFORMATION_RASTER_TAG, BUCKET_NAME, "img/png");
+        SqsMessageWrapper<TransformationMessage> messageWrapper = new SqsMessageWrapper<>(message, transformationMessage);
+        pdfRasterService.receiveMessage(messageWrapper);
+        verify(pdfRasterService, times(1)).processMessage(any(TransformationMessage.class));
+    }
+
+    @Test
+    void testReceiveMessage_withNullMessage() {
+        Message message = Message.builder()
+                .messageId("messageId")
+                .body("body")
+                .build();
+        SqsMessageWrapper<TransformationMessage> messageWrapper = new SqsMessageWrapper<>(message, null);
+        pdfRasterService.receiveMessage(messageWrapper);
+        verify(pdfRasterService, never()).processMessage(null);
+    }
 
     @Test
     void processMessageTagExists() {

@@ -10,7 +10,6 @@ import software.amazon.awssdk.services.s3.model.PutObjectResponse;
 public interface S3Service {
     Mono<ResponseBytes<GetObjectResponse>> getObject(String key, String bucketName);
     Mono<PutObjectResponse> putObject(String key, byte[] fileBytes, String contentType, String bucketName);
-    Mono<HeadObjectResponse> headObject(String key, String bucket);
     Mono<GetObjectTaggingResponse> getObjectTagging(String key, String bucketName);
 
 }

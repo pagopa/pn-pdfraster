@@ -59,14 +59,6 @@ public class S3ServiceImpl implements S3Service {
     }
 
     @Override
-    public Mono<HeadObjectResponse> headObject(String key, String bucketName) {
-        log.debug(CLIENT_METHOD_INVOCATION_WITH_ARGS, HEAD_OBJECT, Stream.of(key, bucketName).toList());
-        return Mono.fromCompletionStage(s3AsyncClient.headObject(builder -> builder.key(key).bucket(bucketName).checksumMode(ChecksumMode.ENABLED)))
-                .doOnNext(headObjectResponse -> log.info(CLIENT_METHOD_RETURN, HEAD_OBJECT, headObjectResponse))
-                .doOnError(throwable -> log.warn(CLIENT_METHOD_RETURN_WITH_ERROR, HEAD_OBJECT, throwable, throwable.getMessage()));
-    }
-
-    @Override
     public Mono<GetObjectTaggingResponse> getObjectTagging(String key, String bucketName) {
         log.debug(CLIENT_METHOD_INVOCATION_WITH_ARGS, GET_OBJECT_TAGGING, Stream.of(key, bucketName).toList());
         return Mono.fromCompletionStage(() -> s3AsyncClient.getObjectTagging(builder ->

@@ -35,11 +35,7 @@ public class LocalStackTestConfig {
         System.setProperty("test.aws.s3.endpoint", String.valueOf(localStackContainer.getEndpointOverride(S3)));
 
 
-        try {
-            initS3(localStackContainer);
-        } catch (IOException | InterruptedException e) {
-            throw new RuntimeException(e);
-        }
+        initS3(localStackContainer);
         ssmInit();
     }
 
@@ -66,7 +62,7 @@ public class LocalStackTestConfig {
             throw new RuntimeException(e);
         }
     }
-    private static void initS3(LocalStackContainer localStackContainer) throws IOException, InterruptedException {
+    private static void initS3(LocalStackContainer localStackContainer) {
 
         String objectLockConfiguration = "{\"ObjectLockEnabled\":\"Enabled\",\"Rule\":{\"DefaultRetention\":{\"Mode\":\"GOVERNANCE\",\"Days\":1}}}";
         String lifecycleRule = "{\"Rules\": [{\"ID\": \"MoveToGlacier\", \"Filter\": {\"Prefix\": \"\"}, \"Status\": \"Enabled\", \"Transitions\": [{\"Days\": 1, \"StorageClass\": \"GLACIER\"}]}]}";
@@ -84,7 +80,7 @@ public class LocalStackTestConfig {
                     log.info("New bucket " + bucket + " created on local stack S3");
                 } else log.info("Bucket " + bucket + " already created on local stack S3");
             } catch (IOException | InterruptedException ex) {
-                ex.printStackTrace();
+                throw new RuntimeException(ex);
             }
         });
 
