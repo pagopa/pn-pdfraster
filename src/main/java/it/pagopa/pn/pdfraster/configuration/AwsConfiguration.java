@@ -6,6 +6,8 @@ import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
 import software.amazon.awssdk.auth.credentials.DefaultCredentialsProvider;
 import software.amazon.awssdk.regions.Region;
+import software.amazon.awssdk.services.s3.S3AsyncClient;
+import software.amazon.awssdk.services.s3.S3AsyncClientBuilder;
 import software.amazon.awssdk.services.sqs.SqsAsyncClient;
 import software.amazon.awssdk.services.sqs.SqsAsyncClientBuilder;
 import software.amazon.awssdk.services.ssm.SsmClient;
@@ -23,6 +25,9 @@ public class AwsConfiguration {
 
     @Value("${test.aws.ssm.endpoint:#{null}}")
     String ssmLocalStackEndpoint;
+
+    @Value("${test.aws.s3.endpoint:#{null}}")
+    private String testAwsS3Endpoint;
 
     private static final DefaultCredentialsProvider DEFAULT_CREDENTIALS_PROVIDER_V2 = DefaultCredentialsProvider.create();
 
@@ -54,6 +59,19 @@ public class AwsConfiguration {
         }
 
         return ssmClientBuilder.build();
+    }
+
+    @Bean
+    public S3AsyncClient s3AsyncClient() {
+        S3AsyncClientBuilder s3Client = S3AsyncClient.builder()
+                .credentialsProvider(DEFAULT_CREDENTIALS_PROVIDER_V2)
+                .region(Region.of(awsConfigurationProperties.regionCode()));
+
+        if (testAwsS3Endpoint != null) {
+            s3Client.endpointOverride(URI.create(testAwsS3Endpoint));
+        }
+
+        return s3Client.build();
     }
 
 }
