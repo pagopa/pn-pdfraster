@@ -3,7 +3,7 @@ package it.pagopa.pn.pdfraster.service.impl;
 import io.awspring.cloud.messaging.listener.annotation.SqsListener;
 import it.pagopa.pn.pdfraster.exceptions.Generic400ErrorException;
 import it.pagopa.pn.pdfraster.model.pojo.SqsMessageWrapper;
-import it.pagopa.pn.pdfraster.model.pojo.dto.TransformationMessage;
+import it.pagopa.pn.pdfraster.safestorage.generated.openapi.server.v1.dto.TransformationMessage;
 import it.pagopa.pn.pdfraster.service.ConvertPdfService;
 import it.pagopa.pn.pdfraster.service.PdfRasterService;
 import lombok.CustomLog;

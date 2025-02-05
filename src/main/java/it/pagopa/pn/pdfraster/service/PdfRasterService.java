@@ -1,7 +1,7 @@
 package it.pagopa.pn.pdfraster.service;
 
 import it.pagopa.pn.pdfraster.model.pojo.SqsMessageWrapper;
-import it.pagopa.pn.pdfraster.model.pojo.dto.TransformationMessage;
+import it.pagopa.pn.pdfraster.safestorage.generated.openapi.server.v1.dto.TransformationMessage;
 import org.springframework.core.io.ByteArrayResource;
 import reactor.core.publisher.Mono;
 
