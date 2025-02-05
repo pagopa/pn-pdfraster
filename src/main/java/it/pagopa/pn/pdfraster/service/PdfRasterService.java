@@ -8,6 +8,6 @@ import reactor.core.publisher.Mono;
 public interface PdfRasterService {
 
     Mono<ByteArrayResource> convertPdf(byte[] file);
-    void receiveMessage(SqsMessageWrapper<TransformationMessage> messageWrapper);
+    void receiveMessage(TransformationMessage message);
     Mono<Void> processMessage(TransformationMessage messageContent);
 }

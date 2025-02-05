@@ -40,12 +40,12 @@ public class PdfRasterServiceImpl implements PdfRasterService {
     }
 
     @SqsListener("${sqs.queue.transformation-raster-queue-name}")
-    public void receiveMessage(SqsMessageWrapper<TransformationMessage> messageWrapper) {
+    public void receiveMessage(TransformationMessage transformationMessage) {
         log.info(INVOKING_OPERATION_LABEL, RECEIVE_MESSAGE);
-        if (messageWrapper == null || messageWrapper.getMessageContent() == null) {
+        if (transformationMessage == null) {
             log.warn("Invalid message received, skipping processing.");
         } else{
-            processMessage(messageWrapper.getMessageContent())
+            processMessage(transformationMessage)
                     .doOnError(e -> log.error("Error processing message: {}", e.getMessage()))
                     .then();
         }

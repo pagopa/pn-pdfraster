@@ -52,7 +52,7 @@ class PdfRasterServiceTest {
     private static final String BUCKET_NAME = "stage-bucket-test";
     private static final byte[] PDF_BYTES = {1, 2, 3};
 
-    TransformationMessage createTransformationmMessage() {
+    TransformationMessage createTransformationMessage() {
         TransformationMessage transformationMessage = new TransformationMessage();
         transformationMessage.fileKey(FILE_KEY);
         transformationMessage.transformationType(TRANFORMATION_RASTER_TAG);
@@ -64,24 +64,13 @@ class PdfRasterServiceTest {
 
     @Test
     void testReceiveMessage_withValidMessage() {
-        Message message = Message.builder()
-                .messageId("messageId")
-                .body("body")
-                .build();
-
-        SqsMessageWrapper<TransformationMessage> messageWrapper = new SqsMessageWrapper<>(message, createTransformationmMessage());
-        pdfRasterService.receiveMessage(messageWrapper);
+        pdfRasterService.receiveMessage(createTransformationMessage());
         verify(pdfRasterService, times(1)).processMessage(any(TransformationMessage.class));
     }
 
     @Test
     void testReceiveMessage_withNullMessage() {
-        Message message = Message.builder()
-                .messageId("messageId")
-                .body("body")
-                .build();
-        SqsMessageWrapper<TransformationMessage> messageWrapper = new SqsMessageWrapper<>(message, null);
-        pdfRasterService.receiveMessage(messageWrapper);
+        pdfRasterService.receiveMessage(createTransformationMessage());
         verify(pdfRasterService, never()).processMessage(null);
     }
 
@@ -108,7 +97,7 @@ class PdfRasterServiceTest {
 
     @Test
     void processMessage_NoTagExists() {
-        TransformationMessage messageContent = createTransformationmMessage();
+        TransformationMessage messageContent = createTransformationMessage();
         when(s3Service.getObjectTagging(FILE_KEY, BUCKET_NAME))
                 .thenReturn(Mono.just(GetObjectTaggingResponse.builder().tagSet(Collections.emptyList()).build()));
 
@@ -143,7 +132,7 @@ class PdfRasterServiceTest {
 
     @Test
     void processMessage_Ko() {
-        TransformationMessage messageContent = createTransformationmMessage();
+        TransformationMessage messageContent = createTransformationMessage();
         when(s3Service.getObjectTagging(FILE_KEY, BUCKET_NAME)).thenReturn(Mono.error(new RuntimeException("S3 error")));
 
         Mono<Void> result = pdfRasterService.processMessage(messageContent);
