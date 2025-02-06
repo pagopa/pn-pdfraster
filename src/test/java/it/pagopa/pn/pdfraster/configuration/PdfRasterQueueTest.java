@@ -11,7 +11,7 @@ import org.springframework.test.annotation.DirtiesContext;
 @SpringBootTestWebEnv
 @CustomLog
 @DirtiesContext
-public class PdfRasterQueueTest {
+class PdfRasterQueueTest {
 
     @Value("${sqs.queue.transformation-raster-queue-name}")
     private String transformationRasterQueueName;
