@@ -72,7 +72,7 @@ Outputs:
 
   PnPdfRasterTransformationQueueArn:
     Description: 'ARN della coda di trasformazione raster'
-    Value: !GetAtt PnSsTransformationRasterStack.Outputs.QueueArn
+    Value: !GetAtt PnSsTransformationRasterStack.Outputs.QueueARN
 
 
   EcsLogGroup:
