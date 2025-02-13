@@ -59,7 +59,7 @@ Resources:
         QueueName: 'pn-ss-transformation-raster-queue'
         SqsManagedSseEnabled: true
         ContentBasedDeduplication: 'true'
-        HasDLQ: 'false'
+        HasDLQ: 'true'
         MaxReceiveCount: 10
         QueueHasAlarm: 'false'
         AlarmSNSTopicName: !Ref AlarmSNSTopicName
