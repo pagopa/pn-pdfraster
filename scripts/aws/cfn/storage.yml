@@ -65,6 +65,27 @@ Resources:
         AlarmSNSTopicName: !Ref AlarmSNSTopicName
         VisibilityTimeout: 60
 
+  # Policy to add permissions on raster transformation queue to pn-ss microservice.
+  PnSsQueuePolicyTransformationRaster:
+    Type: AWS::SQS::QueuePolicy
+    Properties:
+      Queues:
+        - !GetAtt PnSsTransformationRasterStack.Outputs.QueueURL
+      PolicyDocument:
+        Version: '2012-10-17'
+        Statement:
+          - Action:
+              - 'sqs:SendMessage'
+              - 'sqs:ReceiveMessage'
+              - 'sqs:DeleteMessage'
+              - 'sqs:GetQueueAttributes'
+              - 'sqs:GetQueueUrl'
+            Effect: "Allow"
+            Resource: !GetAtt PnSsTransformationRasterStack.Outputs.QueueARN
+            Principal:
+              AWS:
+                - "arn:aws:iam::089813480515:role/pn-safe-storage-TaskRole"
+
 Outputs:
   PnPdfRasterTransformationQueueName:
     Description: 'Nome della coda di trasformazione raster'
