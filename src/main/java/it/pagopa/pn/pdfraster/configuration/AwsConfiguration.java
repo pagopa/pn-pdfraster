@@ -1,9 +1,15 @@
 package it.pagopa.pn.pdfraster.configuration;
 
+import com.fasterxml.jackson.databind.ObjectMapper;
+import io.awspring.cloud.messaging.config.QueueMessageHandlerFactory;
+import io.awspring.cloud.messaging.listener.support.AcknowledgmentHandlerMethodArgumentResolver;
 import it.pagopa.pn.pdfraster.configuration.properties.AwsConfigurationProperties;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
+import org.springframework.messaging.converter.MappingJackson2MessageConverter;
+import org.springframework.messaging.handler.annotation.support.PayloadMethodArgumentResolver;
+import org.springframework.validation.beanvalidation.LocalValidatorFactoryBean;
 import software.amazon.awssdk.auth.credentials.DefaultCredentialsProvider;
 import software.amazon.awssdk.regions.Region;
 import software.amazon.awssdk.services.s3.S3AsyncClient;
@@ -14,6 +20,7 @@ import software.amazon.awssdk.services.ssm.SsmClient;
 import software.amazon.awssdk.services.ssm.SsmClientBuilder;
 
 import java.net.URI;
+import java.util.List;
 
 @Configuration
 public class AwsConfiguration {
@@ -72,6 +79,23 @@ public class AwsConfiguration {
         }
 
         return s3Client.build();
+    }
+
+    @Bean
+    public QueueMessageHandlerFactory queueMessageHandlerFactory(ObjectMapper objectMapper, LocalValidatorFactoryBean validator) {
+
+        final var queueMessageHandlerFactory = new QueueMessageHandlerFactory();
+        final var converter = new MappingJackson2MessageConverter();
+
+        converter.setObjectMapper(objectMapper);
+        converter.setStrictContentTypeMatch(false);
+
+        final var acknowledgmentResolver = new AcknowledgmentHandlerMethodArgumentResolver("Acknowledgment");
+
+        queueMessageHandlerFactory.setArgumentResolvers(List.of(acknowledgmentResolver,
+                new PayloadMethodArgumentResolver(converter, validator)));
+
+        return queueMessageHandlerFactory;
     }
 
 }

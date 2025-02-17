@@ -2,12 +2,14 @@ package it.pagopa.pn.pdfraster.service.impl;
 
 import io.awspring.cloud.messaging.listener.SqsMessageDeletionPolicy;
 import io.awspring.cloud.messaging.listener.annotation.SqsListener;
+import it.pagopa.pn.commons.utils.MDCUtils;
 import it.pagopa.pn.pdfraster.exceptions.Generic400ErrorException;
 import io.awspring.cloud.messaging.listener.Acknowledgment;
 import it.pagopa.pn.pdfraster.safestorage.generated.openapi.server.v1.dto.TransformationMessage;
 import it.pagopa.pn.pdfraster.service.ConvertPdfService;
 import it.pagopa.pn.pdfraster.service.PdfRasterService;
 import lombok.CustomLog;
+import org.slf4j.MDC;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.core.io.ByteArrayResource;
 import org.springframework.stereotype.Service;
@@ -41,17 +43,15 @@ public class PdfRasterServiceImpl implements PdfRasterService {
         this.semaphore = new Semaphore(maxPoolSize);
     }
 
-    @SqsListener(value="${sqs.queue.transformation-raster-queue-name}", deletionPolicy = SqsMessageDeletionPolicy.NEVER)
+    @SqsListener(value = "${sqs.queue.transformation-raster-queue-name}", deletionPolicy = SqsMessageDeletionPolicy.NEVER)
     public void receiveMessage(TransformationMessage transformationMessage, Acknowledgment acknowledgment) {
-        log.info(INVOKING_OPERATION_LABEL, RECEIVE_MESSAGE);
-        if (transformationMessage == null) {
-            log.warn("Invalid message received, skipping processing.");
-        } else{
-            processMessage(transformationMessage)
-                    .doOnError(e -> log.error("Error processing message: {}", e.getMessage()))
-                    .doOnNext(result -> acknowledgment.acknowledge()).subscribe();
-        }
-
+        MDCUtils.clearMDCKeys();
+        MDC.put(MDC_CORR_ID_KEY, transformationMessage.getFileKey());
+        log.logStartingProcess(RECEIVE_MESSAGE);
+        MDCUtils.addMDCToContextAndExecute(processMessage(transformationMessage)
+                .doOnError(e -> log.logEndingProcess(RECEIVE_MESSAGE, false, e.getMessage()))
+                .doOnSuccess(result -> acknowledgment.acknowledge()))
+                .subscribe();
     }
 
     @Override
