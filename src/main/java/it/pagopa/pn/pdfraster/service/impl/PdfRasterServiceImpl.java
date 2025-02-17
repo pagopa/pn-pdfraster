@@ -1,8 +1,9 @@
 package it.pagopa.pn.pdfraster.service.impl;
 
+import io.awspring.cloud.messaging.listener.SqsMessageDeletionPolicy;
 import io.awspring.cloud.messaging.listener.annotation.SqsListener;
 import it.pagopa.pn.pdfraster.exceptions.Generic400ErrorException;
-import it.pagopa.pn.pdfraster.model.pojo.SqsMessageWrapper;
+import io.awspring.cloud.messaging.listener.Acknowledgment;
 import it.pagopa.pn.pdfraster.safestorage.generated.openapi.server.v1.dto.TransformationMessage;
 import it.pagopa.pn.pdfraster.service.ConvertPdfService;
 import it.pagopa.pn.pdfraster.service.PdfRasterService;
@@ -11,6 +12,7 @@ import org.springframework.beans.factory.annotation.Value;
 import org.springframework.core.io.ByteArrayResource;
 import org.springframework.stereotype.Service;
 import reactor.core.publisher.Mono;
+import software.amazon.awssdk.services.s3.model.PutObjectResponse;
 import software.amazon.awssdk.services.s3.model.Tag;
 
 
@@ -39,21 +41,21 @@ public class PdfRasterServiceImpl implements PdfRasterService {
         this.semaphore = new Semaphore(maxPoolSize);
     }
 
-    @SqsListener("${sqs.queue.transformation-raster-queue-name}")
-    public void receiveMessage(TransformationMessage transformationMessage) {
+    @SqsListener(value="${sqs.queue.transformation-raster-queue-name}", deletionPolicy = SqsMessageDeletionPolicy.NEVER)
+    public void receiveMessage(TransformationMessage transformationMessage, Acknowledgment acknowledgment) {
         log.info(INVOKING_OPERATION_LABEL, RECEIVE_MESSAGE);
         if (transformationMessage == null) {
             log.warn("Invalid message received, skipping processing.");
         } else{
             processMessage(transformationMessage)
                     .doOnError(e -> log.error("Error processing message: {}", e.getMessage()))
-                    .then();
+                    .doOnNext(result -> acknowledgment.acknowledge()).subscribe();
         }
 
     }
 
     @Override
-    public Mono<Void> processMessage(TransformationMessage messageContent) {
+    public Mono<PutObjectResponse> processMessage(TransformationMessage messageContent) {
         log.info(INVOKING_OPERATION_LABEL, PROCESS_MESSAGE);
 
         String fileKey = messageContent.getFileKey();
@@ -78,8 +80,7 @@ public class PdfRasterServiceImpl implements PdfRasterService {
                     //se il file non ha il tag di trasformazione continuo con la trasformazione
                     return s3Service.getObject(fileKey, bucketName)
                             .flatMap(response -> convertPdfService.convertPdfToImage(response.asByteArray()))
-                            .flatMap(pdfImage -> s3Service.putObject(fileKey, pdfImage.toByteArray(), messageContent.getContentType(), bucketName))
-                            .then();
+                            .flatMap(pdfImage -> s3Service.putObject(fileKey, pdfImage.toByteArray(), messageContent.getContentType(), bucketName));
                 });
     }
 

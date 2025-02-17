@@ -1,6 +1,6 @@
 package it.pagopa.pn.pdfraster.service;
 
-import it.pagopa.pn.pdfraster.model.pojo.SqsMessageWrapper;
+import io.awspring.cloud.messaging.listener.Acknowledgment;
 import software.amazon.awssdk.core.ResponseBytes;
 import software.amazon.awssdk.services.s3.model.*;
 import it.pagopa.pn.pdfraster.safestorage.generated.openapi.server.v1.dto.TransformationMessage;
@@ -12,7 +12,6 @@ import org.springframework.boot.test.mock.mockito.SpyBean;
 import reactor.core.publisher.Mono;
 import reactor.test.StepVerifier;
 import software.amazon.awssdk.services.s3.model.Tag;
-import software.amazon.awssdk.services.sqs.model.Message;
 
 import java.io.ByteArrayOutputStream;
 import java.io.IOException;
@@ -61,16 +60,20 @@ class PdfRasterServiceTest {
         return transformationMessage;
     }
 
+    Acknowledgment createAcknowledgment(){
+        return mock(Acknowledgment.class);
+    }
+
 
     @Test
     void testReceiveMessage_withValidMessage() {
-        pdfRasterService.receiveMessage(createTransformationMessage());
+        pdfRasterService.receiveMessage(createTransformationMessage(), createAcknowledgment());
         verify(pdfRasterService, times(1)).processMessage(any(TransformationMessage.class));
     }
 
     @Test
     void testReceiveMessage_withNullMessage() {
-        pdfRasterService.receiveMessage(createTransformationMessage());
+        pdfRasterService.receiveMessage(createTransformationMessage(), createAcknowledgment());
         verify(pdfRasterService, never()).processMessage(null);
     }
 
@@ -86,7 +89,7 @@ class PdfRasterServiceTest {
 
         when(s3Service.getObjectTagging(FILE_KEY, BUCKET_NAME)).thenReturn(Mono.just(taggingResponse));
 
-        Mono<Void> result = pdfRasterService.processMessage(message);
+        Mono<PutObjectResponse> result = pdfRasterService.processMessage(message);
 
         StepVerifier.create(result)
                 .verifyComplete();
@@ -118,7 +121,7 @@ class PdfRasterServiceTest {
         when(s3Service.putObject(eq(FILE_KEY), any(byte[].class), eq(messageContent.getContentType()), eq(BUCKET_NAME)))
                 .thenReturn(Mono.empty());
 
-        Mono<Void> result = pdfRasterService.processMessage(messageContent);
+        Mono<PutObjectResponse> result = pdfRasterService.processMessage(messageContent);
 
         StepVerifier.create(result)
                 .verifyComplete();
@@ -135,7 +138,7 @@ class PdfRasterServiceTest {
         TransformationMessage messageContent = createTransformationMessage();
         when(s3Service.getObjectTagging(FILE_KEY, BUCKET_NAME)).thenReturn(Mono.error(new RuntimeException("S3 error")));
 
-        Mono<Void> result = pdfRasterService.processMessage(messageContent);
+        Mono<PutObjectResponse> result = pdfRasterService.processMessage(messageContent);
 
         StepVerifier.create(result)
                 .expectError(RuntimeException.class)
