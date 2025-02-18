@@ -226,12 +226,24 @@ Resources:
               - 's3:GetObject*'
               - 's3:PutObject*'
             Resource:
-              - !Sub "arn:aws:s3:::pn-safestorage-staging-${AWS::Region}-${AWS::AccountId}"
+              - !Sub "arn:aws:s3:::pn-safestorage-staging-${AWS::Region}-${AWS::AccountId}/*"
+          - Sid: "AllowKMSAccess"
+            Effect: Allow
+            Action:
+              - 'kms:Encrypt'
+              - 'kms:Decrypt'
+              - 'kms:ReEncrypt*'
+              - 'kms:GenerateDataKey'
+            Resource:
+              - '*'
+            Condition:
+              StringEquals:
+                aws:ResourceTag/KeyType: "PnSsKmsBucket"
 
   AlarmCPU:
     Type: "AWS::CloudWatch::Alarm"
     Properties:
-      AlarmName: !Sub "${MicroServiceUniqueName}-pdfraster-autoscaling-cpu"
+      AlarmName: !Sub "${ProjectName}-pdfraster-autoscaling-cpu"
       AlarmDescription: "Trigger scaling based on CPU"
       DatapointsToAlarm: !Ref AutoscalingDataPointN
       Namespace: "AWS/ECS"
