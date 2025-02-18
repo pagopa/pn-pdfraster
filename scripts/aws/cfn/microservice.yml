@@ -226,7 +226,7 @@ Resources:
               - 's3:GetObject*'
               - 's3:PutObject*'
             Resource:
-              - !Sub "arn:aws:s3:::pn-safestorage-staging-${AWS::Region}-${AWS::AccountId}"
+              - !Sub "arn:aws:s3:::pn-safestorage-staging-${AWS::Region}-${AWS::AccountId}/*"
 
   AlarmCPU:
     Type: "AWS::CloudWatch::Alarm"
