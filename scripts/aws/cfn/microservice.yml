@@ -240,13 +240,13 @@ Resources:
       Dimensions:
         - Value: !Ref PdfRasterECSClusterName
           Name: ClusterName
-        - Value: !GetAtt [PdfRasterMicroservice.Outputs.ServiceName, Name]
+        - Value: !GetAtt PdfRasterMicroservice.Outputs.ServiceName
           Name: ServiceName
       EvaluationPeriods: !Ref AutoscalingDataPointM
       Period: !Ref AutoscalingCheckPeriod
       Statistic: !Ref AutoscalingCpuStatistic
       Threshold: !Ref AutoscalingThreshold
       AlarmActions:
-        - !Ref PdfRasterMicroservice.Outputs.ScaleUpPolicy
+        - !GetAtt PdfRasterMicroservice.Outputs.ScaleUpPolicy
       OKActions:
-        - !Ref PdfRasterMicroservice.Outputs.ScaleDownPolicy
+        - !GetAtt PdfRasterMicroservice.Outputs.ScaleDownPolicy
