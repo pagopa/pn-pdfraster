@@ -231,7 +231,7 @@ Resources:
   AlarmCPU:
     Type: "AWS::CloudWatch::Alarm"
     Properties:
-      AlarmName: !Sub "${MicroServiceUniqueName}-pdfraster-autoscaling-cpu"
+      AlarmName: !Sub "${ProjectName}-pdfraster-autoscaling-cpu"
       AlarmDescription: "Trigger scaling based on CPU"
       DatapointsToAlarm: !Ref AutoscalingDataPointN
       Namespace: "AWS/ECS"
