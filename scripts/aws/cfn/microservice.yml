@@ -182,7 +182,7 @@ Resources:
         LogAlarmStrategyV1: !Ref LogAlarmStrategy
         EcsLogGroup: !Ref EcsLogGroup
         AutoscalingThreshold: !Ref AutoscalingThreshold
-        AutoscalingStrategy: REST-API
+        AutoscalingStrategy: CUSTOM
         MinTasksNumber: !Ref MinTasksNumber
         MaxTasksNumber: !Ref MaxTasksNumber
         JavaToolOptions: !Ref JavaToolOptions
