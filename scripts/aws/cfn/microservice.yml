@@ -78,10 +78,6 @@ Parameters:
     Type: String
     Default: 'FATAL'
 
-  AutoscalingThreshold:
-    Default: 17500
-    Type: String
-
   MinTasksNumber:
     Default: 1
     Type: Number
@@ -129,6 +125,34 @@ Parameters:
     Type: String
     Description: 'Pdf raster transformation raster queue arn'
 
+  AutoscalingDataPointN:
+    Default: 1
+    Type: Number
+    Description: activate when N datapoint on M
+
+  AutoscalingDataPointM:
+    Default: 1
+    Type: Number
+    Description: activate when N datapoint on M
+
+  AutoscalingCheckPeriod:
+    Default: 60
+    Type: Number
+    Description: minimum autoscaling number of tasks
+
+  AutoscalingCpuStatistic:
+    Default: Maximum
+    Type: String
+    AllowedValues:
+      - Minimum
+      - Maximum
+      - Average
+    Description: CPU autoscaling statistics
+
+  AutoscalingThreshold:
+    Default: 60
+    Type: String
+
 Resources:
 
   PdfRasterMicroservice:
@@ -158,7 +182,7 @@ Resources:
         LogAlarmStrategyV1: !Ref LogAlarmStrategy
         EcsLogGroup: !Ref EcsLogGroup
         AutoscalingThreshold: !Ref AutoscalingThreshold
-        AutoscalingStrategy: REST-API
+        AutoscalingStrategy: CUSTOM
         MinTasksNumber: !Ref MinTasksNumber
         MaxTasksNumber: !Ref MaxTasksNumber
         JavaToolOptions: !Ref JavaToolOptions
@@ -204,3 +228,25 @@ Resources:
             Resource:
               - !Sub "arn:aws:s3:pn-safestorage-staging-${AWS::Region}-${AWS::AccountId}"
 
+  AlarmCPU:
+    Type: "AWS::CloudWatch::Alarm"
+    Properties:
+      AlarmName: !Sub "${MicroServiceUniqueName}-pdfraster-autoscaling-cpu"
+      AlarmDescription: "Trigger scaling based on CPU"
+      DatapointsToAlarm: !Ref AutoscalingDataPointN
+      Namespace: "AWS/ECS"
+      MetricName: "CPUUtilization"
+      ComparisonOperator: "GreaterThanThreshold"
+      Dimensions:
+        - Value: !Ref PdfRasterECSClusterName
+          Name: ClusterName
+        - Value: !GetAtt [PdfRasterMicroservice.Outputs.ServiceName, Name]
+          Name: ServiceName
+      EvaluationPeriods: !Ref AutoscalingDataPointM
+      Period: !Ref AutoscalingCheckPeriod
+      Statistic: !Ref AutoscalingCpuStatistic
+      Threshold: !Ref AutoscalingThreshold
+      AlarmActions:
+        - !Ref PdfRasterMicroservice.Outputs.ScaleUpPolicy
+      OKActions:
+        - !Ref PdfRasterMicroservice.Outputs.ScaleDownPolicy
