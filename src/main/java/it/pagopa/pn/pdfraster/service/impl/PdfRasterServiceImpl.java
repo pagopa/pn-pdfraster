@@ -16,6 +16,7 @@ import org.springframework.stereotype.Service;
 import reactor.core.publisher.Mono;
 import software.amazon.awssdk.services.s3.model.PutObjectResponse;
 import software.amazon.awssdk.services.s3.model.Tag;
+import software.amazon.awssdk.services.s3.model.Tagging;
 
 
 import java.util.List;
@@ -26,13 +27,14 @@ import static it.pagopa.pn.pdfraster.utils.LogUtils.*;
 @CustomLog
 @Service
 public class PdfRasterServiceImpl implements PdfRasterService {
-
     private final ConvertPdfService convertPdfService;
     private final S3ServiceImpl s3Service;
     @Value("${sqs.queue.transformation-raster-queue-name}")
     private String transformationQueue;
     private static final String RASTER_TRANFORMATION_TAG = "Transformation-RASTER";
+    public static final String RASTER = "RASTER";
     private static final String TRANFORMATION_TAG_OK = "OK";
+    public  static final String TRANSFORMATION_TAG_PREFIX = "Transformation-";
     private final Semaphore semaphore;
 
 
@@ -80,10 +82,13 @@ public class PdfRasterServiceImpl implements PdfRasterService {
                     //se il file non ha il tag di trasformazione continuo con la trasformazione
                     return s3Service.getObject(fileKey, bucketName)
                             .flatMap(response -> convertPdfService.convertPdfToImage(response.asByteArray()))
-                            .flatMap(pdfImage -> s3Service.putObject(fileKey, pdfImage.toByteArray(), messageContent.getContentType(), bucketName));
+                            .flatMap(pdfImage -> s3Service.putObject(fileKey, pdfImage.toByteArray(), messageContent.getContentType(), bucketName, buildTransformationTagging(RASTER, TRANFORMATION_TAG_OK)));
                 });
     }
 
+    public static Tagging buildTransformationTagging(String transformation, String value) {
+        return Tagging.builder().tagSet(Tag.builder().key(TRANSFORMATION_TAG_PREFIX + transformation).value(value).build()).build();
+    }
 
     @Override
     public Mono<ByteArrayResource> convertPdf(byte[] file) {

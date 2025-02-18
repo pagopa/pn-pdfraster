@@ -196,4 +196,11 @@ Resources:
               - 'sqs:GetQueueUrl'
             Resource:
               - !Ref PnPdfRasterTransformationQueueArn
+          - Sid: 'AllowS3Access'
+            Effect: Allow
+            Action:
+              - 's3:GetObject*'
+              - 's3:PutObject*'
+            Resource:
+              - !Sub "pn-safestorage-staging-${AWS::Region}-${AWS::AccountId}"
 

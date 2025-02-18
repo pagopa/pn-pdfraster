@@ -118,7 +118,7 @@ class PdfRasterServiceTest {
         }
         when(convertPdfService.convertPdfToImage(FILE)).thenReturn(Mono.just(mockOutputStream));
 
-        when(s3Service.putObject(eq(FILE_KEY), any(byte[].class), eq(messageContent.getContentType()), eq(BUCKET_NAME)))
+        when(s3Service.putObject(eq(FILE_KEY), any(byte[].class), eq(messageContent.getContentType()), eq(BUCKET_NAME), any(Tagging.class)))
                 .thenReturn(Mono.empty());
 
         Mono<PutObjectResponse> result = pdfRasterService.processMessage(messageContent);
@@ -129,7 +129,7 @@ class PdfRasterServiceTest {
         verify(s3Service, times(1)).getObjectTagging(FILE_KEY, BUCKET_NAME);
         verify(s3Service, times(1)).getObject(FILE_KEY, BUCKET_NAME);
         StepVerifier.create(convertPdfService.convertPdfToImage(FILE)).expectNextCount(1).verifyComplete();
-        verify(s3Service, times(1)).putObject(eq(FILE_KEY), any(), eq(messageContent.getContentType()), eq(BUCKET_NAME));
+        verify(s3Service, times(1)).putObject(eq(FILE_KEY), any(), eq(messageContent.getContentType()), eq(BUCKET_NAME), any(Tagging.class));
 
     }
 
