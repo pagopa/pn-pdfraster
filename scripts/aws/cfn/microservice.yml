@@ -141,7 +141,7 @@ Parameters:
     Description: minimum autoscaling number of tasks
 
   AutoscalingCpuStatistic:
-    Default: Maximum
+    Default: Average
     Type: String
     AllowedValues:
       - Minimum
@@ -150,7 +150,7 @@ Parameters:
     Description: CPU autoscaling statistics
 
   AutoscalingThreshold:
-    Default: 60
+    Default: 40
     Type: String
 
 Resources:
