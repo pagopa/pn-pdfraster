@@ -141,7 +141,7 @@ Parameters:
     Description: minimum autoscaling number of tasks
 
   AutoscalingCpuStatistic:
-    Default: Maximum
+    Default: Average
     Type: String
     AllowedValues:
       - Minimum
@@ -150,7 +150,7 @@ Parameters:
     Description: CPU autoscaling statistics
 
   AutoscalingThreshold:
-    Default: 60
+    Default: 40
     Type: String
 
 Resources:
@@ -194,7 +194,7 @@ Resources:
     Type: AWS::IAM::ManagedPolicy
     Properties:
       Description: 'IAM policy for PDF Raster microservice'
-      ManagedPolicyName: !Ref PnPdfRasterManagedPolicyName
+      ManagedPolicyName: !Sub '${pnPdfRasterManagedPolicyName}2'
       PolicyDocument:
         Version: 2012-10-17
         Statement:
