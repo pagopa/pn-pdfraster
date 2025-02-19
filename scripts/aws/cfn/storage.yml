@@ -84,7 +84,7 @@ Resources:
             Resource: !GetAtt PnSsTransformationRasterStack.Outputs.QueueARN
             Principal:
               AWS:
-                - "arn:aws:iam::089813480515:role/pn-safe-storage-TaskRole"
+                - !Sub "arn:aws:iam::${AWS::AccountId}:role/pn-safe-storage-TaskRole"
 
 Outputs:
   PnPdfRasterTransformationQueueName:
