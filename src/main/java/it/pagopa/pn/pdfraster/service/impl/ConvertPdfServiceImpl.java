@@ -19,6 +19,7 @@ import org.apache.pdfbox.rendering.ImageType;
 import org.apache.pdfbox.rendering.PDFRenderer;
 import org.apache.pdfbox.tools.imageio.ImageIOUtil;
 import org.jetbrains.annotations.NotNull;
+import org.springframework.beans.factory.annotation.Value;
 import org.springframework.stereotype.Service;
 import picocli.CommandLine.Command;
 import reactor.core.publisher.Flux;
@@ -29,6 +30,7 @@ import java.io.ByteArrayOutputStream;
 import java.io.IOException;
 import java.util.Arrays;
 import java.util.List;
+import java.util.concurrent.Semaphore;
 
 import static it.pagopa.pn.pdfraster.utils.LogUtils.*;
 import static it.pagopa.pn.pdfraster.utils.PDFUtils.*;
@@ -45,9 +47,11 @@ public class ConvertPdfServiceImpl implements ConvertPdfService {
     private final Integer[] cropbox;
     private final PDRectangle mediaSize;
     private final List<TransformationEnum> transformations;
+    private final Semaphore semaphore;
 
 
-    public ConvertPdfServiceImpl(PdfTransformationConfiguration pdfTransformationConfiguration){
+    public ConvertPdfServiceImpl(PdfTransformationConfiguration pdfTransformationConfiguration, @Value(value = "${pn.pdfraster.max-thread-pool-size}") Integer maxPoolSize){
+        this.semaphore = new Semaphore(maxPoolSize);
         PdfTransformationConfigParams params = pdfTransformationConfiguration.getPdfTransformationConfigParams();
         this.cropbox = Arrays.stream(params.getCropbox().split(",")).map(a -> Integer.parseInt(a.trim())).toArray(Integer[]::new);
         this.dpi = (int)params.getDpi();
@@ -60,6 +64,7 @@ public class ConvertPdfServiceImpl implements ConvertPdfService {
 
     @Override
     public Mono<ByteArrayOutputStream> convertPdfToImage(byte[] file) {
+        acquireSemaphore(semaphore);
         if (dpi == 0) {
             dpi = 96;
         }
@@ -77,7 +82,8 @@ public class ConvertPdfServiceImpl implements ConvertPdfService {
                             .map(this::saveDocument);
                 })
                 .doOnSuccess(byteArrayOutputStream -> log.info(SUCCESSFUL_OPERATION_NO_RESULT_LABEL,CONVERT_PDF_TO_IMAGE))
-                .doOnError(throwable -> log.error(ENDING_PROCESS_WITH_ERROR,CONVERT_PDF_TO_IMAGE,throwable,throwable.getMessage()));
+                .doOnError(throwable -> log.error(ENDING_PROCESS_WITH_ERROR,CONVERT_PDF_TO_IMAGE,throwable,throwable.getMessage()))
+                .doFinally(signalType -> semaphore.release());
     }
 
     /*
@@ -197,6 +203,14 @@ public class ConvertPdfServiceImpl implements ConvertPdfService {
             scale = Math.min((float)(margins[3]-margins[1])/ pdImage.getHeight(), (float)(margins[2]-margins[0])/ pdImage.getWidth());
         }
         return scale;
+    }
+
+    private void acquireSemaphore(Semaphore semaphore) {
+        try {
+            semaphore.acquire();
+        } catch (InterruptedException e) {
+            Thread.currentThread().interrupt();
+        }
     }
 
 }

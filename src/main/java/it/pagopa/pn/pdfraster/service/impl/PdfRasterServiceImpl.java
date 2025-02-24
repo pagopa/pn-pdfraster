@@ -35,14 +35,11 @@ public class PdfRasterServiceImpl implements PdfRasterService {
     public static final String RASTER = "RASTER";
     private static final String TRANFORMATION_TAG_OK = "OK";
     public  static final String TRANSFORMATION_TAG_PREFIX = "Transformation-";
-    private final Semaphore semaphore;
 
 
-    public PdfRasterServiceImpl(ConvertPdfService convertPdfService, S3ServiceImpl s3Service,
-                                @Value(value = "${pn.pdfraster.max-thread-pool-size}") Integer maxPoolSize){
+    public PdfRasterServiceImpl(ConvertPdfService convertPdfService, S3ServiceImpl s3Service){
         this.convertPdfService = convertPdfService;
         this.s3Service = s3Service;
-        this.semaphore = new Semaphore(maxPoolSize);
     }
 
     @SqsListener(value = "${sqs.queue.transformation-raster-queue-name}", deletionPolicy = SqsMessageDeletionPolicy.NEVER)
@@ -96,18 +93,10 @@ public class PdfRasterServiceImpl implements PdfRasterService {
 
         if(file.length == 0)
             throw new Generic400ErrorException(INVALID_REQUEST,"File null or empty");
-        /**
-         * Aquisizione del semaforo
-         */
-        try {
-            semaphore.acquire();
-        } catch (InterruptedException e) {
-            Thread.currentThread().interrupt();
-        }
+
         return convertPdfService.convertPdfToImage(file)
                 .map(byteArrayOutputStream -> new ByteArrayResource(byteArrayOutputStream.toByteArray()))
                 .doOnSuccess(byteArrayResource -> log.info(SUCCESSFUL_OPERATION_NO_RESULT_LABEL, CONVERT_PDF))
-                .doOnError(throwable -> log.error(ENDING_PROCESS_WITH_ERROR,CONVERT_PDF,throwable,throwable.getMessage()))
-                .doFinally(signalType -> semaphore.release());
+                .doOnError(throwable -> log.error(ENDING_PROCESS_WITH_ERROR,CONVERT_PDF,throwable,throwable.getMessage()));
     }
 }
