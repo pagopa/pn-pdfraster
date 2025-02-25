@@ -1,6 +1,8 @@
 package it.pagopa.pn.pdfraster.service;
 
 import io.awspring.cloud.messaging.listener.Acknowledgment;
+import it.pagopa.pn.pdfraster.model.pojo.SqsMessageWrapper;
+import org.springframework.boot.test.mock.mockito.MockBean;
 import software.amazon.awssdk.core.ResponseBytes;
 import software.amazon.awssdk.services.s3.model.*;
 import it.pagopa.pn.pdfraster.safestorage.generated.openapi.server.v1.dto.TransformationMessage;
@@ -12,6 +14,8 @@ import org.springframework.boot.test.mock.mockito.SpyBean;
 import reactor.core.publisher.Mono;
 import reactor.test.StepVerifier;
 import software.amazon.awssdk.services.s3.model.Tag;
+import software.amazon.awssdk.services.sqs.model.DeleteMessageResponse;
+import software.amazon.awssdk.services.sqs.model.Message;
 
 import java.io.ByteArrayOutputStream;
 import java.io.IOException;
@@ -36,6 +40,8 @@ class PdfRasterServiceTest {
 
     @SpyBean
     private S3Service s3Service;
+    @MockBean
+    private SqsService sqsService;
 
     private static final byte[] FILE;
     private static final byte[] FILE_KO;
@@ -51,6 +57,14 @@ class PdfRasterServiceTest {
     private static final String BUCKET_NAME = "stage-bucket-test";
     private static final byte[] PDF_BYTES = {1, 2, 3};
 
+    SqsMessageWrapper<TransformationMessage> createWrapper() {
+        return createWrapper(createTransformationMessage());
+    }
+
+    SqsMessageWrapper<TransformationMessage> createWrapper(TransformationMessage transformationMessage) {
+        return new SqsMessageWrapper<>(Message.builder().build(), transformationMessage);
+    }
+
     TransformationMessage createTransformationMessage() {
         TransformationMessage transformationMessage = new TransformationMessage();
         transformationMessage.fileKey(FILE_KEY);
@@ -60,20 +74,27 @@ class PdfRasterServiceTest {
         return transformationMessage;
     }
 
-    Acknowledgment createAcknowledgment(){
-        return mock(Acknowledgment.class);
-    }
-
 
     @Test
     void testReceiveMessage_withValidMessage() {
-        pdfRasterService.receiveMessage(createTransformationMessage(), createAcknowledgment());
+        //WHEN
+        doReturn(Mono.just(PutObjectResponse.builder().build())).when(pdfRasterService).processMessage(any(TransformationMessage.class));
+        when(sqsService.deleteMessageFromQueue(any(Message.class), anyString())).thenReturn(Mono.just(DeleteMessageResponse.builder().build()));
+        Mono<DeleteMessageResponse> mono = Mono.defer(() -> pdfRasterService.receiveMessage(createWrapper()));
+
+        //THEN
+        StepVerifier.create(mono).expectNextCount(1).verifyComplete();
         verify(pdfRasterService, times(1)).processMessage(any(TransformationMessage.class));
     }
 
     @Test
     void testReceiveMessage_withNullMessage() {
-        pdfRasterService.receiveMessage(createTransformationMessage(), createAcknowledgment());
+        //WHEN
+        doReturn(Mono.just(PutObjectResponse.builder().build())).when(pdfRasterService).processMessage(any(TransformationMessage.class));
+        Mono<DeleteMessageResponse> mono = Mono.defer(() -> pdfRasterService.receiveMessage(createWrapper(null)));
+
+        //THEN
+        StepVerifier.create(mono).expectError().verify();
         verify(pdfRasterService, never()).processMessage(null);
     }
 

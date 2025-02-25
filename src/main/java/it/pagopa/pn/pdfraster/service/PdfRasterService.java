@@ -1,14 +1,15 @@
 package it.pagopa.pn.pdfraster.service;
 
-import io.awspring.cloud.messaging.listener.Acknowledgment;
+import it.pagopa.pn.pdfraster.model.pojo.SqsMessageWrapper;
 import it.pagopa.pn.pdfraster.safestorage.generated.openapi.server.v1.dto.TransformationMessage;
 import org.springframework.core.io.ByteArrayResource;
 import reactor.core.publisher.Mono;
 import software.amazon.awssdk.services.s3.model.PutObjectResponse;
+import software.amazon.awssdk.services.sqs.model.DeleteMessageResponse;
 
 public interface PdfRasterService {
 
     Mono<ByteArrayResource> convertPdf(byte[] file);
-    void receiveMessage(TransformationMessage message, Acknowledgment acknowledgment);
+    Mono<DeleteMessageResponse> receiveMessage(SqsMessageWrapper<TransformationMessage> wrapper);
     Mono<PutObjectResponse> processMessage(TransformationMessage messageContent);
 }

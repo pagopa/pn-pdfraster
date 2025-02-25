@@ -107,6 +107,10 @@ Parameters:
     Type: String
     Description: 'SSM Parameter'
 
+  PnSsStagingBucketPrefix:
+    Type: String
+    Default: "pn-safestorage-staging"
+
 ### Input Parameters from storage.yml stack 
   EcsLogGroup:
     Type: String
@@ -225,8 +229,11 @@ Resources:
             Action:
               - 's3:GetObject*'
               - 's3:PutObject*'
+              - 's3:List*'
+              - 's3:GetBucket*'
             Resource:
-              - !Sub "arn:aws:s3:::pn-safestorage-staging-${AWS::Region}-${AWS::AccountId}/*"
+              - !Sub "arn:aws:s3:::${PnSsStagingBucketPrefix}-${AWS::Region}-${AWS::AccountId}"
+              - !Sub "arn:aws:s3:::${PnSsStagingBucketPrefix}-${AWS::Region}-${AWS::AccountId}/*"
           - Sid: "AllowKMSAccess"
             Effect: Allow
             Action:

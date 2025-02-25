@@ -1,34 +1,39 @@
 package it.pagopa.pn.pdfraster.service.impl;
 
-import io.awspring.cloud.messaging.listener.SqsMessageDeletionPolicy;
-import io.awspring.cloud.messaging.listener.annotation.SqsListener;
 import it.pagopa.pn.commons.utils.MDCUtils;
+import it.pagopa.pn.pdfraster.configuration.properties.PdfRasterProperties;
 import it.pagopa.pn.pdfraster.exceptions.Generic400ErrorException;
-import io.awspring.cloud.messaging.listener.Acknowledgment;
+import it.pagopa.pn.pdfraster.model.pojo.SqsMessageWrapper;
 import it.pagopa.pn.pdfraster.safestorage.generated.openapi.server.v1.dto.TransformationMessage;
 import it.pagopa.pn.pdfraster.service.ConvertPdfService;
 import it.pagopa.pn.pdfraster.service.PdfRasterService;
+import it.pagopa.pn.pdfraster.service.SqsService;
 import lombok.CustomLog;
 import org.slf4j.MDC;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.core.io.ByteArrayResource;
+import org.springframework.scheduling.annotation.Scheduled;
 import org.springframework.stereotype.Service;
 import reactor.core.publisher.Mono;
 import software.amazon.awssdk.services.s3.model.PutObjectResponse;
 import software.amazon.awssdk.services.s3.model.Tag;
 import software.amazon.awssdk.services.s3.model.Tagging;
+import software.amazon.awssdk.services.sqs.model.DeleteMessageResponse;
 
 
 import java.util.List;
-import java.util.concurrent.Semaphore;
+import java.util.concurrent.atomic.AtomicBoolean;
 
 import static it.pagopa.pn.pdfraster.utils.LogUtils.*;
+import static it.pagopa.pn.pdfraster.utils.SqsUtils.logIncomingMessage;
 
 @CustomLog
 @Service
 public class PdfRasterServiceImpl implements PdfRasterService {
     private final ConvertPdfService convertPdfService;
     private final S3ServiceImpl s3Service;
+    private final SqsService sqsService;
+    private final PdfRasterProperties pdfRasterProperties;
     @Value("${sqs.queue.transformation-raster-queue-name}")
     private String transformationQueue;
     private static final String RASTER_TRANFORMATION_TAG = "Transformation-RASTER";
@@ -37,20 +42,40 @@ public class PdfRasterServiceImpl implements PdfRasterService {
     public  static final String TRANSFORMATION_TAG_PREFIX = "Transformation-";
 
 
-    public PdfRasterServiceImpl(ConvertPdfService convertPdfService, S3ServiceImpl s3Service){
+    public PdfRasterServiceImpl(ConvertPdfService convertPdfService, S3ServiceImpl s3Service, SqsService sqsService, PdfRasterProperties pdfRasterProperties){
         this.convertPdfService = convertPdfService;
         this.s3Service = s3Service;
+        this.sqsService = sqsService;
+        this.pdfRasterProperties = pdfRasterProperties;
     }
 
-    @SqsListener(value = "${sqs.queue.transformation-raster-queue-name}", deletionPolicy = SqsMessageDeletionPolicy.NEVER)
-    public void receiveMessage(TransformationMessage transformationMessage, Acknowledgment acknowledgment) {
+
+    @Scheduled(cron = "*/10 * * * * *")
+    void receiveTransformationMessages() {
+        log.logStartingProcess(RECEIVE_TRANSFORMATION_MESSAGES);
+        AtomicBoolean hasMessages = new AtomicBoolean();
+        hasMessages.set(true);
+        Mono.defer(() -> sqsService.getMessages(transformationQueue, TransformationMessage.class, pdfRasterProperties.getSqs().getMaxMessages())
+                        .flatMap(this::receiveMessage)
+                        .collectList())
+                .doOnNext(list -> hasMessages.set(!list.isEmpty()))
+                .repeat(hasMessages::get)
+                .doOnError(e -> log.logEndingProcess(RECEIVE_TRANSFORMATION_MESSAGES, false, e.getMessage()))
+                .doOnComplete(() -> log.logEndingProcess(RECEIVE_TRANSFORMATION_MESSAGES))
+                .blockLast();
+    }
+
+    public Mono<DeleteMessageResponse> receiveMessage(SqsMessageWrapper<TransformationMessage> wrapper) {
         MDCUtils.clearMDCKeys();
-        MDC.put(MDC_CORR_ID_KEY, transformationMessage.getFileKey());
-        log.logStartingProcess(RECEIVE_MESSAGE);
-        MDCUtils.addMDCToContextAndExecute(processMessage(transformationMessage)
-                .doOnError(e -> log.logEndingProcess(RECEIVE_MESSAGE, false, e.getMessage()))
-                .doOnSuccess(result -> acknowledgment.acknowledge()))
-                .subscribe();
+        TransformationMessage message = wrapper.getMessageContent();
+        MDC.put(MDC_CORR_ID_KEY, message.getFileKey());
+        logIncomingMessage(transformationQueue, message);
+        return MDCUtils.addMDCToContextAndExecute(processMessage(message)
+                .then(sqsService.deleteMessageFromQueue(wrapper.getMessage(), transformationQueue))
+                .onErrorResume(e -> {
+                    log.error(EXCEPTION_IN_PROCESS, RECEIVE_MESSAGE, e);
+                    return Mono.empty();
+                }));
     }
 
     @Override

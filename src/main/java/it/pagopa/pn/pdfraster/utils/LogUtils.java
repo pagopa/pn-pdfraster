@@ -22,6 +22,7 @@ public abstract class LogUtils {
 
     public static final String SUCCESSFUL_OPERATION_ON_LABEL = "Successful operation on '{}' : '{}' = {}";
     public static final String SUCCESSFUL_OPERATION_NO_RESULT_LABEL = "Successful operation: '{}'";
+    public static final String EXCEPTION_IN_PROCESS = "Exception in '{}'";
 
     public static final String INVOKING_OPERATION_LABEL_WITH_ARGS = "Invoking operation '{}' with args: {}";
     public static final String INVOKING_OPERATION_LABEL = "Invoking operation '{}'";
@@ -41,6 +42,8 @@ public abstract class LogUtils {
 
     public static final String RECEIVE_MESSAGE = "PdfRasterService.receiveMessage()";
     public static final String PROCESS_MESSAGE = "PdfRasterService.processMessage()";
+    public static final String RECEIVE_TRANSFORMATION_MESSAGES = "receiveTransformationMessages()";
+    public static final String SHORT_RETRY_ATTEMPT = "Short retry attempt number '{}' caused by : {} - {}";
 
 
 
