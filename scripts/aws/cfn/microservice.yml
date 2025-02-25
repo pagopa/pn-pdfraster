@@ -111,6 +111,10 @@ Parameters:
     Type: String
     Default: "pn-safestorage-staging"
 
+  PnPdfRasterSqsMaxMessages:
+    Type: String
+    Description: 'Max number of messages to be processed by the raster scheduler'
+
 ### Input Parameters from storage.yml stack 
   EcsLogGroup:
     Type: String
@@ -174,6 +178,7 @@ Resources:
         ContainerEnvEntry3: !Sub 'PnPdfRasterParameters=${PnPdfRasterParameters}'
         ContainerEnvEntry4: !Sub 'PnPdfRasterMaxThreadPoolSize=${PnPdfRasterMaxThreadPoolSize}'
         ContainerEnvEntry5: !Sub 'PnPdfRasterTransformationQueueName=${PnPdfRasterTransformationQueueName}'
+        ContainerEnvEntry6: !Sub 'PnPdfRasterSqsMaxMessages=${PnPdfRasterSqsMaxMessages}'
         MappedPaths: '/PDFRaster/*'
         ECSClusterName: !Ref PdfRasterECSClusterName
         Subnets: !Ref PdfRasterVpcSubnets

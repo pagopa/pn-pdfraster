@@ -11,6 +11,7 @@
     "AutoscalingDataPointN": "1",
     "AutoscalingDataPointM": "1",
     "AutoscalingCpuStatistic": "Maximum",
-    "AutoscalingThreshold": "60"    
+    "AutoscalingThreshold": "60",
+    "PnPdfRasterSqsMaxMessages": "10"
   }
 }
