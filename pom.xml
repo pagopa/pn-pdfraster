@@ -239,16 +239,6 @@
 	</dependencies>
 
 	<build>
-		<resources>
-			<resource>
-				<directory>src/main/resources</directory>
-				<includes>
-					<include>fonts/**</include>
-					<include>commons/**</include>
-					<include>templates/**</include>
-				</includes>
-			</resource>
-		</resources>
 
 		<plugins>
 			<plugin>
