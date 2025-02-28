@@ -78,10 +78,6 @@ Parameters:
     Type: String
     Default: 'FATAL'
 
-  AutoscalingThreshold:
-    Default: 17500
-    Type: String
-
   MinTasksNumber:
     Default: 1
     Type: Number
@@ -111,6 +107,14 @@ Parameters:
     Type: String
     Description: 'SSM Parameter'
 
+  PnSsStagingBucketPrefix:
+    Type: String
+    Default: "pn-safestorage-staging"
+
+  PnPdfRasterSqsMaxMessages:
+    Type: String
+    Description: 'Max number of messages to be processed by the raster scheduler'
+
 ### Input Parameters from storage.yml stack 
   EcsLogGroup:
     Type: String
@@ -120,6 +124,42 @@ Parameters:
     Type: String
     Description: 'Pdf raster max thread pool size'
     Default: '100'
+
+  PnPdfRasterTransformationQueueName:
+    Type: String
+    Description: 'Pdf raster transformation raster queue name'
+
+  PnPdfRasterTransformationQueueArn:
+    Type: String
+    Description: 'Pdf raster transformation raster queue arn'
+
+  AutoscalingDataPointN:
+    Default: 1
+    Type: Number
+    Description: activate when N datapoint on M
+
+  AutoscalingDataPointM:
+    Default: 1
+    Type: Number
+    Description: activate when N datapoint on M
+
+  AutoscalingCheckPeriod:
+    Default: 60
+    Type: Number
+    Description: minimum autoscaling number of tasks
+
+  AutoscalingCpuStatistic:
+    Default: Average
+    Type: String
+    AllowedValues:
+      - Minimum
+      - Maximum
+      - Average
+    Description: CPU autoscaling statistics
+
+  AutoscalingThreshold:
+    Default: 40
+    Type: String
 
 Resources:
 
@@ -137,6 +177,8 @@ Resources:
         ContainerEnvEntry2: !Sub 'PnPdfRasterTaskExecutionPoolMaxSize=${PnPdfRasterTaskExecutionPoolMaxSize}'
         ContainerEnvEntry3: !Sub 'PnPdfRasterParameters=${PnPdfRasterParameters}'
         ContainerEnvEntry4: !Sub 'PnPdfRasterMaxThreadPoolSize=${PnPdfRasterMaxThreadPoolSize}'
+        ContainerEnvEntry5: !Sub 'PnPdfRasterTransformationQueueName=${PnPdfRasterTransformationQueueName}'
+        ContainerEnvEntry6: !Sub 'PnPdfRasterSqsMaxMessages=${PnPdfRasterSqsMaxMessages}'
         MappedPaths: '/PDFRaster/*'
         ECSClusterName: !Ref PdfRasterECSClusterName
         Subnets: !Ref PdfRasterVpcSubnets
@@ -149,18 +191,19 @@ Resources:
         LogAlarmStrategyV1: !Ref LogAlarmStrategy
         EcsLogGroup: !Ref EcsLogGroup
         AutoscalingThreshold: !Ref AutoscalingThreshold
-        AutoscalingStrategy: REST-API
+        AutoscalingStrategy: CUSTOM
         MinTasksNumber: !Ref MinTasksNumber
         MaxTasksNumber: !Ref MaxTasksNumber
         JavaToolOptions: !Ref JavaToolOptions
         HealthCheckTimeout: 15
         HealthCheckInterval: 120
 
+
   PnPdfRasterManagedPolicy:
     Type: AWS::IAM::ManagedPolicy
     Properties:
-      Description: 'String'
-      ManagedPolicyName: !Ref PnPdfRasterManagedPolicyName
+      Description: 'IAM policy for PDF Raster microservice'
+      ManagedPolicyName: !Sub '${PnPdfRasterManagedPolicyName}2'
       PolicyDocument:
         Version: 2012-10-17
         Statement:
@@ -175,4 +218,59 @@ Resources:
             Action:
               - 'ssm:GetParameter'
             Resource:
-              - !Join [ '', [ !Sub 'arn:aws:ssm:${AWS::Region}:${AWS::AccountId}:parameter/' , !Ref PnPdfRasterParameters]]
+              - !Join [ '', [ !Sub 'arn:aws:ssm:${AWS::Region}:${AWS::AccountId}:parameter/', !Ref PnPdfRasterParameters]]
+          - Sid: 'AllowSQSAccess'
+            Effect: Allow
+            Action:
+              - 'sqs:SendMessage'
+              - 'sqs:ReceiveMessage'
+              - 'sqs:DeleteMessage'
+              - 'sqs:GetQueueAttributes'
+              - 'sqs:GetQueueUrl'
+            Resource:
+              - !Ref PnPdfRasterTransformationQueueArn
+          - Sid: 'AllowS3Access'
+            Effect: Allow
+            Action:
+              - 's3:GetObject*'
+              - 's3:PutObject*'
+              - 's3:List*'
+              - 's3:GetBucket*'
+            Resource:
+              - !Sub "arn:aws:s3:::${PnSsStagingBucketPrefix}-${AWS::Region}-${AWS::AccountId}"
+              - !Sub "arn:aws:s3:::${PnSsStagingBucketPrefix}-${AWS::Region}-${AWS::AccountId}/*"
+          - Sid: "AllowKMSAccess"
+            Effect: Allow
+            Action:
+              - 'kms:Encrypt'
+              - 'kms:Decrypt'
+              - 'kms:ReEncrypt*'
+              - 'kms:GenerateDataKey'
+            Resource:
+              - '*'
+            Condition:
+              StringEquals:
+                aws:ResourceTag/KeyType: "PnSsKmsBucket"
+
+  AlarmCPU:
+    Type: "AWS::CloudWatch::Alarm"
+    Properties:
+      AlarmName: !Sub "${ProjectName}-pdfraster-autoscaling-cpu"
+      AlarmDescription: "Trigger scaling based on CPU"
+      DatapointsToAlarm: !Ref AutoscalingDataPointN
+      Namespace: "AWS/ECS"
+      MetricName: "CPUUtilization"
+      ComparisonOperator: "GreaterThanThreshold"
+      Dimensions:
+        - Value: !Ref PdfRasterECSClusterName
+          Name: ClusterName
+        - Value: !GetAtt PdfRasterMicroservice.Outputs.ServiceName
+          Name: ServiceName
+      EvaluationPeriods: !Ref AutoscalingDataPointM
+      Period: !Ref AutoscalingCheckPeriod
+      Statistic: !Ref AutoscalingCpuStatistic
+      Threshold: !Ref AutoscalingThreshold
+      AlarmActions:
+        - !GetAtt PdfRasterMicroservice.Outputs.ScaleUpPolicy
+      OKActions:
+        - !GetAtt PdfRasterMicroservice.Outputs.ScaleDownPolicy
