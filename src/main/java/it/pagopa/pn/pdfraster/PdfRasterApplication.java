@@ -10,6 +10,7 @@ import org.springframework.http.HttpStatus;
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RestController;
+import it.pagopa.pn.commons.configs.listeners.TaskIdApplicationListener;
 
 import java.io.File;
 import java.io.IOException;
@@ -28,7 +29,9 @@ public class PdfRasterApplication {
 
     public static void main(String[] args) {
         loadFonts();
-        SpringApplication.run(PdfRasterApplication.class, args);
+        SpringApplication app = new SpringApplication(PdfRasterApplication.class);
+        app.addListeners(new TaskIdApplicationListener());
+        app.run(args);
     }
 
         private static void loadFonts() {
