@@ -15,7 +15,7 @@ public class LocalStackTestConfig {
 
     static DockerImageName dockerImageName = DockerImageName.parse("localstack/localstack:1.0.4");
     static LocalStackContainer localStackContainer =
-            new LocalStackContainer(dockerImageName).withServices(SSM)
+            new LocalStackContainer(dockerImageName).withServices(SSM, SQS, S3)
                     .withClasspathResourceMapping("testcontainers/init.sh", "/docker-entrypoint-initaws.d/make-storages.sh", BindMode.READ_ONLY)
                     .withClasspathResourceMapping("testcontainers/credentials", "/root/.aws/credentials", BindMode.READ_ONLY)
                     .withNetworkAliases("localstack")
@@ -24,8 +24,10 @@ public class LocalStackTestConfig {
 
     static {
         localStackContainer.start();
-
         System.setProperty("test.aws.ssm.endpoint", String.valueOf(localStackContainer.getEndpointOverride(SSM)));
+        System.setProperty("test.aws.sqs.endpoint", String.valueOf(localStackContainer.getEndpointOverride(SQS)));
+        System.setProperty("cloud.aws.sqs.endpoint", String.valueOf(localStackContainer.getEndpointOverride(SQS)));
+        System.setProperty("test.aws.s3.endpoint", String.valueOf(localStackContainer.getEndpointOverride(S3)));
     }
 
 }
