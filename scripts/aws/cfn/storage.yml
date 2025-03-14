@@ -49,7 +49,52 @@ Resources:
         LogsKinesisSourceStreamArn: !Ref LogsKinesisSourceStreamArn
         LogGroupRetention: !Ref LogRetention
 
+  PnSsTransformationRasterStack:
+    Type: AWS::CloudFormation::Stack
+    DeletionPolicy: Retain
+    UpdateReplacePolicy: Retain
+    Properties:
+      TemplateURL: !Sub '${TemplateBucketBaseUrl}/fragments/sqs-queue.yaml'
+      Parameters:
+        QueueName: 'pn-ss-transformation-raster-queue'
+        SqsManagedSseEnabled: true
+        ContentBasedDeduplication: 'true'
+        HasDLQ: 'true'
+        MaxReceiveCount: 10
+        QueueHasAlarm: 'false'
+        AlarmSNSTopicName: !Ref AlarmSNSTopicName
+        VisibilityTimeout: 60
+
+  # Policy to add permissions on raster transformation queue to pn-ss microservice.
+  PnSsQueuePolicyTransformationRaster:
+    Type: AWS::SQS::QueuePolicy
+    Properties:
+      Queues:
+        - !GetAtt PnSsTransformationRasterStack.Outputs.QueueURL
+      PolicyDocument:
+        Version: '2012-10-17'
+        Statement:
+          - Action:
+              - 'sqs:SendMessage'
+              - 'sqs:ReceiveMessage'
+              - 'sqs:DeleteMessage'
+              - 'sqs:GetQueueAttributes'
+              - 'sqs:GetQueueUrl'
+            Effect: "Allow"
+            Resource: !GetAtt PnSsTransformationRasterStack.Outputs.QueueARN
+            Principal:
+              AWS:
+                - !Sub "arn:aws:iam::${AWS::AccountId}:role/pn-safe-storage-TaskRole"
+
 Outputs:
+  PnPdfRasterTransformationQueueName:
+    Description: 'Nome della coda di trasformazione raster'
+    Value: !GetAtt PnSsTransformationRasterStack.Outputs.QueueName
+
+  PnPdfRasterTransformationQueueArn:
+    Description: 'ARN della coda di trasformazione raster'
+    Value: !GetAtt PnSsTransformationRasterStack.Outputs.QueueARN
+
 
   EcsLogGroup:
     Value: !GetAtt EcsLogGroup.Outputs.LogGroupName

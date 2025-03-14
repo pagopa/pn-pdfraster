@@ -11,7 +11,7 @@
 
 	<groupId>it.pagopa.pn.pdfraster</groupId>
 	<artifactId>pn-pdfraster</artifactId>
-	<version>1.2.0-SNAPSHOT</version>
+	<version>1.3.0-SNAPSHOT</version>
 	<name>pn-pdfraster</name>
 	<description>Pdf Raster Microservice</description>
 
@@ -222,13 +222,19 @@
 		<dependency>
 			<groupId>org.apache.pdfbox</groupId>
 			<artifactId>pdfbox</artifactId>
-			<version>3.0.2</version>
+			<version>3.0.4</version>
 		</dependency>
 
 		<dependency>
 			<groupId>org.apache.pdfbox</groupId>
 			<artifactId>pdfbox-tools</artifactId>
-			<version>3.0.2</version>
+			<version>3.0.4</version>
+		</dependency>
+
+		<dependency>
+			<groupId>org.apache.pdfbox</groupId>
+			<artifactId>jbig2-imageio</artifactId>
+			<version>3.0.4</version>
 		</dependency>
 
 		<dependency>
@@ -239,6 +245,7 @@
 	</dependencies>
 
 	<build>
+
 		<plugins>
 			<plugin>
 				<groupId>org.springframework.boot</groupId>
@@ -288,6 +295,34 @@
 								<apiPackage>${project.groupId}.pdfraster.rest.v1.api</apiPackage>
 								<configPackage>${project.groupId}.pdfraster.rest.v1.config</configPackage>
 							</configOptions>
+						</configuration>
+					</execution>
+
+					<execution>
+						<id>generate-mandate-server</id>
+						<goals>
+							<goal>generate</goal>
+						</goals>
+						<phase>generate-sources</phase>
+						<configuration>
+							<inputSpec>https://raw.githubusercontent.com/pagopa/pn-ss/d52cc0ec2a392d7887a85cb8e1e6538072de591e/docs/openapi/pn-transformation-template.yaml</inputSpec>
+							<generatorName>java</generatorName>
+							<library>resttemplate</library>
+							<generateApiTests>false</generateApiTests>
+							<generateModelTests>false</generateModelTests>
+							<configOptions>
+								<modelPackage>${project.groupId}.safestorage.generated.openapi.server.v1.dto</modelPackage>
+								<dateLibrary>java17</dateLibrary>
+								<annotationLibrary>none</annotationLibrary>
+								<documentationProvider>source</documentationProvider>
+								<openApiNullable>false</openApiNullable>
+								<useAbstractionForFiles>true</useAbstractionForFiles>
+								<useBeanValidation>false</useBeanValidation>
+								<additionalModelTypeAnnotations>
+									@com.fasterxml.jackson.annotation.JsonInclude(com.fasterxml.jackson.annotation.JsonInclude.Include.NON_NULL)
+								</additionalModelTypeAnnotations>
+							</configOptions>
+							<modelPackage>${project.groupId}.safestorage.generated.openapi.server.v1.dto</modelPackage>
 						</configuration>
 					</execution>
 				</executions>

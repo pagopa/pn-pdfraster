@@ -2,12 +2,16 @@
   "Parameters" : {
     "MinTasksNumber": "1",
     "MaxTasksNumber": "2",
-    "AutoscalingThreshold": "100",
     "CpuValue": "1024",
     "MemoryAmount": "4GB",
     "PnPdfRasterTaskExecutionPoolMaxSize": "250",
     "JavaToolOptions": "-XX:MaxDirectMemorySize=128M",
     "PnPdfRasterParameters": "pn-PDFRaster",
-    "PnPdfRasterMaxThreadPoolSize": "10"
+    "PnPdfRasterMaxThreadPoolSize": "10",
+    "AutoscalingDataPointN": "1",
+    "AutoscalingDataPointM": "1",
+    "AutoscalingCpuStatistic": "Maximum",
+    "AutoscalingThreshold": "60",
+    "PnPdfRasterSqsMaxMessages": "10"
   }
 }

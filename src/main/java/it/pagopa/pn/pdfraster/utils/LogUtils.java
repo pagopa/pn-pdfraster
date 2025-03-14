@@ -22,12 +22,32 @@ public abstract class LogUtils {
 
     public static final String SUCCESSFUL_OPERATION_ON_LABEL = "Successful operation on '{}' : '{}' = {}";
     public static final String SUCCESSFUL_OPERATION_NO_RESULT_LABEL = "Successful operation: '{}'";
+    public static final String EXCEPTION_IN_PROCESS = "Exception in '{}'";
 
     public static final String INVOKING_OPERATION_LABEL_WITH_ARGS = "Invoking operation '{}' with args: {}";
     public static final String INVOKING_OPERATION_LABEL = "Invoking operation '{}'";
 
-    //#####SERVIZI ESTERNI#####
+    //SERVIZI ESTERNI
     public static final String CLIENT_METHOD_INVOCATION_WITH_ARGS = "Client method {} - args: {}";
+
+    //S3
+    public static final String GET_OBJECT = "getObject()";
+    public static final String PUT_OBJECT = "putObject()";
+    public static final String GET_OBJECT_TAGGING = "getObjectTagging()";
+    public static final String HEAD_OBJECT = "headObject()";
+
+    //LABELS
+    public static final String CLIENT_METHOD_RETURN = "Return client method: {} = {}";
+    public static final String CLIENT_METHOD_RETURN_WITH_ERROR = "Return client method '{}' with error: {} - {}";
+
+    public static final String RECEIVE_MESSAGE = "PdfRasterService.receiveMessage()";
+    public static final String PROCESS_MESSAGE = "PdfRasterService.processMessage()";
+    public static final String RECEIVE_TRANSFORMATION_MESSAGES = "receiveTransformationMessages()";
+    public static final String SHORT_RETRY_ATTEMPT = "Short retry attempt number '{}' caused by : {} - {}";
+
+
+
+
 
 
 }
