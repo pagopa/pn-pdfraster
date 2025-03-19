@@ -4,19 +4,7 @@ import org.springframework.boot.SpringApplication;
 import org.springframework.boot.autoconfigure.SpringBootApplication;
 import org.springframework.boot.context.properties.ConfigurationPropertiesScan;
 import org.springframework.context.annotation.PropertySource;
-import org.springframework.core.io.Resource;
-import org.springframework.core.io.support.PathMatchingResourcePatternResolver;
-import org.springframework.http.HttpStatus;
-import org.springframework.web.bind.annotation.GetMapping;
-import org.springframework.web.bind.annotation.RequestMapping;
-import org.springframework.web.bind.annotation.RestController;
 import it.pagopa.pn.commons.configs.listeners.TaskIdApplicationListener;
-
-import java.io.File;
-import java.io.IOException;
-import java.io.InputStream;
-import java.nio.file.Files;
-import java.nio.file.StandardCopyOption;
 
 import static it.pagopa.pn.pdfraster.utils.FontUtils.loadFonts;
 
@@ -27,7 +15,6 @@ import static it.pagopa.pn.pdfraster.utils.FontUtils.loadFonts;
 // APPLICATION
 @PropertySource("classpath:commons/pdfraster.properties")
 public class PdfRasterApplication {
-
 
     public static void main(String[] args) {
         loadFonts();

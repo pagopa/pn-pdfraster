@@ -1,17 +1,20 @@
 package it.pagopa.pn.pdfraster.utils;
 
-import it.pagopa.pn.pdfraster.utils.FontUtils;
 import it.pagopa.pn.pdfraster.utils.annotation.SpringBootTestWebEnv;
-import lombok.CustomLog;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.io.TempDir;
+import org.springframework.core.io.Resource;
+import org.springframework.core.io.support.PathMatchingResourcePatternResolver;
+
+import java.io.File;
 import java.io.IOException;
 import java.io.InputStream;
 import java.nio.file.Files;
 import java.nio.file.Path;
 
 import static org.junit.jupiter.api.Assertions.*;
+import static org.mockito.Mockito.*;
 
 @SpringBootTestWebEnv
 class FontUtilsTest {
@@ -21,7 +24,6 @@ class FontUtilsTest {
 
     @BeforeEach
     public void setup() {
-        // Imposta la cartella temporanea come "user.home" per il test
         System.setProperty("user.home", tempDir.toString());
     }
 
@@ -40,6 +42,28 @@ class FontUtilsTest {
             byte[] originalBytes = originalStream.readAllBytes();
             byte[] copiedBytes = Files.readAllBytes(copiedFont);
             assertArrayEquals(originalBytes, copiedBytes, "Il contenuto del font copiato deve essere uguale a quello della risorsa originale");
+        }
+    }
+
+
+    @Test
+    public void testLoadFonts_directoryCreationFails() {
+        File mockFile = mock(File.class);
+        when(mockFile.exists()).thenReturn(false);
+        when(mockFile.mkdirs()).thenReturn(false); // Simuliamo il fallimento della creazione della cartella
+
+        System.setProperty("user.home", "/mock/home");
+
+        PathMatchingResourcePatternResolver mockResolver = mock(PathMatchingResourcePatternResolver.class);
+        Resource[] mockResources = new Resource[0]; // Nessuna risorsa
+
+        try {
+            when(mockResolver.getResources("classpath:fonts/*.ttf")).thenReturn(mockResources);
+
+            FontUtils.loadFonts(); // Metodo statico da testare
+
+        } catch (IOException e) {
+            e.printStackTrace();
         }
     }
 

@@ -1,5 +1,6 @@
 package it.pagopa.pn.pdfraster.utils;
 
+import lombok.CustomLog;
 import org.springframework.core.io.Resource;
 import org.springframework.core.io.support.PathMatchingResourcePatternResolver;
 
@@ -9,13 +10,14 @@ import java.io.InputStream;
 import java.nio.file.Files;
 import java.nio.file.StandardCopyOption;
 
+@CustomLog
 public class FontUtils {
     public static void loadFonts() {
         String fontDestPath = System.getProperty("user.home") + "/.fonts/"; //cartella di destinazione
         File fontDir = new File(fontDestPath);
 
         if (!fontDir.exists() && !fontDir.mkdirs()) {
-            System.err.println("Errore nella creazione della cartella font: " + fontDestPath);
+            log.error("Errore nella creazione della cartella font: " + fontDestPath);
             return;
         }
 
@@ -31,13 +33,13 @@ public class FontUtils {
                     if (!destFile.exists()) { // evita sovrascrittura
                         try (InputStream inputStream = resource.getInputStream()) {
                             Files.copy(inputStream, destFile.toPath(), StandardCopyOption.REPLACE_EXISTING);
-                            System.out.println("Font copiati in: " + destFile.getAbsolutePath());
+                            log.error("Font copiati in: " + destFile.getAbsolutePath());
                         }
                     }
                 }
             }
         } catch (IOException e) {
-            System.err.println("Errore nel caricamento dei font: " + e.getMessage());
+            log.error("Errore nel caricamento dei font: " + e.getMessage());
         }
     }
 }
