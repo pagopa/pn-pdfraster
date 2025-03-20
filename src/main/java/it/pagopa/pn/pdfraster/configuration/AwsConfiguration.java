@@ -1,7 +1,5 @@
 package it.pagopa.pn.pdfraster.configuration;
 
-import com.fasterxml.jackson.core.JsonProcessingException;
-import com.fasterxml.jackson.databind.JsonNode;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import io.awspring.cloud.messaging.config.QueueMessageHandlerFactory;
 import io.awspring.cloud.messaging.listener.support.AcknowledgmentHandlerMethodArgumentResolver;
@@ -14,7 +12,6 @@ import org.springframework.messaging.converter.MappingJackson2MessageConverter;
 import org.springframework.messaging.handler.annotation.support.PayloadMethodArgumentResolver;
 import org.springframework.validation.beanvalidation.LocalValidatorFactoryBean;
 import org.springframework.web.reactive.function.client.WebClient;
-import reactor.core.publisher.Mono;
 import software.amazon.awssdk.auth.credentials.DefaultCredentialsProvider;
 import software.amazon.awssdk.regions.Region;
 import software.amazon.awssdk.services.cloudwatch.CloudWatchAsyncClient;
@@ -49,7 +46,6 @@ public class AwsConfiguration {
 
     private static final DefaultCredentialsProvider DEFAULT_CREDENTIALS_PROVIDER_V2 = DefaultCredentialsProvider.create();
     private final WebClient genericWebClient = WebClient.builder().build();
-
 
     public AwsConfiguration(AwsConfigurationProperties awsConfigurationProperties) {
         this.awsConfigurationProperties = awsConfigurationProperties;
@@ -120,40 +116,6 @@ public class AwsConfiguration {
         }
 
         return cloudWatchAsyncClientBuilder.build();
-    }
-
-
-    private String getTaskId() {
-        String ecsMetadataUri = System.getenv("ECS_CONTAINER_METADATA_URI_V4");
-        if (ecsMetadataUri == null) {
-            log.error("ECS_CONTAINER_METADATA_URI_V4 environment variable not found.");
-            return "streams-worker";
-        }
-
-        return genericWebClient.get()
-                .retrieve()
-                .bodyToMono(String.class)
-                .flatMap(response -> {
-                    ObjectMapper objectMapper = new ObjectMapper();
-                    try {
-                        JsonNode jsonNode = objectMapper.readTree(response);
-                        String taskArn = jsonNode.get("TaskARN").asText();
-                        String[] parts = taskArn.split("/");
-                        if (parts.length > 0) {
-                            return Mono.just(parts[parts.length - 1]);
-                        } else {
-                            log.error("Invalid TaskARN format");
-                            return Mono.just("streams-worker");
-                        }
-                    } catch (JsonProcessingException e) {
-                        log.error("Error while parsing JSON response", e);
-                        return Mono.just("streams-worker");
-                    }
-                })
-                .onErrorResume(throwable -> {
-                    log.error("Error while fetching container metadata", throwable);
-                    return Mono.just("streams-worker");
-                }).block();
     }
 
 }
