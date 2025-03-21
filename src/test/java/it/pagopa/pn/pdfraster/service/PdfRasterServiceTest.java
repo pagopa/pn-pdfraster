@@ -1,6 +1,5 @@
 package it.pagopa.pn.pdfraster.service;
 
-import io.awspring.cloud.messaging.listener.Acknowledgment;
 import it.pagopa.pn.pdfraster.model.pojo.SqsMessageWrapper;
 import org.springframework.boot.test.mock.mockito.MockBean;
 import software.amazon.awssdk.core.ResponseBytes;
@@ -26,7 +25,6 @@ import static it.pagopa.pn.pdfraster.utils.TestUtils.getFileTestFromResources;
 import static org.mockito.ArgumentMatchers.any;
 import static org.mockito.ArgumentMatchers.eq;
 import static org.mockito.Mockito.*;
-
 
 @SpringBootTestWebEnv
 @CustomLog
