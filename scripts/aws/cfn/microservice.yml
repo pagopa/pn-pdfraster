@@ -161,6 +161,33 @@ Parameters:
     Default: 40
     Type: String
 
+  # EFS parameters
+  FargateEFSFileSystemID:
+    Type: String
+    Description: "EFS Filesystem"
+
+  MountEfs:
+    Type: String
+    Default: false
+    AllowedValues:
+      - "true"
+      - "false"
+
+  # Logging parameters
+  WireTapLogActivation:
+    Type: String
+    Default: false
+    Description: Activation of wire logs
+    AllowedValues:
+      - true
+      - false
+
+  PnCronAnalyzer:
+    Type: String
+    Default: '-'
+    Description: Cron for which you send the metric to CloudWatch
+
+
 Resources:
 
   PdfRasterMicroservice:
@@ -179,6 +206,8 @@ Resources:
         ContainerEnvEntry4: !Sub 'PnPdfRasterMaxThreadPoolSize=${PnPdfRasterMaxThreadPoolSize}'
         ContainerEnvEntry5: !Sub 'PnPdfRasterTransformationQueueName=${PnPdfRasterTransformationQueueName}'
         ContainerEnvEntry6: !Sub 'PnPdfRasterSqsMaxMessages=${PnPdfRasterSqsMaxMessages}'
+        ContainerEnvEntry7: !Sub 'PN_CRON_ANALYZER=${PnCronAnalyzer}'
+        ContainerEnvEntry8: !Sub 'WIRE_TAP_LOG=${WireTapLogActivation}'
         MappedPaths: '/PDFRaster/*'
         ECSClusterName: !Ref PdfRasterECSClusterName
         Subnets: !Ref PdfRasterVpcSubnets
@@ -197,6 +226,8 @@ Resources:
         JavaToolOptions: !Ref JavaToolOptions
         HealthCheckTimeout: 15
         HealthCheckInterval: 120
+        EfsFilesystem: !Ref FargateEFSFileSystemID
+        MountEfs: !Ref MountEfs
 
 
   PnPdfRasterManagedPolicy:

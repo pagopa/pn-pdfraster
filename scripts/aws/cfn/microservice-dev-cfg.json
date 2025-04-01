@@ -12,6 +12,9 @@
     "AutoscalingDataPointM": "1",
     "AutoscalingCpuStatistic": "Maximum",
     "AutoscalingThreshold": "60",
-    "PnPdfRasterSqsMaxMessages": "10"
+    "PnPdfRasterSqsMaxMessages": "10",
+    "MountEfs": "false",
+    "PnCronAnalyzer": "-",
+    "WireTapLogActivation": "false"
   }
 }
