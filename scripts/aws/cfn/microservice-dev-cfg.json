@@ -14,7 +14,7 @@
     "AutoscalingThreshold": "60",
     "PnPdfRasterSqsMaxMessages": "10",
     "MountEfs": "false",
-    "PnCronAnalyzer": "* */1 * * * *",
+    "PnCronAnalyzer": "-",
     "WireTapLogActivation": "false"
   }
 }
