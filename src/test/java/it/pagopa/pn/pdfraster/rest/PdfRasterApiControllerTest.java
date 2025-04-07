@@ -4,8 +4,6 @@ import it.pagopa.pn.pdfraster.model.pojo.TransformationEnum;
 import it.pagopa.pn.pdfraster.service.impl.ConvertPdfServiceImpl;
 import it.pagopa.pn.pdfraster.utils.annotation.SpringBootTestWebEnv;
 import lombok.CustomLog;
-import org.apache.pdfbox.Loader;
-import org.apache.pdfbox.pdmodel.PDDocument;
 import org.jetbrains.annotations.NotNull;
 import org.junit.jupiter.api.*;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -23,8 +21,6 @@ import org.springframework.util.LinkedMultiValueMap;
 import org.springframework.util.MultiValueMap;
 import org.springframework.web.reactive.function.BodyInserters;
 
-import java.io.IOException;
-import java.io.InputStream;
 import java.util.List;
 
 import static it.pagopa.pn.pdfraster.utils.TestUtils.*;
