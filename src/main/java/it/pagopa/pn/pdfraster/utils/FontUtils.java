@@ -33,7 +33,7 @@ public class FontUtils {
                     if (!destFile.exists()) { // evita sovrascrittura
                         try (InputStream inputStream = resource.getInputStream()) {
                             Files.copy(inputStream, destFile.toPath(), StandardCopyOption.REPLACE_EXISTING);
-                            log.error("Font copiati in: " + destFile.getAbsolutePath());
+                            log.info("Font copiati in: " + destFile.getAbsolutePath());
                         }
                     }
                 }
