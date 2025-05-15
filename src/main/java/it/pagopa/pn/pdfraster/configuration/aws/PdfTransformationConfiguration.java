@@ -8,6 +8,7 @@ import lombok.CustomLog;
 import lombok.Getter;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.context.annotation.Configuration;
+import org.springframework.context.annotation.Profile;
 import software.amazon.awssdk.services.ssm.SsmClient;
 import software.amazon.awssdk.services.ssm.model.*;
 
@@ -18,7 +19,7 @@ import java.util.List;
 
 import static it.pagopa.pn.pdfraster.utils.LogUtils.CLIENT_METHOD_INVOCATION_WITH_ARGS;
 
-
+@Profile("!test")
 @Configuration
 @CustomLog
 public class PdfTransformationConfiguration {
