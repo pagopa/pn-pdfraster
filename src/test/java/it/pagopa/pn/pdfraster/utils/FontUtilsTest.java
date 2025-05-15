@@ -1,6 +1,5 @@
 package it.pagopa.pn.pdfraster.utils;
 
-import it.pagopa.pn.pdfraster.utils.annotation.SpringBootTestWebEnv;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.io.TempDir;
@@ -16,19 +15,18 @@ import java.nio.file.Path;
 import static org.junit.jupiter.api.Assertions.*;
 import static org.mockito.Mockito.*;
 
-@SpringBootTestWebEnv
 class FontUtilsTest {
 
     @TempDir
     Path tempDir;
 
     @BeforeEach
-    public void setup() {
+    void setup() {
         System.setProperty("user.home", tempDir.toString());
     }
 
     @Test
-    public void testLoadFonts() throws IOException {
+    void testLoadFonts() throws IOException {
         FontUtils.loadFonts();
 
         Path fontDir = tempDir.resolve(".fonts");
@@ -47,7 +45,7 @@ class FontUtilsTest {
 
 
     @Test
-    public void testLoadFonts_directoryCreationFails() {
+    void testLoadFonts_directoryCreationFails() {
         File mockFile = mock(File.class);
         when(mockFile.exists()).thenReturn(false);
         when(mockFile.mkdirs()).thenReturn(false); // Simuliamo il fallimento della creazione della cartella
