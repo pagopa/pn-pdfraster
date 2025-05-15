@@ -3,7 +3,6 @@ package it.pagopa.pn.pdfraster.utils.annotation;
 import it.pagopa.pn.pdfraster.utils.localstack.LocalStackTestConfig;
 import org.springframework.boot.test.context.SpringBootTest;
 import org.springframework.context.annotation.Import;
-import org.springframework.test.context.TestPropertySource;
 
 import java.lang.annotation.ElementType;
 import java.lang.annotation.Retention;
