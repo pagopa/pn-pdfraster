@@ -32,7 +32,7 @@ import static org.springframework.http.MediaType.*;
 @AutoConfigureWebTestClient(timeout = "100000")
 @CustomLog
 @DirtiesContext
-class PdfRasterApiControllerTest {
+class PdfRasterApiControllerTestIT {
 
     @Autowired
     private WebTestClient webTestClient;

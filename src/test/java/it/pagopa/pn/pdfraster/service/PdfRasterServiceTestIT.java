@@ -27,7 +27,7 @@ import static org.mockito.ArgumentMatchers.eq;
 import static org.mockito.Mockito.*;
 @SpringBootTestWebEnv
 @CustomLog
-class PdfRasterServiceTest {
+class PdfRasterServiceTestIT {
 
     @SpyBean
     private PdfRasterService pdfRasterService;

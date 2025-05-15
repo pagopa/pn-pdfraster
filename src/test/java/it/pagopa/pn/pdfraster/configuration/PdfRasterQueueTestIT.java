@@ -1,7 +1,6 @@
 package it.pagopa.pn.pdfraster.configuration;
 
 import it.pagopa.pn.pdfraster.exceptions.SqsClientException;
-import it.pagopa.pn.pdfraster.utils.SqsUtils;
 import it.pagopa.pn.pdfraster.utils.annotation.SpringBootTestWebEnv;
 import lombok.CustomLog;
 import org.junit.jupiter.api.Assertions;
@@ -13,7 +12,7 @@ import static org.junit.jupiter.api.Assertions.*;
 @SpringBootTestWebEnv
 @CustomLog
 @DirtiesContext
-class PdfRasterQueueTest {
+class PdfRasterQueueTestIT {
 
     @Value("${sqs.queue.transformation-raster-queue-name}")
     private String transformationRasterQueueName;
