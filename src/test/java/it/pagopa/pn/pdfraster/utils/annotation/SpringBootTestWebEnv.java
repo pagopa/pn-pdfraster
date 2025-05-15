@@ -13,6 +13,5 @@ import java.lang.annotation.Target;
 @Retention(RetentionPolicy.RUNTIME)
 @Target(ElementType.TYPE)
 @SpringBootTest(webEnvironment = SpringBootTest.WebEnvironment.RANDOM_PORT)
-@TestPropertySource(value = "classpath:/application-test.properties")
 @Import({LocalStackTestConfig.class})
 public @interface SpringBootTestWebEnv {}
