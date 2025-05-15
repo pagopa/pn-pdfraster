@@ -2,6 +2,7 @@ package it.pagopa.pn.pdfraster.service;
 
 import it.pagopa.pn.pdfraster.model.pojo.SqsMessageWrapper;
 import org.springframework.boot.test.mock.mockito.MockBean;
+import org.springframework.test.context.ActiveProfiles;
 import software.amazon.awssdk.core.ResponseBytes;
 import software.amazon.awssdk.services.s3.model.*;
 import it.pagopa.pn.pdfraster.safestorage.generated.openapi.server.v1.dto.TransformationMessage;
@@ -26,6 +27,7 @@ import static org.mockito.ArgumentMatchers.any;
 import static org.mockito.ArgumentMatchers.eq;
 import static org.mockito.Mockito.*;
 
+@ActiveProfiles("test")
 @SpringBootTestWebEnv
 @CustomLog
 class PdfRasterServiceTest {
