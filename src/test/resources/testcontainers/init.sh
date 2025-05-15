@@ -1,7 +1,7 @@
 #!/bin/bash
 
 ## CONFIGURATION ##
-AWS_REGION="eu-south-1"
+AWS_REGION="us-east-1"
 LOCALSTACK_ENDPOINT="http://localhost:4566"
 
 ## LOGGING FUNCTIONS ##
