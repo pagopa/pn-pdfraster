@@ -7,6 +7,9 @@ import org.testcontainers.containers.Network;
 import org.testcontainers.containers.localstack.LocalStackContainer;
 import org.testcontainers.containers.wait.strategy.Wait;
 import org.testcontainers.utility.DockerImageName;
+
+import java.time.Duration;
+
 import static org.testcontainers.containers.localstack.LocalStackContainer.Service.*;
 
 @TestConfiguration
@@ -20,7 +23,8 @@ public class LocalStackTestConfig {
                     .withClasspathResourceMapping("testcontainers/credentials", "/root/.aws/credentials", BindMode.READ_ONLY)
                     .withNetworkAliases("localstack")
                     .withNetwork(Network.builder().build())
-                    .waitingFor(Wait.forLogMessage(".*Initialization terminated.*", 1));
+                    .waitingFor(Wait.forLogMessage(".*Initialization terminated.*", 1))
+                    .withStartupTimeout(Duration.ofSeconds(180));
 
     static {
         localStackContainer.start();
