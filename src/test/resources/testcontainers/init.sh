@@ -1,9 +1,8 @@
 #!/bin/bash
 
 ## CONFIGURATION ##
-AWS_REGION="us-east-1"
+AWS_REGION="eu-south-1"
 LOCALSTACK_ENDPOINT="http://localhost:4566"
-AWS_PROFILE="default"
 
 ## LOGGING FUNCTIONS ##
 log() { echo "[pn-ss-init][$(date +'%Y-%m-%d %H:%M:%S')] $*"; }
@@ -24,7 +23,6 @@ create_ssm_parameter() {
   echo "Parameter value: $parameter_value"
 
   silent aws ssm get-parameter \
-    --profile "$AWS_PROFILE" \
     --region "$AWS_REGION" \
     --endpoint-url "$LOCALSTACK_ENDPOINT" \
     --name "$parameter_name" && \
@@ -32,7 +30,6 @@ create_ssm_parameter() {
     return 0
 
   aws ssm put-parameter \
-    --profile "$AWS_PROFILE" \
     --region "$AWS_REGION" \
     --endpoint-url "$LOCALSTACK_ENDPOINT" \
     --name "$parameter_name" \
@@ -47,7 +44,6 @@ create_queue(){
   log "Creating queue: $queue"
 
   if silent aws sqs get-queue-url --queue-name "$queue" \
-                                  --profile "$AWS_PROFILE" \
                                   --region "$AWS_REGION"  \
                                   --endpoint-url "$LOCALSTACK_ENDPOINT"; then
     log "Queue already exists: $queue"
@@ -55,7 +51,6 @@ create_queue(){
   fi
 
   silent aws sqs create-queue --queue-name "$queue" \
-                       --profile "$AWS_PROFILE" \
                        --region "$AWS_REGION"  \
                        --endpoint-url "$LOCALSTACK_ENDPOINT" && \
   log "Created queue: $queue" || \

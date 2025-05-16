@@ -2,15 +2,11 @@ package it.pagopa.pn.pdfraster.utils.localstack;
 
 import lombok.CustomLog;
 import org.springframework.boot.test.context.TestConfiguration;
-import org.springframework.core.io.ClassPathResource;
 import org.testcontainers.containers.BindMode;
 import org.testcontainers.containers.Network;
 import org.testcontainers.containers.localstack.LocalStackContainer;
 import org.testcontainers.containers.wait.strategy.Wait;
 import org.testcontainers.utility.DockerImageName;
-
-import java.io.IOException;
-
 import static org.testcontainers.containers.localstack.LocalStackContainer.Service.*;
 
 @TestConfiguration
@@ -28,13 +24,10 @@ public class LocalStackTestConfig {
 
     static {
         localStackContainer.start();
-        System.setProperty("aws.endpoint-url", localStackContainer.getEndpointOverride(SQS).toString());
-        try {
-            System.setProperty("aws.sharedCredentialsFile", new ClassPathResource("testcontainers/credentials").getFile().getAbsolutePath());
-        } catch (IOException e) {
-            throw new RuntimeException(e);
-        }
-
+        System.setProperty("test.aws.ssm.endpoint", String.valueOf(localStackContainer.getEndpointOverride(SSM)));
+        System.setProperty("test.aws.sqs.endpoint", String.valueOf(localStackContainer.getEndpointOverride(SQS)));
+        System.setProperty("cloud.aws.sqs.endpoint", String.valueOf(localStackContainer.getEndpointOverride(SQS)));
+        System.setProperty("test.aws.s3.endpoint", String.valueOf(localStackContainer.getEndpointOverride(S3)));
     }
 
 }

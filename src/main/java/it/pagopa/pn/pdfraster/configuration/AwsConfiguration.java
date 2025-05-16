@@ -3,6 +3,7 @@ package it.pagopa.pn.pdfraster.configuration;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import io.awspring.cloud.messaging.config.QueueMessageHandlerFactory;
 import io.awspring.cloud.messaging.listener.support.AcknowledgmentHandlerMethodArgumentResolver;
+import it.pagopa.pn.pdfraster.configuration.properties.AwsConfigurationProperties;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.context.annotation.Bean;
@@ -29,8 +30,7 @@ import java.util.List;
 @Configuration
 public class AwsConfiguration {
 
-    @Value("${test.aws.region-code:#{null}}")
-    String regionCode;
+    private final AwsConfigurationProperties awsConfigurationProperties;
 
     @Value("${test.aws.sqs.endpoint:#{null}}")
     String sqsLocalStackEndpoint;
@@ -47,18 +47,18 @@ public class AwsConfiguration {
     private static final DefaultCredentialsProvider DEFAULT_CREDENTIALS_PROVIDER_V2 = DefaultCredentialsProvider.create();
     private final WebClient genericWebClient = WebClient.builder().build();
 
+    public AwsConfiguration(AwsConfigurationProperties awsConfigurationProperties) {
+        this.awsConfigurationProperties = awsConfigurationProperties;
+    }
 
     @Bean
     public SqsAsyncClient sqsAsyncClient() {
         SqsAsyncClientBuilder sqsAsyncClientBuilder = SqsAsyncClient.builder()
-                .credentialsProvider(DEFAULT_CREDENTIALS_PROVIDER_V2);
+                .credentialsProvider(DEFAULT_CREDENTIALS_PROVIDER_V2)
+                .region(Region.of(awsConfigurationProperties.regionCode()));
 
         if (sqsLocalStackEndpoint != null) {
             sqsAsyncClientBuilder.endpointOverride(URI.create(sqsLocalStackEndpoint));
-        }
-
-        if(regionCode != null) {
-            sqsAsyncClientBuilder.region(Region.of(regionCode));
         }
 
         return sqsAsyncClientBuilder.build();
@@ -67,14 +67,11 @@ public class AwsConfiguration {
     @Bean
     public SsmClient ssmClient() {
         SsmClientBuilder ssmClientBuilder = SsmClient.builder()
-                .credentialsProvider(DEFAULT_CREDENTIALS_PROVIDER_V2);
+                .credentialsProvider(DEFAULT_CREDENTIALS_PROVIDER_V2)
+                .region(Region.of(awsConfigurationProperties.regionCode()));
 
         if(ssmLocalStackEndpoint != null) {
             ssmClientBuilder.endpointOverride(URI.create(ssmLocalStackEndpoint));
-        }
-
-        if(regionCode != null) {
-            ssmClientBuilder.region(Region.of(regionCode));
         }
 
         return ssmClientBuilder.build();
@@ -83,14 +80,11 @@ public class AwsConfiguration {
     @Bean
     public S3AsyncClient s3AsyncClient() {
         S3AsyncClientBuilder s3Client = S3AsyncClient.builder()
-                .credentialsProvider(DEFAULT_CREDENTIALS_PROVIDER_V2);
+                .credentialsProvider(DEFAULT_CREDENTIALS_PROVIDER_V2)
+                .region(Region.of(awsConfigurationProperties.regionCode()));
 
         if (testAwsS3Endpoint != null) {
             s3Client.endpointOverride(URI.create(testAwsS3Endpoint));
-        }
-
-        if(regionCode != null) {
-            s3Client.region(Region.of(regionCode));
         }
 
         return s3Client.build();
@@ -115,14 +109,10 @@ public class AwsConfiguration {
 
     @Bean
     public CloudWatchAsyncClient cloudWatchAsyncClient() {
-        CloudWatchAsyncClientBuilder cloudWatchAsyncClientBuilder = CloudWatchAsyncClient.builder().credentialsProvider(DEFAULT_CREDENTIALS_PROVIDER_V2);
+        CloudWatchAsyncClientBuilder cloudWatchAsyncClientBuilder = CloudWatchAsyncClient.builder().credentialsProvider(DEFAULT_CREDENTIALS_PROVIDER_V2).region(Region.of(awsConfigurationProperties.regionCode()));
 
         if (testAwsCloudwatchEndpoint != null) {
             cloudWatchAsyncClientBuilder.endpointOverride(URI.create(testAwsCloudwatchEndpoint));
-        }
-
-        if(regionCode != null) {
-            cloudWatchAsyncClientBuilder.region(Region.of(regionCode));
         }
 
         return cloudWatchAsyncClientBuilder.build();

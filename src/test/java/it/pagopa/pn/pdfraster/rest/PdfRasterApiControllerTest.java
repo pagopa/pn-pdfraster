@@ -15,7 +15,6 @@ import org.springframework.http.HttpEntity;
 import org.springframework.http.HttpHeaders;
 import org.springframework.http.client.MultipartBodyBuilder;
 import org.springframework.test.annotation.DirtiesContext;
-import org.springframework.test.context.ActiveProfiles;
 import org.springframework.test.util.ReflectionTestUtils;
 import org.springframework.test.web.reactive.server.WebTestClient;
 import org.springframework.util.LinkedMultiValueMap;
@@ -29,7 +28,6 @@ import static it.pagopa.pn.pdfraster.utils.TestUtils.getFileOkLandScapeFromResou
 import static org.junit.jupiter.api.Assertions.assertNotNull;
 import static org.springframework.http.MediaType.*;
 
-@ActiveProfiles("test")
 @SpringBootTestWebEnv
 @AutoConfigureWebTestClient(timeout = "100000")
 @CustomLog
