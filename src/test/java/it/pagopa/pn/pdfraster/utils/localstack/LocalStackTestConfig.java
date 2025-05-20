@@ -12,9 +12,6 @@ import software.amazon.awssdk.auth.credentials.AwsBasicCredentials;
 import software.amazon.awssdk.auth.credentials.StaticCredentialsProvider;
 import software.amazon.awssdk.regions.Region;
 import software.amazon.awssdk.services.ssm.SsmClient;
-import software.amazon.awssdk.services.ssm.model.GetParameterRequest;
-import software.amazon.awssdk.services.ssm.model.GetParameterResponse;
-import software.amazon.awssdk.services.ssm.model.ParameterNotFoundException;
 import software.amazon.awssdk.services.ssm.model.PutParameterRequest;
 
 import static org.testcontainers.containers.localstack.LocalStackContainer.Service.*;
@@ -35,11 +32,8 @@ public class LocalStackTestConfig {
     static {
         localStackContainer.start();
 
-// Imposta le system properties per gli endpoint
-        System.setProperty("test.aws.ssm.endpoint", localStackContainer.getEndpointOverride(SSM).toString());
-        System.setProperty("test.aws.sqs.endpoint", localStackContainer.getEndpointOverride(SQS).toString());
-        System.setProperty("cloud.aws.sqs.endpoint", localStackContainer.getEndpointOverride(SQS).toString());
-        System.setProperty("test.aws.s3.endpoint", localStackContainer.getEndpointOverride(S3).toString());
+        // Set system properties
+        System.setProperty("test.aws.ssm.endpoint", String.valueOf(localStackContainer.getEndpointOverride(SSM)));
 
         // Crea SSM client verso LocalStack
         SsmClient ssmClient = SsmClient.builder()
@@ -50,28 +44,14 @@ public class LocalStackTestConfig {
                                                            )
                                        .build();
 
-        PutParameterRequest putRequest = PutParameterRequest.builder()
-                                                            .name("pn-PDFRaster")
-                                                            .value("dummy-value")
-                                                            .type("String")
-                                                            .overwrite(true)
-                                                            .build();
-
-        ssmClient.putParameter(putRequest);
-
-// LOG: verifica che sia stato creato correttamente
-        log.info("SSM Parameter created: {}", putRequest.name());
-
-        try {
-            GetParameterResponse response = ssmClient.getParameter(GetParameterRequest.builder()
-                                                                                      .name("pn-PDFRaster")
-                                                                                      .build()
-                                                                  );
-            log.info("SSM Parameter value: {}", response.parameter().value());
-        } catch (ParameterNotFoundException e) {
-            log.error("Parameter pn-PDFRaster NON trovato!", e);
-        }
-
+        // Inserisci parametro richiesto
+        ssmClient.putParameter(PutParameterRequest.builder()
+                                                  .name("pn-PDFRaster")
+                                                  .value("dummy-value")
+                                                  .type("String")
+                                                  .overwrite(true)
+                                                  .build()
+                              );
     }
 
 }
