@@ -18,7 +18,6 @@ import java.util.List;
 
 import static it.pagopa.pn.pdfraster.utils.LogUtils.CLIENT_METHOD_INVOCATION_WITH_ARGS;
 
-
 @Configuration
 @CustomLog
 public class PdfTransformationConfiguration {
