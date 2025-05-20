@@ -8,12 +8,6 @@ import org.testcontainers.containers.Network;
 import org.testcontainers.containers.localstack.LocalStackContainer;
 import org.testcontainers.containers.wait.strategy.Wait;
 import org.testcontainers.utility.DockerImageName;
-import software.amazon.awssdk.auth.credentials.AwsBasicCredentials;
-import software.amazon.awssdk.auth.credentials.StaticCredentialsProvider;
-import software.amazon.awssdk.regions.Region;
-import software.amazon.awssdk.services.ssm.SsmClient;
-import software.amazon.awssdk.services.ssm.model.PutParameterRequest;
-
 import static org.testcontainers.containers.localstack.LocalStackContainer.Service.*;
 @TestPropertySource("classpath:application-test.properties")
 @TestConfiguration
@@ -31,27 +25,10 @@ public class LocalStackTestConfig {
 
     static {
         localStackContainer.start();
-
-        // Set system properties
         System.setProperty("test.aws.ssm.endpoint", String.valueOf(localStackContainer.getEndpointOverride(SSM)));
-
-        // Crea SSM client verso LocalStack
-        SsmClient ssmClient = SsmClient.builder()
-                                       .endpointOverride(localStackContainer.getEndpointOverride(SSM))
-                                       .region(Region.of(localStackContainer.getRegion()))
-                                       .credentialsProvider(
-                                               StaticCredentialsProvider.create(AwsBasicCredentials.create("TEST", "TEST"))
-                                                           )
-                                       .build();
-
-        // Inserisci parametro richiesto
-        ssmClient.putParameter(PutParameterRequest.builder()
-                                                  .name("pn-PDFRaster")
-                                                  .value("dummy-value")
-                                                  .type("String")
-                                                  .overwrite(true)
-                                                  .build()
-                              );
+        System.setProperty("test.aws.sqs.endpoint", String.valueOf(localStackContainer.getEndpointOverride(SQS)));
+        System.setProperty("cloud.aws.sqs.endpoint", String.valueOf(localStackContainer.getEndpointOverride(SQS)));
+        System.setProperty("test.aws.s3.endpoint", String.valueOf(localStackContainer.getEndpointOverride(S3)));
     }
 
 }
