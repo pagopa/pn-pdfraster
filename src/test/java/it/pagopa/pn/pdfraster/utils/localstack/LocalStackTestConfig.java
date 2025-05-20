@@ -2,14 +2,13 @@ package it.pagopa.pn.pdfraster.utils.localstack;
 
 import lombok.CustomLog;
 import org.springframework.boot.test.context.TestConfiguration;
-import org.springframework.test.context.TestPropertySource;
 import org.testcontainers.containers.BindMode;
 import org.testcontainers.containers.Network;
 import org.testcontainers.containers.localstack.LocalStackContainer;
 import org.testcontainers.containers.wait.strategy.Wait;
 import org.testcontainers.utility.DockerImageName;
 import static org.testcontainers.containers.localstack.LocalStackContainer.Service.*;
-@TestPropertySource("classpath:application-test.properties")
+
 @TestConfiguration
 @CustomLog
 public class LocalStackTestConfig {
