@@ -97,7 +97,7 @@ public class PdfRasterServiceImpl implements PdfRasterService {
                                 .anyMatch(tag ->
                                         RASTER_TRANFORMATION_TAG.equals(tag.key()) && TRANFORMATION_TAG_OK.equalsIgnoreCase(tag.value()));
                         if (hasTransformationTag) {
-                            log.info("File with the same transformation tag already exists, skipping processing.");
+                            log.warn("File with the same transformation tag already exists, skipping processing.");
                             return Mono.empty(); //se il file ha il tag si interrompe la trasformazione
                         }
                     }

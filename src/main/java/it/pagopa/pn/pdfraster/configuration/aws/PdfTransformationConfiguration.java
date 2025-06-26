@@ -18,7 +18,6 @@ import java.util.List;
 
 import static it.pagopa.pn.pdfraster.utils.LogUtils.CLIENT_METHOD_INVOCATION_WITH_ARGS;
 
-
 @Configuration
 @CustomLog
 public class PdfTransformationConfiguration {
@@ -44,7 +43,7 @@ public class PdfTransformationConfiguration {
 
     public PdfTransformationConfigParams pdfTransformationConfigurationFromParameterStore() throws SsmException {
 
-        log.info(CLIENT_METHOD_INVOCATION_WITH_ARGS, "ssmClient.getParameters", pdfRasterParameterName);
+        log.debug(CLIENT_METHOD_INVOCATION_WITH_ARGS, "ssmClient.getParameters", pdfRasterParameterName);
 
         GetParameterResponse response = ssmClient.getParameter(GetParameterRequest.builder()
                 .name(pdfRasterParameterName)

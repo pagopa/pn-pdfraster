@@ -39,7 +39,7 @@ public class S3ServiceImpl implements S3Service {
         log.debug(CLIENT_METHOD_INVOCATION_WITH_ARGS, GET_OBJECT, Stream.of(key, bucketName).toList());
         return Mono.fromCompletionStage(s3AsyncClient.getObject(builder -> builder.key(key).bucket(bucketName),
                         AsyncResponseTransformer.toBytes()))
-                .doOnNext(getObjectResponseResponseBytes -> log.info(CLIENT_METHOD_RETURN, GET_OBJECT, key))
+                .doOnNext(getObjectResponseResponseBytes -> log.debug(CLIENT_METHOD_RETURN, GET_OBJECT, key))
                 .doOnError(e -> log.warn(CLIENT_METHOD_RETURN_WITH_ERROR, GET_OBJECT, e, e.getMessage()));
     }
 
