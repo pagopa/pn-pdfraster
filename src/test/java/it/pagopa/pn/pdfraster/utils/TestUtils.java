@@ -11,6 +11,18 @@ public abstract class TestUtils {
     }
 
     /**
+     * Metodo per recuperare un file pdf vuoto dalle risorse
+     * @return
+     */
+    public static byte[] getEmptyFileTestFromResources(){
+        try (var in = new FileInputStream("src/test/resources/EMPTY.pdf")){
+            return IOUtils.toByteArray(in);
+        } catch (IOException e) {
+            throw new RuntimeException(e);
+        }
+    }
+
+    /**
      * Metodo per recuperare il file di test dalle risorse
      * @return
      */
