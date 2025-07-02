@@ -68,7 +68,7 @@ class PdfRasterServiceTest {
     }
 
     private static final String FILE_KEY = "TEST.pdf";
-    private static final String TRANFORMATION_RASTER_TAG = "Transformation-RASTER";
+    private static final String TRANSFORMATION_RASTER_TAG = "Transformation-RASTER";
     private static final String BUCKET_NAME = "stage-bucket-test";
     private static final byte[] PDF_BYTES = {1, 2, 3};
 
@@ -83,7 +83,7 @@ class PdfRasterServiceTest {
     TransformationMessage createTransformationMessage() {
         TransformationMessage transformationMessage = new TransformationMessage();
         transformationMessage.fileKey(FILE_KEY);
-        transformationMessage.transformationType(TRANFORMATION_RASTER_TAG);
+        transformationMessage.transformationType(TRANSFORMATION_RASTER_TAG);
         transformationMessage.bucketName(BUCKET_NAME);
         transformationMessage.contentType("img/png");
         return transformationMessage;
@@ -118,7 +118,7 @@ class PdfRasterServiceTest {
         TransformationMessage message = new TransformationMessage();
         message.fileKey(FILE_KEY);
         message.bucketName(BUCKET_NAME);
-        Tag tag = Tag.builder().key(TRANFORMATION_RASTER_TAG).value(TRANSFORMATION_TAG_OK).build();
+        Tag tag = Tag.builder().key(TRANSFORMATION_RASTER_TAG).value(TRANSFORMATION_TAG_OK).build();
         GetObjectTaggingResponse taggingResponse = GetObjectTaggingResponse.builder()
                 .tagSet(Collections.singletonList(tag))
                 .build();
@@ -172,13 +172,13 @@ class PdfRasterServiceTest {
 
     @ParameterizedTest
     @MethodSource("getKoFiles")
-    void processMessage_KO_EmptyFile(byte[] file) {
+    void processMessage_KO_EmptyAndKoFiles(byte[] file) {
         TransformationMessage messageContent = createTransformationMessage();
         when(s3Service.getObjectTagging(FILE_KEY, BUCKET_NAME))
                 .thenReturn(Mono.just(GetObjectTaggingResponse.builder().tagSet(Collections.emptyList()).build()));
 
         ResponseBytes<GetObjectResponse> responseBytes = ResponseBytes.fromByteArray(
-                GetObjectResponse.builder().build(), FILE_EMPTY);
+                GetObjectResponse.builder().build(), file);
 
         when(s3Service.getObject(FILE_KEY, BUCKET_NAME))
                 .thenReturn(Mono.just(responseBytes));

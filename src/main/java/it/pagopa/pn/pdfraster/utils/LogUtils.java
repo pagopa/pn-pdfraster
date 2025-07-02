@@ -24,7 +24,6 @@ public abstract class LogUtils {
     public static final String SUCCESSFUL_OPERATION_NO_RESULT_LABEL = "Successful operation: '{}'";
     public static final String EXCEPTION_IN_PROCESS = "Exception in '{}'";
 
-    public static final String INVOKING_OPERATION_LABEL_WITH_ARGS = "Invoking operation '{}' with args: {}";
     public static final String INVOKING_OPERATION_LABEL = "Invoking operation '{}'";
 
     //SERVIZI ESTERNI
@@ -35,7 +34,6 @@ public abstract class LogUtils {
     public static final String PUT_OBJECT = "putObject()";
     public static final String GET_OBJECT_TAGGING = "getObjectTagging()";
     public static final String PUT_OBJECT_TAGGING = "putObjectTagging()";
-    public static final String HEAD_OBJECT = "headObject()";
 
     //LABELS
     public static final String CLIENT_METHOD_RETURN = "Return client method: {} = {}";

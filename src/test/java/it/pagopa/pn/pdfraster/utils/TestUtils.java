@@ -12,7 +12,7 @@ public abstract class TestUtils {
 
     /**
      * Metodo per recuperare un file pdf vuoto dalle risorse
-     * @return
+     * @return il bytearray rappresentante il file
      */
     public static byte[] getEmptyFileTestFromResources(){
         try (var in = new FileInputStream("src/test/resources/EMPTY.pdf")){
@@ -24,7 +24,7 @@ public abstract class TestUtils {
 
     /**
      * Metodo per recuperare il file di test dalle risorse
-     * @return
+     * @return il bytearray rappresentante il file
      */
     public static byte[] getFileTestFromResources(){
         try (var in = new FileInputStream("src/test/resources/TEST.pdf")){
@@ -36,7 +36,7 @@ public abstract class TestUtils {
 
     /**
      * Metodo per recuperare il file di test dalle risorse
-     * @return
+     * @return il bytearray rappresentante il file
      */
     public static byte[] getFileKoTestFromResources(){
         try (var in = new FileInputStream("src/test/resources/TEST_KO.pdf")){
