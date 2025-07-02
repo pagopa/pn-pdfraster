@@ -1,6 +1,8 @@
 package it.pagopa.pn.pdfraster.service;
 
 import it.pagopa.pn.pdfraster.model.pojo.SqsMessageWrapper;
+import org.junit.jupiter.params.ParameterizedTest;
+import org.junit.jupiter.params.provider.MethodSource;
 import org.springframework.boot.test.mock.mockito.MockBean;
 import org.springframework.test.context.ActiveProfiles;
 import software.amazon.awssdk.core.ResponseBytes;
@@ -20,6 +22,7 @@ import software.amazon.awssdk.services.sqs.model.Message;
 import java.io.ByteArrayOutputStream;
 import java.io.IOException;
 import java.util.Collections;
+import java.util.stream.Stream;
 
 import static it.pagopa.pn.pdfraster.service.impl.PdfRasterServiceImpl.buildTransformationTagging;
 import static it.pagopa.pn.pdfraster.utils.TestUtils.*;
@@ -167,8 +170,9 @@ class PdfRasterServiceTest {
 
     }
 
-    @Test
-    void processMessage_KO_EmptyFile() {
+    @ParameterizedTest
+    @MethodSource("getKoFiles")
+    void processMessage_KO_EmptyFile(byte[] file) {
         TransformationMessage messageContent = createTransformationMessage();
         when(s3Service.getObjectTagging(FILE_KEY, BUCKET_NAME))
                 .thenReturn(Mono.just(GetObjectTaggingResponse.builder().tagSet(Collections.emptyList()).build()));
@@ -178,6 +182,9 @@ class PdfRasterServiceTest {
 
         when(s3Service.getObject(FILE_KEY, BUCKET_NAME))
                 .thenReturn(Mono.just(responseBytes));
+
+        when(s3Service.putObjectTagging(eq(FILE_KEY), eq(BUCKET_NAME), any(Tagging.class)))
+            .thenReturn(Mono.empty());
 
         ByteArrayOutputStream mockOutputStream = new ByteArrayOutputStream();
         try {
@@ -198,7 +205,8 @@ class PdfRasterServiceTest {
         verify(s3Service, times(1)).getObjectTagging(FILE_KEY, BUCKET_NAME);
         verify(s3Service, times(1)).getObject(FILE_KEY, BUCKET_NAME);
         StepVerifier.create(convertPdfService.convertPdfToImage(FILE)).expectNextCount(1).verifyComplete();
-        verify(s3Service, times(1)).putObject(eq(FILE_KEY), any(), eq(messageContent.getContentType()), eq(BUCKET_NAME), eq(EXPECTED_TAGGING_KO));
+        verify(s3Service, times(1)).putObjectTagging(FILE_KEY, BUCKET_NAME, EXPECTED_TAGGING_KO);
+        verify(s3Service,never()).putObject(any(),any(),any(),any());
 
     }
 
@@ -216,8 +224,8 @@ class PdfRasterServiceTest {
         verify(s3Service).getObjectTagging(FILE_KEY, BUCKET_NAME);
         verify(s3Service, never()).getObject(anyString(), anyString());
         verify(convertPdfService, never()).convertPdfToImage(any());
-        verify(s3Service, times(1)).putObject(eq(FILE_KEY), any(), eq(messageContent.getContentType()), eq(BUCKET_NAME), eq(EXPECTED_TAGGING_KO));
-
+        verify(s3Service, never()).putObjectTagging(any(),any(),any());
+        verify(s3Service,never()).putObject(any(),any(),any(),any());
     }
 
     @Test
@@ -270,4 +278,10 @@ class PdfRasterServiceTest {
         verify(convertPdfService, times(1)).convertPdfToImage(new byte[0]);
     }
 
+    private static Stream<byte[]> getKoFiles(){
+        return Stream.of(
+                FILE_EMPTY,
+                FILE_KO
+        );
+    }
 }

@@ -34,6 +34,7 @@ public abstract class LogUtils {
     public static final String GET_OBJECT = "getObject()";
     public static final String PUT_OBJECT = "putObject()";
     public static final String GET_OBJECT_TAGGING = "getObjectTagging()";
+    public static final String PUT_OBJECT_TAGGING = "putObjectTagging()";
     public static final String HEAD_OBJECT = "headObject()";
 
     //LABELS

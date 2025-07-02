@@ -73,4 +73,13 @@ public class S3ServiceImpl implements S3Service {
                 .doOnError(throwable -> log.warn(CLIENT_METHOD_RETURN_WITH_ERROR, GET_OBJECT_TAGGING, throwable, throwable.getMessage()));
     }
 
+    @Override
+    public Mono<PutObjectTaggingResponse> putObjectTagging(String key, String bucketName, Tagging tagging){
+        log.debug(CLIENT_METHOD_INVOCATION_WITH_ARGS, PUT_OBJECT_TAGGING, Stream.of(key, bucketName, tagging).toList());
+        return Mono.fromCompletionStage(s3AsyncClient.putObjectTagging(builder -> builder.key(key).bucket(bucketName).tagging(tagging)))
+                .doOnNext(putObjectTaggingResponse ->  log.info(CLIENT_METHOD_RETURN, PUT_OBJECT_TAGGING, putObjectTaggingResponse))
+                .doOnError(throwable -> log.warn(CLIENT_METHOD_RETURN_WITH_ERROR, PUT_OBJECT_TAGGING, throwable, throwable.getMessage()));
+    }
+
+
 }
