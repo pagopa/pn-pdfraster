@@ -39,7 +39,7 @@ public class PdfRasterServiceImpl implements PdfRasterService {
     private static final String RASTER_TRANSFORMATION_TAG = "Transformation-RASTER";
     public static final String RASTER = "RASTER";
     private static final String TRANSFORMATION_TAG_OK = "OK";
-    private static final String TRANSFORMATION_TAG_KO = "ERROR";
+    private static final String TRANSFORMATION_TAG_ERROR = "ERROR";
     public  static final String TRANSFORMATION_TAG_PREFIX = "Transformation-";
 
 
@@ -107,7 +107,7 @@ public class PdfRasterServiceImpl implements PdfRasterService {
                             .flatMap(response -> convertPdfService.convertPdfToImage(response.asByteArray()))
                             .onErrorResume(throwable -> {
                                         log.warn("Could not convert pdf {}, setting ERROR tag", fileKey);
-                                        return s3Service.putObjectTagging(fileKey, bucketName, buildTransformationTagging(RASTER, TRANSFORMATION_TAG_KO)).then(Mono.error(throwable));
+                                        return s3Service.putObjectTagging(fileKey, bucketName, buildTransformationTagging(RASTER, TRANSFORMATION_TAG_ERROR)).then(Mono.error(throwable));
                                     })
                             .flatMap(pdfImage -> s3Service.putObject(fileKey, pdfImage.toByteArray(), messageContent.getContentType(), bucketName, buildTransformationTagging(RASTER, TRANSFORMATION_TAG_OK)));
                 });

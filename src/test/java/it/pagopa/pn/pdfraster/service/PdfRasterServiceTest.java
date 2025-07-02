@@ -52,7 +52,7 @@ class PdfRasterServiceTest {
 
     private static final String TRANSFORMATION_RASTER_PREFIX="RASTER";
     private static final String TRANSFORMATION_TAG_OK="OK";
-    private static final String TRANSFORMATION_TAG_KO="ERROR";
+    private static final String TRANSFORMATION_TAG_ERROR ="ERROR";
 
 
     public static final Tagging EXPECTED_TAGGING_OK;
@@ -63,7 +63,7 @@ class PdfRasterServiceTest {
         FILE_KO = getFileKoTestFromResources();
         FILE_EMPTY = getEmptyFileTestFromResources();
         EXPECTED_TAGGING_OK=buildTransformationTagging(TRANSFORMATION_RASTER_PREFIX, TRANSFORMATION_TAG_OK);
-        EXPECTED_TAGGING_KO=buildTransformationTagging(TRANSFORMATION_RASTER_PREFIX, TRANSFORMATION_TAG_KO);
+        EXPECTED_TAGGING_KO=buildTransformationTagging(TRANSFORMATION_RASTER_PREFIX, TRANSFORMATION_TAG_ERROR);
         log.info("");
     }
 
