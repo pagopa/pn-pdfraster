@@ -107,7 +107,7 @@ public class PdfRasterServiceImpl implements PdfRasterService {
                             .flatMap(response -> convertPdfService.convertPdfToImage(response.asByteArray()))
                             .onErrorResume(throwable -> {
                                         log.warn("Could not convert pdf {}, setting ERROR tag", fileKey);
-                                        return s3Service.putObjectTagging(fileKey, bucketName, buildTransformationTagging(RASTER, TRANSFORMATION_TAG_ERROR)).then(Mono.error(throwable));
+                                        return s3Service.putObjectTagging(fileKey, bucketName, buildTransformationTagging(RASTER, TRANSFORMATION_TAG_ERROR)).then(Mono.empty());
                                     })
                             .flatMap(pdfImage -> s3Service.putObject(fileKey, pdfImage.toByteArray(), messageContent.getContentType(), bucketName, buildTransformationTagging(RASTER, TRANSFORMATION_TAG_OK)));
                 });

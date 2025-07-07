@@ -200,7 +200,7 @@ class PdfRasterServiceTest {
         Mono<PutObjectResponse> result = pdfRasterService.processMessage(messageContent);
 
         StepVerifier.create(result)
-                .expectError(IOException.class).verify();
+                .verifyComplete();
 
         verify(s3Service, times(1)).getObjectTagging(FILE_KEY, BUCKET_NAME);
         verify(s3Service, times(1)).getObject(FILE_KEY, BUCKET_NAME);
