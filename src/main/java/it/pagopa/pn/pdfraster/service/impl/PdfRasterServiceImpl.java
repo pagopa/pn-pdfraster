@@ -36,9 +36,10 @@ public class PdfRasterServiceImpl implements PdfRasterService {
     private final PdfRasterProperties pdfRasterProperties;
     @Value("${sqs.queue.transformation-raster-queue-name}")
     private String transformationQueue;
-    private static final String RASTER_TRANFORMATION_TAG = "Transformation-RASTER";
+    private static final String RASTER_TRANSFORMATION_TAG = "Transformation-RASTER";
     public static final String RASTER = "RASTER";
-    private static final String TRANFORMATION_TAG_OK = "OK";
+    private static final String TRANSFORMATION_TAG_OK = "OK";
+    private static final String TRANSFORMATION_TAG_ERROR = "ERROR";
     public  static final String TRANSFORMATION_TAG_PREFIX = "Transformation-";
 
 
@@ -95,7 +96,7 @@ public class PdfRasterServiceImpl implements PdfRasterService {
                         //verifica se il tag di trasformazione esiste tra i tag
                         boolean hasTransformationTag = tags.stream()
                                 .anyMatch(tag ->
-                                        RASTER_TRANFORMATION_TAG.equals(tag.key()) && TRANFORMATION_TAG_OK.equalsIgnoreCase(tag.value()));
+                                        RASTER_TRANSFORMATION_TAG.equals(tag.key()) && TRANSFORMATION_TAG_OK.equalsIgnoreCase(tag.value()));
                         if (hasTransformationTag) {
                             log.warn("File with the same transformation tag already exists, skipping processing.");
                             return Mono.empty(); //se il file ha il tag si interrompe la trasformazione
@@ -104,7 +105,11 @@ public class PdfRasterServiceImpl implements PdfRasterService {
                     //se il file non ha il tag di trasformazione continuo con la trasformazione
                     return s3Service.getObject(fileKey, bucketName)
                             .flatMap(response -> convertPdfService.convertPdfToImage(response.asByteArray()))
-                            .flatMap(pdfImage -> s3Service.putObject(fileKey, pdfImage.toByteArray(), messageContent.getContentType(), bucketName, buildTransformationTagging(RASTER, TRANFORMATION_TAG_OK)));
+                            .onErrorResume(throwable -> {
+                                        log.warn("Could not convert pdf {}, setting ERROR tag", fileKey);
+                                        return s3Service.putObjectTagging(fileKey, bucketName, buildTransformationTagging(RASTER, TRANSFORMATION_TAG_ERROR)).then(Mono.empty());
+                                    })
+                            .flatMap(pdfImage -> s3Service.putObject(fileKey, pdfImage.toByteArray(), messageContent.getContentType(), bucketName, buildTransformationTagging(RASTER, TRANSFORMATION_TAG_OK)));
                 });
     }
 
