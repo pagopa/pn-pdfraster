@@ -42,6 +42,10 @@ Parameters:
   PdfRasterVpcId:
     Type: String
     Description: 'VpcId where the microservice is going to be deployed'
+    
+  PdfRasterWebappSecurityGroupId:
+    Type: String
+    Description: "Application load balancer security group"
   
   PdfRasterDefaultSecurityGroup:
     Type: String
@@ -212,6 +216,7 @@ Resources:
         ECSClusterName: !Ref PdfRasterECSClusterName
         Subnets: !Ref PdfRasterVpcSubnets
         VpcId: !Ref PdfRasterVpcId
+        AlbSecurityGroup: !Ref PdfRasterWebappSecurityGroupId
         EcsDefaultSecurityGroup: !Ref PdfRasterDefaultSecurityGroup
         LoadBalancerListenerArn: !Ref PdfRasterApplicationLoadBalancerListenerArn
         LoadbalancerRulePriority: !Ref MicroserviceNumber
