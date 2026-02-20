@@ -105,10 +105,7 @@ public class PdfRasterServiceImpl implements PdfRasterService {
                     //se il file non ha il tag di trasformazione continuo con la trasformazione
                     return s3Service.getObject(fileKey, bucketName)
                             .flatMap(response -> convertPdfService.convertPdfToImage(response.asByteArray()))
-                            .onErrorResume(throwable -> {
-                                        log.warn("Could not convert pdf {}, setting ERROR tag", fileKey);
-                                        return s3Service.putObjectTagging(fileKey, bucketName, buildTransformationTagging(RASTER, TRANSFORMATION_TAG_ERROR)).then(Mono.empty());
-                                    })
+                            .onErrorResume(throwable -> handleRetryOrError(messageContent, fileKey, bucketName).then(Mono.empty()))
                             .flatMap(pdfImage -> s3Service.putObject(fileKey, pdfImage.toByteArray(), messageContent.getContentType(), bucketName, buildTransformationTagging(RASTER, TRANSFORMATION_TAG_OK)));
                 });
     }
@@ -116,6 +113,22 @@ public class PdfRasterServiceImpl implements PdfRasterService {
     public static Tagging buildTransformationTagging(String transformation, String value) {
         return Tagging.builder().tagSet(Tag.builder().key(TRANSFORMATION_TAG_PREFIX + transformation).value(value).build()).build();
     }
+
+    private Mono<Void> handleRetryOrError(TransformationMessage message, String fileKey, String bucketName) {
+        log.info(INVOKING_OPERATION_LABEL+" : Raster conversion failed for fileKey={}, retry={}/{}", HANDLE_RETRY_OR_ERROR, fileKey, message.getRetry(), pdfRasterProperties.getMaxTransformationRetry());
+        int maxRetry = pdfRasterProperties.getMaxTransformationRetry();
+        int currentRetry = message.getRetry() != null ? message.getRetry() : 0;
+        if (currentRetry < maxRetry) {
+            // retry, messo in coda
+            message.setRetry(currentRetry + 1);
+            log.info("Republishing message with retry={} for fileKey={}", message.getRetry(), fileKey);
+            return sqsService.send(transformationQueue, message).then();
+        }
+        // max retry raggiunto: tag ERROR
+        log.error("Max retry for fileKey={} : tagging file with ERROR", fileKey);
+        return s3Service.putObjectTagging(fileKey, bucketName, buildTransformationTagging(RASTER, TRANSFORMATION_TAG_ERROR)).then();
+    }
+
 
     @Override
     public Mono<ByteArrayResource> convertPdf(byte[] file) {

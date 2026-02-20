@@ -264,7 +264,7 @@
 						</goals>
 						<phase>generate-sources</phase>
 						<configuration>
-							<inputSpec>https://raw.githubusercontent.com/pagopa/pn-ss/d52cc0ec2a392d7887a85cb8e1e6538072de591e/docs/openapi/pn-transformation-template.yaml</inputSpec>
+							<inputSpec>https://raw.githubusercontent.com/pagopa/pn-ss/develop/docs/openapi/pn-transformation-template.yaml</inputSpec>
 							<generatorName>java</generatorName>
 							<library>resttemplate</library>
 							<generateApiTests>false</generateApiTests>
