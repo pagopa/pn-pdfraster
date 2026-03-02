@@ -32,9 +32,9 @@ public class PdfRasterApiController implements PdfRasterApi {
     }
 
     @Override
-    public Mono<ResponseEntity<Resource>> convertPdf(Flux<Part> file,final ServerWebExchange exchange) {
+    public Mono<ResponseEntity<Resource>> convertPdf(Part file, final ServerWebExchange exchange) {
         log.logStartingProcess(CONVERT_PDF);
-        return file.flatMap(this::getDataBuffer)
+        return getDataBuffer(file)
                 .map(DataBuffer::asByteBuffer)
                 .map(ByteBuffer::array)
                 .flatMap(pdfRasterService::convertPdf)
