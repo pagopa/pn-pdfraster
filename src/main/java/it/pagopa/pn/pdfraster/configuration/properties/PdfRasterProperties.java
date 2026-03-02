@@ -10,6 +10,8 @@ import org.springframework.context.annotation.Configuration;
 public class PdfRasterProperties {
     private Sqs sqs;
     private Integer maxThreadPoolSize;
+    private Integer maxTransformationRetry;
+
 
     @Data
     public static class Sqs {

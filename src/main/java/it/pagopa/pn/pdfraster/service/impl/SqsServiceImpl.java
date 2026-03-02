@@ -13,10 +13,7 @@ import reactor.core.publisher.Mono;
 import reactor.util.retry.Retry;
 import reactor.util.retry.RetryBackoffSpec;
 import software.amazon.awssdk.services.sqs.SqsAsyncClient;
-import software.amazon.awssdk.services.sqs.model.DeleteMessageResponse;
-import software.amazon.awssdk.services.sqs.model.GetQueueUrlResponse;
-import software.amazon.awssdk.services.sqs.model.Message;
-import software.amazon.awssdk.services.sqs.model.SqsException;
+import software.amazon.awssdk.services.sqs.model.*;
 
 import java.time.Duration;
 import java.util.concurrent.atomic.AtomicBoolean;
@@ -38,6 +35,29 @@ public class SqsServiceImpl implements SqsService {
         this.sqsRetryStrategy = Retry.backoff(properties.getSqs().getRetryStrategy().getMaxAttempts(), Duration.ofSeconds(properties.getSqs().getRetryStrategy().getMinBackoff()))
                 .filter(SqsException.class::isInstance)
                 .onRetryExhaustedThrow((retryBackoffSpec, retrySignal) -> retrySignal.failure());
+    }
+
+    @Override
+    public <T> Mono<SendMessageResponse> send(String queueName, T queuePayload) {
+        log.debug("Publishing message on SQS queue {} with payload {}", queueName, queuePayload);
+
+        return Mono.fromCallable(() -> jsonUtils.convertObjectToJson(queuePayload))
+                .zipWith(getQueueUrlFromName(queueName))
+                .flatMap(tuple -> {
+                    String body = tuple.getT1();
+                    String queueUrl = tuple.getT2();
+                    log.info("Sending message to {} with body {}", queueName, body);
+
+                    return Mono.fromCompletionStage(
+                            sqsAsyncClient.sendMessage(builder ->
+                                    builder.queueUrl(queueUrl)
+                                            .messageBody(body)
+                            )
+                    );
+                })
+                .retryWhen(sqsRetryStrategy)
+                .doOnError(throwable -> log.error("Error publishing message to SQS {}: {}", queueName, throwable.getMessage(), throwable))
+                .doOnSuccess(result -> log.info("INSERTED_DATA_IN_SQS", queueName));
     }
 
     @Override

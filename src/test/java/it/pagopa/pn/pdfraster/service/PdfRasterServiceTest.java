@@ -1,8 +1,11 @@
 package it.pagopa.pn.pdfraster.service;
 
+import it.pagopa.pn.pdfraster.configuration.properties.PdfRasterProperties;
 import it.pagopa.pn.pdfraster.model.pojo.SqsMessageWrapper;
+import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.params.ParameterizedTest;
 import org.junit.jupiter.params.provider.MethodSource;
+import org.mockito.Mock;
 import org.springframework.boot.test.mock.mockito.MockBean;
 import org.springframework.test.context.ActiveProfiles;
 import software.amazon.awssdk.core.ResponseBytes;
@@ -22,6 +25,7 @@ import software.amazon.awssdk.services.sqs.model.Message;
 import java.io.ByteArrayOutputStream;
 import java.io.IOException;
 import java.util.Collections;
+import java.util.concurrent.atomic.AtomicInteger;
 import java.util.stream.Stream;
 
 import static it.pagopa.pn.pdfraster.service.impl.PdfRasterServiceImpl.buildTransformationTagging;
@@ -45,6 +49,9 @@ class PdfRasterServiceTest {
     private S3Service s3Service;
     @MockBean
     private SqsService sqsService;
+    @Mock
+    private PdfRasterProperties pdfRasterProperties;
+
 
     private static final byte[] FILE;
     private static final byte[] FILE_KO;
@@ -53,6 +60,7 @@ class PdfRasterServiceTest {
     private static final String TRANSFORMATION_RASTER_PREFIX="RASTER";
     private static final String TRANSFORMATION_TAG_OK="OK";
     private static final String TRANSFORMATION_TAG_ERROR ="ERROR";
+    private static String TRANSFORMATION_QUEUE;
 
 
     public static final Tagging EXPECTED_TAGGING_OK;
@@ -87,6 +95,12 @@ class PdfRasterServiceTest {
         transformationMessage.bucketName(BUCKET_NAME);
         transformationMessage.contentType("img/png");
         return transformationMessage;
+    }
+
+    @BeforeEach
+    void setup() {
+       TRANSFORMATION_QUEUE = "test-transformation-queue";
+        when(pdfRasterProperties.getMaxTransformationRetry()).thenReturn(10);
     }
 
 
@@ -196,8 +210,10 @@ class PdfRasterServiceTest {
 
         when(s3Service.putObject(eq(FILE_KEY), any(byte[].class), eq(messageContent.getContentType()), eq(BUCKET_NAME), eq(EXPECTED_TAGGING_OK)))
                 .thenReturn(Mono.empty());
-
+        when(sqsService.send(any(String.class), any(TransformationMessage.class)))
+                .thenReturn(Mono.empty());
         Mono<PutObjectResponse> result = pdfRasterService.processMessage(messageContent);
+        messageContent.setRetry(10);
 
         StepVerifier.create(result)
                 .verifyComplete();
@@ -208,6 +224,25 @@ class PdfRasterServiceTest {
         verify(s3Service, times(1)).putObjectTagging(FILE_KEY, BUCKET_NAME, EXPECTED_TAGGING_KO);
         verify(s3Service,never()).putObject(any(),any(),any(),any());
 
+    }
+
+    @Test
+    void shouldApplyErrorTag_whenMaxRetries() {
+
+        TransformationMessage message = createTransformationMessage();
+        message.setRetry(10);
+        GetObjectTaggingResponse taggingResponse = GetObjectTaggingResponse.builder().tagSet(Collections.emptyList()).build();
+
+        when(s3Service.getObjectTagging(FILE_KEY, BUCKET_NAME)).thenReturn(Mono.just(taggingResponse));
+        ResponseBytes<GetObjectResponse> responseBytes = ResponseBytes.fromByteArray(GetObjectResponse.builder().build(), new byte[]{1});
+        when(s3Service.getObject(FILE_KEY, BUCKET_NAME)).thenReturn(Mono.just(responseBytes));
+        when(convertPdfService.convertPdfToImage(any())).thenReturn(Mono.error(new RuntimeException("error")));
+        when(s3Service.putObjectTagging(eq(FILE_KEY), eq(BUCKET_NAME), any())).thenReturn(Mono.empty());
+
+        StepVerifier.create(pdfRasterService.processMessage(message)).verifyComplete();
+        // nessun reinvio
+        verify(sqsService, never()).send(any(), any());
+        verify(s3Service).putObjectTagging(eq(FILE_KEY), eq(BUCKET_NAME), eq(EXPECTED_TAGGING_KO));
     }
 
     @Test
