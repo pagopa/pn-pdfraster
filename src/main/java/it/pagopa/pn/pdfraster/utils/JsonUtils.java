@@ -23,4 +23,8 @@ public class JsonUtils {
         }
     }
 
+    public String convertObjectToJson(Object object) throws JsonProcessingException {
+        return objectMapper.writeValueAsString(object);
+    }
+
 }
