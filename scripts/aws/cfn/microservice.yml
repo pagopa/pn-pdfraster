@@ -166,7 +166,7 @@ Parameters:
     Type: String
 
   # EFS parameters
-  FargateEFSFileSystemID:
+  PdfRasterFargateEFSFileSystemID:
     Type: String
     Description: "EFS Filesystem"
 
@@ -231,7 +231,7 @@ Resources:
         JavaToolOptions: !Ref JavaToolOptions
         HealthCheckTimeout: 15
         HealthCheckInterval: 120
-        EfsFilesystem: !Ref FargateEFSFileSystemID
+        EfsFilesystem: !Ref PdfRasterFargateEFSFileSystemID
         MountEfs: !Ref MountEfs
 
 
