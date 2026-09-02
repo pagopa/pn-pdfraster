@@ -6,7 +6,7 @@
 	<parent>
 		<groupId>it.pagopa.pn</groupId>
 		<artifactId>pn-parent</artifactId>
-		<version>2.1.2-SPRINGBOOT3</version>
+		<version>2.3.1-SPRINGBOOT3</version>
 		<relativePath/>
 	</parent>
 	<groupId>it.pagopa.pn.pdfraster</groupId>
@@ -39,25 +39,7 @@
 		<dependency>
 			<groupId>it.pagopa.pn</groupId>
 			<artifactId>pn-commons</artifactId>
-			<version>2.15.0-SPRINGBOOT3</version>
-			<exclusions>
-				<exclusion>
-					<groupId>it.pagopa.tech.lollipop-consumer-java-sdk</groupId>
-					<artifactId>core</artifactId>
-				</exclusion>
-				<exclusion>
-					<groupId>it.pagopa.tech.lollipop-consumer-java-sdk</groupId>
-					<artifactId>http-verifier</artifactId>
-				</exclusion>
-				<exclusion>
-					<groupId>it.pagopa.tech.lollipop-consumer-java-sdk</groupId>
-					<artifactId>assertion-rest-client-native</artifactId>
-				</exclusion>
-				<exclusion>
-					<groupId>it.pagopa.tech.lollipop-consumer-java-sdk</groupId>
-					<artifactId>identity-service-rest-client-native</artifactId>
-				</exclusion>
-			</exclusions>
+			<version>2.24.0-SPRINGBOOT3</version>
 		</dependency>
 		<dependency>
 			<groupId>org.codehaus.janino</groupId>

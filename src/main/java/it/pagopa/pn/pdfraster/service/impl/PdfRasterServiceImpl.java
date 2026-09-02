@@ -61,7 +61,7 @@ public class PdfRasterServiceImpl implements PdfRasterService {
                         .collectList())
                 .doOnNext(list -> hasMessages.set(!list.isEmpty()))
                 .repeat(hasMessages::get)
-                .doOnError(e -> log.logEndingProcess(RECEIVE_TRANSFORMATION_MESSAGES, false, e.getMessage()))
+                .doOnError(e -> log.logEndingProcess(RECEIVE_TRANSFORMATION_MESSAGES, false, e.getMessage(), e))
                 .doOnComplete(() -> log.logEndingProcess(RECEIVE_TRANSFORMATION_MESSAGES))
                 .blockLast();
     }
