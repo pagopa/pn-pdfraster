@@ -7,14 +7,15 @@ import org.springframework.context.annotation.Configuration;
 @ConfigurationProperties(prefix = "pn.pdfraster")
 @Configuration
 @Data
-public class PdfRasterProperties {
-    private Sqs sqs;
+public class PnPdfRasterConfig {
+    private String parameterName;
     private Integer maxThreadPoolSize;
     private Integer maxTransformationRetry;
-
+    private Sqs sqs;
 
     @Data
     public static class Sqs {
+        private String transformationQueueName;
         private Integer maxMessages;
         private RetryStrategy retryStrategy;
 
@@ -24,6 +25,4 @@ public class PdfRasterProperties {
             private Long minBackoff;
         }
     }
-
-
 }

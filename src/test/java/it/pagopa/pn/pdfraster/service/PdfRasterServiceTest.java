@@ -1,11 +1,9 @@
 package it.pagopa.pn.pdfraster.service;
 
-import it.pagopa.pn.pdfraster.configuration.properties.PdfRasterProperties;
 import it.pagopa.pn.pdfraster.model.pojo.SqsMessageWrapper;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.params.ParameterizedTest;
 import org.junit.jupiter.params.provider.MethodSource;
-import org.mockito.Mock;
 import org.springframework.boot.test.mock.mockito.MockBean;
 import org.springframework.test.context.ActiveProfiles;
 import software.amazon.awssdk.core.ResponseBytes;
@@ -25,7 +23,6 @@ import software.amazon.awssdk.services.sqs.model.Message;
 import java.io.ByteArrayOutputStream;
 import java.io.IOException;
 import java.util.Collections;
-import java.util.concurrent.atomic.AtomicInteger;
 import java.util.stream.Stream;
 
 import static it.pagopa.pn.pdfraster.service.impl.PdfRasterServiceImpl.buildTransformationTagging;
@@ -49,8 +46,6 @@ class PdfRasterServiceTest {
     private S3Service s3Service;
     @MockBean
     private SqsService sqsService;
-    @Mock
-    private PdfRasterProperties pdfRasterProperties;
 
 
     private static final byte[] FILE;
@@ -100,7 +95,6 @@ class PdfRasterServiceTest {
     @BeforeEach
     void setup() {
        TRANSFORMATION_QUEUE = "test-transformation-queue";
-        when(pdfRasterProperties.getMaxTransformationRetry()).thenReturn(10);
     }
 
 

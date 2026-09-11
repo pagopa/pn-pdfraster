@@ -36,6 +36,11 @@ Parameters:
     Type: Number
     Default: 14
 
+  PnSsTransformationRasterDLQThreshold:
+    Type: Number
+    Default: 1
+    Description: 'Max number of messages that can be sent to the DLQ before raising an alarm for the pn-ss-transformation-raster-queue'
+
 Resources:
 
   EcsLogGroup:
@@ -64,6 +69,7 @@ Resources:
         QueueHasAlarm: 'false'
         AlarmSNSTopicName: !Ref AlarmSNSTopicName
         VisibilityTimeout: 60
+        MessageDLQThreshold: !Ref PnSsTransformationRasterDLQThreshold
 
   # Policy to add permissions on raster transformation queue to pn-ss microservice.
   PnSsQueuePolicyTransformationRaster:

@@ -1,7 +1,7 @@
 package it.pagopa.pn.pdfraster.service.impl;
 
 import it.pagopa.pn.commons.utils.MDCUtils;
-import it.pagopa.pn.pdfraster.configuration.properties.PdfRasterProperties;
+import it.pagopa.pn.pdfraster.configuration.properties.PnPdfRasterConfig;
 import it.pagopa.pn.pdfraster.exceptions.Generic400ErrorException;
 import it.pagopa.pn.pdfraster.model.pojo.SqsMessageWrapper;
 import it.pagopa.pn.pdfraster.safestorage.generated.openapi.server.v1.dto.TransformationMessage;
@@ -10,7 +10,6 @@ import it.pagopa.pn.pdfraster.service.PdfRasterService;
 import it.pagopa.pn.pdfraster.service.SqsService;
 import lombok.CustomLog;
 import org.slf4j.MDC;
-import org.springframework.beans.factory.annotation.Value;
 import org.springframework.core.io.ByteArrayResource;
 import org.springframework.scheduling.annotation.Scheduled;
 import org.springframework.stereotype.Service;
@@ -33,9 +32,8 @@ public class PdfRasterServiceImpl implements PdfRasterService {
     private final ConvertPdfService convertPdfService;
     private final S3ServiceImpl s3Service;
     private final SqsService sqsService;
-    private final PdfRasterProperties pdfRasterProperties;
-    @Value("${sqs.queue.transformation-raster-queue-name}")
-    private String transformationQueue;
+    private final PnPdfRasterConfig pnPdfRasterConfig;
+    private final String transformationQueue;
     private static final String RASTER_TRANSFORMATION_TAG = "Transformation-RASTER";
     public static final String RASTER = "RASTER";
     private static final String TRANSFORMATION_TAG_OK = "OK";
@@ -43,11 +41,12 @@ public class PdfRasterServiceImpl implements PdfRasterService {
     public  static final String TRANSFORMATION_TAG_PREFIX = "Transformation-";
 
 
-    public PdfRasterServiceImpl(ConvertPdfService convertPdfService, S3ServiceImpl s3Service, SqsService sqsService, PdfRasterProperties pdfRasterProperties){
+    public PdfRasterServiceImpl(ConvertPdfService convertPdfService, S3ServiceImpl s3Service, SqsService sqsService, PnPdfRasterConfig pnPdfRasterConfig){
         this.convertPdfService = convertPdfService;
         this.s3Service = s3Service;
         this.sqsService = sqsService;
-        this.pdfRasterProperties = pdfRasterProperties;
+        this.pnPdfRasterConfig = pnPdfRasterConfig;
+        this.transformationQueue = pnPdfRasterConfig.getSqs().getTransformationQueueName();
     }
 
 
@@ -56,7 +55,7 @@ public class PdfRasterServiceImpl implements PdfRasterService {
         log.logStartingProcess(RECEIVE_TRANSFORMATION_MESSAGES);
         AtomicBoolean hasMessages = new AtomicBoolean();
         hasMessages.set(true);
-        Mono.defer(() -> sqsService.getMessages(transformationQueue, TransformationMessage.class, pdfRasterProperties.getSqs().getMaxMessages())
+        Mono.defer(() -> sqsService.getMessages(transformationQueue, TransformationMessage.class, pnPdfRasterConfig.getSqs().getMaxMessages())
                         .flatMap(this::receiveMessage)
                         .collectList())
                 .doOnNext(list -> hasMessages.set(!list.isEmpty()))
@@ -88,21 +87,18 @@ public class PdfRasterServiceImpl implements PdfRasterService {
 
         log.info("Start processMessage() with fileKey: {}", fileKey);
 
-        //tag dell'oggetto per verificare se è già presente una trasformazione
         return Mono.defer(() -> s3Service.getObjectTagging(fileKey, bucketName))
                 .flatMap(taggingResponse -> {
                     if (taggingResponse.hasTagSet()) {
                         List<Tag> tags = taggingResponse.tagSet();
-                        //verifica se il tag di trasformazione esiste tra i tag
                         boolean hasTransformationTag = tags.stream()
                                 .anyMatch(tag ->
                                         RASTER_TRANSFORMATION_TAG.equals(tag.key()) && TRANSFORMATION_TAG_OK.equalsIgnoreCase(tag.value()));
                         if (hasTransformationTag) {
                             log.warn("File with the same transformation tag already exists, skipping processing.");
-                            return Mono.empty(); //se il file ha il tag si interrompe la trasformazione
+                            return Mono.empty();
                         }
                     }
-                    //se il file non ha il tag di trasformazione continuo con la trasformazione
                     return s3Service.getObject(fileKey, bucketName)
                             .flatMap(response -> convertPdfService.convertPdfToImage(response.asByteArray()))
                             .onErrorResume(throwable -> handleRetryOrError(messageContent, fileKey, bucketName).then(Mono.empty()))
@@ -115,16 +111,14 @@ public class PdfRasterServiceImpl implements PdfRasterService {
     }
 
     private Mono<Void> handleRetryOrError(TransformationMessage message, String fileKey, String bucketName) {
-        log.info(INVOKING_OPERATION_LABEL+" : Raster conversion failed for fileKey={}, retry={}/{}", HANDLE_RETRY_OR_ERROR, fileKey, message.getRetry(), pdfRasterProperties.getMaxTransformationRetry());
-        int maxRetry = pdfRasterProperties.getMaxTransformationRetry();
+        log.info(INVOKING_OPERATION_LABEL+" : Raster conversion failed for fileKey={}, retry={}/{}", HANDLE_RETRY_OR_ERROR, fileKey, message.getRetry(), pnPdfRasterConfig.getMaxTransformationRetry());
+        int maxRetry = pnPdfRasterConfig.getMaxTransformationRetry();
         int currentRetry = message.getRetry() != null ? message.getRetry() : 0;
         if (currentRetry < maxRetry) {
-            // retry, messo in coda
             message.setRetry(currentRetry + 1);
             log.info("Republishing message with retry={} for fileKey={}", message.getRetry(), fileKey);
             return sqsService.send(transformationQueue, message).then();
         }
-        // max retry raggiunto: tag ERROR
         log.error("Max retry for fileKey={} : tagging file with ERROR", fileKey);
         return s3Service.putObjectTagging(fileKey, bucketName, buildTransformationTagging(RASTER, TRANSFORMATION_TAG_ERROR)).then();
     }
