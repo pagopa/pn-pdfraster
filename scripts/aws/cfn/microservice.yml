@@ -92,7 +92,7 @@ Parameters:
     Type: Number
     Description: 'Maximum autoscaling number of tasks'
 
-  PN_PDF_RASTER_TASK_EXECUTION_POOL_MAX_SIZE:
+  PnPdfRasterTaskExecutionPoolMaxSize:
     Type: String
     Description: 'SpringBoot configuration Task Execution Max Pool Size'
     Default: '250'
@@ -107,7 +107,7 @@ Parameters:
     Description: 'System properties and parameters for the JVM'
     Default: ''
 
-  PN_PDF_RASTER_PARAMETERS:
+  PnPdfRasterParameters:
     Type: String
     Description: 'SSM Parameter'
 
@@ -115,7 +115,7 @@ Parameters:
     Type: String
     Default: "pn-safestorage-staging"
 
-  PN_PDF_RASTER_SQS_MAX_MESSAGES:
+  PnPdfRasterSqsMaxMessages:
     Type: String
     Description: 'Max number of messages to be processed by the raster scheduler'
 
@@ -124,16 +124,16 @@ Parameters:
     Type: String
     Description: 'Ecs log group name'
 
-  PN_PDF_RASTER_MAX_THREAD_POOL_SIZE:
+  PnPdfRasterMaxThreadPoolSize:
     Type: String
     Description: 'Pdf raster max thread pool size'
     Default: '100'
 
-  PN_PDF_RASTER_TRANSFORMATION_QUEUE_NAME:
+  PnPdfRasterTransformationQueueName:
     Type: String
     Description: 'Pdf raster transformation raster queue name'
 
-  PN_PDF_RASTER_MAX_CONNECTIONS_PER_DESTINATION:
+  PnPdfRasterMaxConnectionsPerDestination:
     Type: String
     Description: 'Jetty max connections per destination'
     Default: '2048'
@@ -210,14 +210,14 @@ Resources:
         AlarmSNSTopicArn: !Ref AlarmSNSTopicArn
         ContainerImageURI: !Sub '${ContainerImageUri}'
         ContainerEnvEntry1: !Sub 'AWS_REGIONCODE=${AWS::Region}'
-        ContainerEnvEntry2: !Sub 'PN_PDF_RASTER_TASK_EXECUTION_POOL_MAX_SIZE=${PN_PDF_RASTER_TASK_EXECUTION_POOL_MAX_SIZE}'
-        ContainerEnvEntry3: !Sub 'PN_PDF_RASTER_PARAMETERS=${PN_PDF_RASTER_PARAMETERS}'
-        ContainerEnvEntry4: !Sub 'PN_PDF_RASTER_MAX_THREAD_POOL_SIZE=${PN_PDF_RASTER_MAX_THREAD_POOL_SIZE}'
-        ContainerEnvEntry5: !Sub 'PN_PDF_RASTER_TRANSFORMATION_QUEUE_NAME=${PN_PDF_RASTER_TRANSFORMATION_QUEUE_NAME}'
-        ContainerEnvEntry6: !Sub 'PN_PDF_RASTER_SQS_MAX_MESSAGES=${PN_PDF_RASTER_SQS_MAX_MESSAGES}'
+        ContainerEnvEntry2: !Sub 'PN_PDF_RASTER_TASK_EXECUTION_POOL_MAX_SIZE=${PnPdfRasterTaskExecutionPoolMaxSize}'
+        ContainerEnvEntry3: !Sub 'PN_PDF_RASTER_PARAMETERS=${PnPdfRasterParameters}'
+        ContainerEnvEntry4: !Sub 'PN_PDF_RASTER_MAX_THREAD_POOL_SIZE=${PnPdfRasterMaxThreadPoolSize}'
+        ContainerEnvEntry5: !Sub 'PN_PDF_RASTER_TRANSFORMATION_QUEUE_NAME=${PnPdfRasterTransformationQueueName}'
+        ContainerEnvEntry6: !Sub 'PN_PDF_RASTER_SQS_MAX_MESSAGES=${PnPdfRasterSqsMaxMessages}'
         ContainerEnvEntry7: !Sub 'PN_CRON_ANALYZER=${PnCronAnalyzer}'
         ContainerEnvEntry8: !Sub 'WIRE_TAP_LOG=${WireTapLogActivation}'
-        ContainerEnvEntry9: !Sub 'PN_PDF_RASTER_MAX_CONNECTIONS_PER_DESTINATION=${PN_PDF_RASTER_MAX_CONNECTIONS_PER_DESTINATION}'
+        ContainerEnvEntry9: !Sub 'PN_PDF_RASTER_MAX_CONNECTIONS_PER_DESTINATION=${PnPdfRasterMaxConnectionsPerDestination}'
         MappedPaths: '/PDFRaster/*'
         ECSClusterName: !Ref PdfRasterECSClusterName
         Subnets: !Ref PdfRasterVpcSubnets
@@ -260,7 +260,7 @@ Resources:
             Action:
               - 'ssm:GetParameter'
             Resource:
-              - !Join [ '', [ !Sub 'arn:aws:ssm:${AWS::Region}:${AWS::AccountId}:parameter/', !Ref PN_PDF_RASTER_PARAMETERS]]
+              - !Join [ '', [ !Sub 'arn:aws:ssm:${AWS::Region}:${AWS::AccountId}:parameter/', !Ref PnPdfRasterParameters]]
           - Sid: 'AllowSQSAccess'
             Effect: Allow
             Action:
