@@ -11,6 +11,7 @@ import org.springframework.web.bind.annotation.RestController;
 import static it.pagopa.pn.pdfraster.utils.FontUtils.loadFonts;
 
 @SpringBootApplication
+// APPLICATION
 public class PdfRasterApplication {
 
     public static void main(String[] args) {

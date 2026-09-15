@@ -87,18 +87,21 @@ public class PdfRasterServiceImpl implements PdfRasterService {
 
         log.info("Start processMessage() with fileKey: {}", fileKey);
 
+        //tag dell'oggetto per verificare se è già presente una trasformazione
         return Mono.defer(() -> s3Service.getObjectTagging(fileKey, bucketName))
                 .flatMap(taggingResponse -> {
                     if (taggingResponse.hasTagSet()) {
                         List<Tag> tags = taggingResponse.tagSet();
+                        //verifica se il tag di trasformazione esiste tra i tag
                         boolean hasTransformationTag = tags.stream()
                                 .anyMatch(tag ->
                                         RASTER_TRANSFORMATION_TAG.equals(tag.key()) && TRANSFORMATION_TAG_OK.equalsIgnoreCase(tag.value()));
                         if (hasTransformationTag) {
                             log.warn("File with the same transformation tag already exists, skipping processing.");
-                            return Mono.empty();
+                            return Mono.empty(); //se il file ha il tag si interrompe la trasformazione
                         }
                     }
+                    //se il file non ha il tag di trasformazione continuo con la trasformazione
                     return s3Service.getObject(fileKey, bucketName)
                             .flatMap(response -> convertPdfService.convertPdfToImage(response.asByteArray()))
                             .onErrorResume(throwable -> handleRetryOrError(messageContent, fileKey, bucketName).then(Mono.empty()))
@@ -115,10 +118,12 @@ public class PdfRasterServiceImpl implements PdfRasterService {
         int maxRetry = pnPdfRasterConfig.getMaxTransformationRetry();
         int currentRetry = message.getRetry() != null ? message.getRetry() : 0;
         if (currentRetry < maxRetry) {
+            // retry, messo in coda
             message.setRetry(currentRetry + 1);
             log.info("Republishing message with retry={} for fileKey={}", message.getRetry(), fileKey);
             return sqsService.send(transformationQueue, message).then();
         }
+        // max retry raggiunto: tag ERROR
         log.error("Max retry for fileKey={} : tagging file with ERROR", fileKey);
         return s3Service.putObjectTagging(fileKey, bucketName, buildTransformationTagging(RASTER, TRANSFORMATION_TAG_ERROR)).then();
     }
