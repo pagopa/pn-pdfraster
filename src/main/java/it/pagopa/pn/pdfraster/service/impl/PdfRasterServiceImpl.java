@@ -4,7 +4,7 @@ import it.pagopa.pn.commons.utils.MDCUtils;
 import it.pagopa.pn.pdfraster.configuration.properties.PdfRasterProperties;
 import it.pagopa.pn.pdfraster.exceptions.Generic400ErrorException;
 import it.pagopa.pn.pdfraster.model.pojo.SqsMessageWrapper;
-import it.pagopa.pn.pdfraster.safestorage.generated.openapi.server.v1.dto.TransformationMessage;
+import it.pagopa.pn.pdfraster.generated.openapi.msclient.safestorage.model.TransformationMessage;
 import it.pagopa.pn.pdfraster.service.ConvertPdfService;
 import it.pagopa.pn.pdfraster.service.PdfRasterService;
 import it.pagopa.pn.pdfraster.service.SqsService;
