@@ -40,7 +40,7 @@ public class PdfRasterApiController implements PdfRasterApi {
                 .flatMap(pdfRasterService::convertPdf)
                 .reduce((b, b2) -> new ByteArrayResource(ArrayUtils.addAll(b.getByteArray(),b2.getByteArray())))
                 .doOnSuccess(byteArrayResource -> log.logEndingProcess(CONVERT_PDF))
-                .doOnError(throwable -> log.logEndingProcess(CONVERT_PDF,false,throwable.getMessage()))
+                .doOnError(throwable -> log.logEndingProcess(CONVERT_PDF,false,throwable.getMessage(),throwable))
                 .map(ResponseEntity::ok);
     }
 
