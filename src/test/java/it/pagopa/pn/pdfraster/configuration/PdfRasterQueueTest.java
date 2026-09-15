@@ -17,7 +17,7 @@ import static org.junit.jupiter.api.Assertions.*;
 @DirtiesContext
 class PdfRasterQueueTest {
 
-    @Value("${sqs.queue.transformation-raster-queue-name}")
+    @Value("${pn.pdfraster.sqs.transformation-queue-name}")
     private String transformationRasterQueueName;
 
     @Test

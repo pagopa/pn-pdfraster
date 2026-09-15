@@ -1,12 +1,12 @@
 package it.pagopa.pn.pdfraster.configuration.aws;
 
 
+import it.pagopa.pn.pdfraster.configuration.properties.PnPdfRasterConfig;
 import it.pagopa.pn.pdfraster.model.pojo.PdfTransformationConfigParams;
 import it.pagopa.pn.pdfraster.model.pojo.TransformationEnum;
 import it.pagopa.pn.pdfraster.utils.JsonUtils;
 import lombok.CustomLog;
 import lombok.Getter;
-import org.springframework.beans.factory.annotation.Value;
 import org.springframework.context.annotation.Configuration;
 import software.amazon.awssdk.services.ssm.SsmClient;
 import software.amazon.awssdk.services.ssm.model.*;
@@ -33,10 +33,10 @@ public class PdfTransformationConfiguration {
     private final List<TransformationEnum> transformationsList;
 
 
-    public PdfTransformationConfiguration(SsmClient ssmClient, JsonUtils jsonUtils, @Value("${pn.pdfraster.parameter.name}") String pdfRasterParameterName, List<String> transformations) {
+    public PdfTransformationConfiguration(SsmClient ssmClient, JsonUtils jsonUtils, PnPdfRasterConfig config, List<String> transformations) {
         this.ssmClient = ssmClient;
         this.jsonUtils = jsonUtils;
-        this.pdfRasterParameterName = pdfRasterParameterName;
+        this.pdfRasterParameterName = config.getParameterName();
         this.pdfTransformationConfigParams = this.pdfTransformationConfigurationFromParameterStore();
         this.transformationsList = parseTransformations(pdfTransformationConfigParams.getTransformationsList());
     }
