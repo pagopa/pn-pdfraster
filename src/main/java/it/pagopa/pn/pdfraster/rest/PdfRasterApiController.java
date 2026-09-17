@@ -18,7 +18,6 @@ import reactor.core.publisher.Mono;
 
 import java.nio.ByteBuffer;
 
-import static it.pagopa.pn.pdfraster.utils.LogUtils.CONVERT_PDF;
 import static it.pagopa.pn.pdfraster.utils.LogUtils.INVALID_REQUEST;
 
 @RestController
@@ -33,14 +32,11 @@ public class PdfRasterApiController implements PdfRasterApi {
 
     @Override
     public Mono<ResponseEntity<Resource>> convertPdf(Part file, final ServerWebExchange exchange) {
-        log.logStartingProcess(CONVERT_PDF);
         return getDataBuffer(file)
                 .map(DataBuffer::asByteBuffer)
                 .map(ByteBuffer::array)
                 .flatMap(pdfRasterService::convertPdf)
                 .reduce((b, b2) -> new ByteArrayResource(ArrayUtils.addAll(b.getByteArray(),b2.getByteArray())))
-                .doOnSuccess(byteArrayResource -> log.logEndingProcess(CONVERT_PDF))
-                .doOnError(throwable -> log.logEndingProcess(CONVERT_PDF,false,throwable.getMessage(),throwable))
                 .map(ResponseEntity::ok);
     }
 
