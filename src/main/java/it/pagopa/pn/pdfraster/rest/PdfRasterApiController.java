@@ -1,7 +1,7 @@
 package it.pagopa.pn.pdfraster.rest;
 
 import it.pagopa.pn.pdfraster.exceptions.Generic400ErrorException;
-import it.pagopa.pn.pdfraster.pdfraster.rest.v1.api.PdfRasterApi;
+import it.pagopa.pn.pdfraster.generated.openapi.server.v1.api.PdfRasterApi;
 import it.pagopa.pn.pdfraster.service.PdfRasterService;
 import lombok.CustomLog;
 import org.apache.commons.lang3.ArrayUtils;
