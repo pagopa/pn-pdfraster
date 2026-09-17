@@ -188,8 +188,6 @@
 				<configuration>
 					<excludes>
 						<exclude>**/generated/**</exclude>
-						<exclude>**it/pagopa/pn/pdfraster/rest/v1/**</exclude>
-						<exclude>**it/pagopa/pn/ss/rest/v1/**</exclude>
 					</excludes>
 				</configuration>
 			</plugin>
@@ -222,21 +220,21 @@
 								<reactive>true</reactive>
 								<skipDefaultInterface>false</skipDefaultInterface>
 								<useTags>true</useTags>
-								<basePackage>${project.groupId}.pdfraster.rest.v1</basePackage>
-								<modelPackage>${project.groupId}.pdfraster.rest.v1.dto</modelPackage>
-								<apiPackage>${project.groupId}.pdfraster.rest.v1.api</apiPackage>
-								<configPackage>${project.groupId}.pdfraster.rest.v1.config</configPackage>
+								<basePackage>it.pagopa.pn.pdfraster.generated.openapi.server.v1</basePackage>
+								<modelPackage>it.pagopa.pn.pdfraster.generated.openapi.server.v1.dto</modelPackage>
+								<apiPackage>it.pagopa.pn.pdfraster.generated.openapi.server.v1.api</apiPackage>
+								<configPackage>it.pagopa.pn.pdfraster.generated.openapi.server.v1.config</configPackage>
 							</configOptions>
 						</configuration>
 					</execution>
 					<execution>
-						<id>generate-mandate-server</id>
+						<id>generate-safestorage-transformation-model</id>
 						<goals>
 							<goal>generate</goal>
 						</goals>
 						<phase>generate-sources</phase>
 						<configuration>
-							<inputSpec>https://raw.githubusercontent.com/pagopa/pn-ss/develop/docs/openapi/pn-transformation-template.yaml</inputSpec>
+							<inputSpec>https://raw.githubusercontent.com/pagopa/pn-ss/837b1628a4128276ea2830f89576558f6ff6d4c5/docs/openapi/pn-transformation-template.yaml</inputSpec>
 							<generatorName>java</generatorName>
 							<library>resttemplate</library>
 							<generateApiTests>false</generateApiTests>
@@ -244,7 +242,7 @@
 							<configOptions>
 								<useSpringBoot3>true</useSpringBoot3>
 								<useJakartaEe>true</useJakartaEe>
-								<modelPackage>${project.groupId}.safestorage.generated.openapi.server.v1.dto</modelPackage>
+								<modelPackage>it.pagopa.pn.pdfraster.generated.openapi.msclient.safestorage.model</modelPackage>
 								<dateLibrary>java17</dateLibrary>
 								<annotationLibrary>none</annotationLibrary>
 								<documentationProvider>source</documentationProvider>
@@ -255,7 +253,7 @@
 									@com.fasterxml.jackson.annotation.JsonInclude(com.fasterxml.jackson.annotation.JsonInclude.Include.NON_NULL)
 								</additionalModelTypeAnnotations>
 							</configOptions>
-							<modelPackage>${project.groupId}.safestorage.generated.openapi.server.v1.dto</modelPackage>
+							<modelPackage>it.pagopa.pn.pdfraster.generated.openapi.msclient.safestorage.model</modelPackage>
 						</configuration>
 					</execution>
 				</executions>
