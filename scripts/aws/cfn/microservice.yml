@@ -191,6 +191,10 @@ Parameters:
     Default: '-'
     Description: Cron for which you send the metric to CloudWatch
 
+  CpuArchitecture:
+    Type: String
+    Default: 'ARM'
+    Description: CPU architecture for the Fargate tasks
 
 Resources:
 
@@ -229,6 +233,7 @@ Resources:
         MinTasksNumber: !Ref MinTasksNumber
         MaxTasksNumber: !Ref MaxTasksNumber
         JavaToolOptions: !Ref JavaToolOptions
+        CpuArchitecture: !Ref CpuArchitecture
         HealthCheckTimeout: 15
         HealthCheckInterval: 120
         EfsFilesystem: !Ref FargateEFSFileSystemID
