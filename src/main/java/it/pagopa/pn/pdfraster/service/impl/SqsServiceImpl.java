@@ -1,7 +1,7 @@
 package it.pagopa.pn.pdfraster.service.impl;
 
 import it.pagopa.pn.commons.utils.MDCUtils;
-import it.pagopa.pn.pdfraster.configuration.properties.PdfRasterProperties;
+import it.pagopa.pn.pdfraster.configuration.properties.PnPdfRasterConfig;
 import it.pagopa.pn.pdfraster.exceptions.SqsClientException;
 import it.pagopa.pn.pdfraster.model.pojo.SqsMessageWrapper;
 import it.pagopa.pn.pdfraster.service.SqsService;
@@ -29,10 +29,10 @@ public class SqsServiceImpl implements SqsService {
     private final JsonUtils jsonUtils;
     private final RetryBackoffSpec sqsRetryStrategy;
 
-    public SqsServiceImpl(SqsAsyncClient sqsAsyncClient, JsonUtils jsonUtils, PdfRasterProperties properties) {
+    public SqsServiceImpl(SqsAsyncClient sqsAsyncClient, JsonUtils jsonUtils, PnPdfRasterConfig config) {
         this.sqsAsyncClient = sqsAsyncClient;
         this.jsonUtils = jsonUtils;
-        this.sqsRetryStrategy = Retry.backoff(properties.getSqs().getRetryStrategy().getMaxAttempts(), Duration.ofSeconds(properties.getSqs().getRetryStrategy().getMinBackoff()))
+        this.sqsRetryStrategy = Retry.backoff(config.getSqs().getRetryStrategy().getMaxAttempts(), Duration.ofSeconds(config.getSqs().getRetryStrategy().getMinBackoff()))
                 .filter(SqsException.class::isInstance)
                 .onRetryExhaustedThrow((retryBackoffSpec, retrySignal) -> retrySignal.failure());
     }

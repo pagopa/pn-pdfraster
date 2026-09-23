@@ -1,6 +1,7 @@
 package it.pagopa.pn.pdfraster.service.impl;
 
 import it.pagopa.pn.pdfraster.configuration.aws.PdfTransformationConfiguration;
+import it.pagopa.pn.pdfraster.configuration.properties.PnPdfRasterConfig;
 import it.pagopa.pn.pdfraster.exceptions.Generic500ErrorException;
 import it.pagopa.pn.pdfraster.model.pojo.MediaSizeWrapper;
 import it.pagopa.pn.pdfraster.model.pojo.PdfTransformationConfigParams;
@@ -19,7 +20,6 @@ import org.apache.pdfbox.rendering.ImageType;
 import org.apache.pdfbox.rendering.PDFRenderer;
 import org.apache.pdfbox.tools.imageio.ImageIOUtil;
 import org.jetbrains.annotations.NotNull;
-import org.springframework.beans.factory.annotation.Value;
 import org.springframework.stereotype.Service;
 import picocli.CommandLine.Command;
 import reactor.core.publisher.Flux;
@@ -50,8 +50,8 @@ public class ConvertPdfServiceImpl implements ConvertPdfService {
     private final Semaphore semaphore;
 
 
-    public ConvertPdfServiceImpl(PdfTransformationConfiguration pdfTransformationConfiguration, @Value(value = "${pn.pdfraster.max-thread-pool-size}") Integer maxPoolSize){
-        this.semaphore = new Semaphore(maxPoolSize);
+    public ConvertPdfServiceImpl(PdfTransformationConfiguration pdfTransformationConfiguration, PnPdfRasterConfig pnPdfRasterConfig){
+        this.semaphore = new Semaphore(pnPdfRasterConfig.getMaxThreadPoolSize());
         PdfTransformationConfigParams params = pdfTransformationConfiguration.getPdfTransformationConfigParams();
         this.cropbox = Arrays.stream(params.getCropbox().split(",")).map(a -> Integer.parseInt(a.trim())).toArray(Integer[]::new);
         this.dpi = (int)params.getDpi();

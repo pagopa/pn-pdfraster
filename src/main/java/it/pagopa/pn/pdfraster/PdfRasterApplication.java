@@ -2,7 +2,6 @@ package it.pagopa.pn.pdfraster;
 
 import org.springframework.boot.SpringApplication;
 import org.springframework.boot.autoconfigure.SpringBootApplication;
-import org.springframework.context.annotation.PropertySource;
 import it.pagopa.pn.commons.configs.listeners.TaskIdApplicationListener;
 import org.springframework.http.HttpStatus;
 import org.springframework.web.bind.annotation.GetMapping;
@@ -13,7 +12,6 @@ import static it.pagopa.pn.pdfraster.utils.FontUtils.loadFonts;
 
 @SpringBootApplication
 // APPLICATION
-@PropertySource("classpath:commons/pdfraster.properties")
 public class PdfRasterApplication {
 
     public static void main(String[] args) {
