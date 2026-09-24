@@ -171,7 +171,7 @@ Parameters:
     Type: String
 
   # EFS parameters
-  FargateEFSFileSystemID:
+  PdfRasterFargateEFSFileSystemID:
     Type: String
     Description: "EFS Filesystem"
 
@@ -242,7 +242,7 @@ Resources:
         CpuArchitecture: !Ref CpuArchitecture
         HealthCheckTimeout: 15
         HealthCheckInterval: 120
-        EfsFilesystem: !Ref FargateEFSFileSystemID
+        EfsFilesystem: !Ref PdfRasterFargateEFSFileSystemID
         MountEfs: !Ref MountEfs
 
 
