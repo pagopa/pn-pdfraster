@@ -61,4 +61,12 @@ public abstract class TestUtils {
             throw new RuntimeException(e);
         }
     }
+
+    public static byte[] getFileJpeg2000FromResources() {
+        try (var in = new FileInputStream("src/test/resources/TEST_JPEG2000.pdf")){
+            return IOUtils.toByteArray(in);
+        } catch (IOException e) {
+            throw new RuntimeException(e);
+        }
+    }
 }
