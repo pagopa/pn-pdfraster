@@ -47,10 +47,6 @@ Parameters:
     Type: String
     Description: "Application load balancer security group"
 
-  PdfRasterDefaultSecurityGroup:
-    Type: String
-    Description: 'Default security group required by infrastructure'
-
   PdfRasterApplicationLoadBalancerListenerArn:
     Type: String
     Description: 'Load balancer listener where HTTP endpoints is going to be registered'
@@ -227,7 +223,7 @@ Resources:
         Subnets: !Ref PdfRasterVpcSubnets
         VpcId: !Ref PdfRasterVpcId
         AlbSecurityGroup: !Ref PdfRasterWebappSecurityGroupId
-        EcsDefaultSecurityGroup: !Ref PdfRasterDefaultSecurityGroup
+        EcsDefaultSecurityGroup: ''
         LoadBalancerListenerArn: !Ref PdfRasterApplicationLoadBalancerListenerArn
         LoadbalancerRulePriority: !Ref MicroserviceNumber
         CloudwatchLogKinesisStreamArn: !Ref LogsKinesisSourceStreamArn
