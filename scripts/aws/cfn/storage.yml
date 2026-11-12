@@ -41,6 +41,11 @@ Parameters:
     Default: 1
     Description: 'Max number of messages that can be sent to the DLQ before raising an alarm for the pn-ss-transformation-raster-queue'
 
+  PnSsTransformationRasterVisibilityTimeout:
+    Type: Number
+    Default: 300
+    Description: 'Visibility timeout for the pn-ss-transformation-raster-queue'
+
 Resources:
 
   EcsLogGroup:
@@ -68,7 +73,7 @@ Resources:
         MaxReceiveCount: 10
         QueueHasAlarm: 'false'
         AlarmSNSTopicName: !Ref AlarmSNSTopicName
-        VisibilityTimeout: 60
+        VisibilityTimeout: !Ref PnSsTransformationRasterVisibilityTimeout
         MessageDLQThreshold: !Ref PnSsTransformationRasterDLQThreshold
 
   # Policy to add permissions on raster transformation queue to pn-ss microservice.
